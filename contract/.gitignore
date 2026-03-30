@@ -6,4 +6,4 @@ target
 .stellar
 
 # Test snapshots - auto-generated, not source code
-contracts/arya_fund/test_snapshots/
+**/test_snapshots/
