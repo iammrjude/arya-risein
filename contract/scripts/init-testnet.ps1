@@ -6,6 +6,21 @@ function Require-Env($Name) {
     }
 }
 
+function Get-StellarCli() {
+    $command = Get-Command stellar -ErrorAction SilentlyContinue
+    if ($command) {
+        return $command.Source
+    }
+
+    $cargoHome = if ($env:CARGO_HOME) { $env:CARGO_HOME } else { Join-Path $HOME ".cargo" }
+    $fallback = Join-Path $cargoHome "bin/stellar"
+    if (Test-Path -LiteralPath $fallback) {
+        return $fallback
+    }
+
+    throw "Unable to find the 'stellar' CLI. Install stellar-cli or add it to PATH."
+}
+
 Require-Env "STELLAR_ACCOUNT"
 Require-Env "STELLAR_RPC_URL"
 Require-Env "STELLAR_NETWORK_PASSPHRASE"
@@ -22,12 +37,13 @@ $root = Join-Path $PSScriptRoot ".."
 $registryConfigPath = $null
 Push-Location $root
 try {
+    $stellarCli = Get-StellarCli
     $networkArgs = @("--rpc-url", $env:STELLAR_RPC_URL, "--network-passphrase", $env:STELLAR_NETWORK_PASSPHRASE)
     $sourceArgs = @("--source-account", $env:STELLAR_ACCOUNT)
     $xlmSac = if ($env:ARYA_XLM_SAC_ID) {
         $env:ARYA_XLM_SAC_ID
     } else {
-        stellar contract id asset --asset native @networkArgs
+        & $stellarCli contract id asset --asset native @networkArgs
     }
 
     $registryConfigPath = Join-Path ([System.IO.Path]::GetTempPath()) "arya-registry-config.json"
@@ -44,11 +60,11 @@ try {
 }
 "@ | Set-Content -LiteralPath $registryConfigPath -Encoding UTF8
 
-    stellar contract invoke @sourceArgs @networkArgs --id $env:ARYA_REGISTRY_ID -- `
+    & $stellarCli contract invoke @sourceArgs @networkArgs --id $env:ARYA_REGISTRY_ID -- `
       initialize `
       --config-file-path $registryConfigPath
 
-    stellar contract invoke @sourceArgs @networkArgs --id $env:ARYA_STAKING_ID -- `
+    & $stellarCli contract invoke @sourceArgs @networkArgs --id $env:ARYA_STAKING_ID -- `
       initialize `
       --owner $env:ARYA_PLATFORM_OWNER `
       --stake-token $env:ARYA_TOKEN_SAC_ID `
@@ -56,7 +72,7 @@ try {
       --usdc-reward-token $env:ARYA_USDC_SAC_ID `
       --min-lockup-days 7
 
-    stellar contract invoke @sourceArgs @networkArgs --id $env:ARYA_CROWDFUNDING_ID -- `
+    & $stellarCli contract invoke @sourceArgs @networkArgs --id $env:ARYA_CROWDFUNDING_ID -- `
       initialize `
       --owner $env:ARYA_PLATFORM_OWNER `
       --treasury-wallet $env:ARYA_TREASURY `
@@ -67,7 +83,7 @@ try {
       --staking-share-basis-points 5000 `
       --action-window-days 7
 
-    stellar contract invoke @sourceArgs @networkArgs --id $env:ARYA_LAUNCHPAD_ID -- `
+    & $stellarCli contract invoke @sourceArgs @networkArgs --id $env:ARYA_LAUNCHPAD_ID -- `
       initialize `
       --owner $env:ARYA_PLATFORM_OWNER `
       --treasury-wallet $env:ARYA_TREASURY `
