@@ -168,7 +168,7 @@ arya-risein/
 
 ## Tech Stack
 
-### Contract Workspace
+### Smart Contract Stack
 
 - Rust 2024 edition
 - Soroban SDK `25.3.0`
@@ -187,7 +187,7 @@ arya-risein/
 
 ## Local Development
 
-### Contract Workspace
+### Contract Commands
 
 ```bash
 cd contract
