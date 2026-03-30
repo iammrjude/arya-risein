@@ -100,6 +100,15 @@ npm run dev
 
 Opens at `http://localhost:5173`
 
+### Docs and operations
+
+Before large changes, review:
+
+- `docs/ARCHITECTURE.md`
+- `docs/DEPLOYMENT.md`
+- `docs/UPGRADES.md`
+- `docs/MIGRATIONS.md`
+
 ---
 
 ## How to Contribute
@@ -130,6 +139,7 @@ All tests must pass before submitting.
 
 ```bash
 cd frontend
+npm run lint
 npm run build
 ```
 
