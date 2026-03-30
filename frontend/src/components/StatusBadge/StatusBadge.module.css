@@ -1,0 +1,33 @@
+.badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.active {
+  background: rgba(0, 229, 160, 0.1);
+  color: var(--success);
+  border: 1px solid rgba(0, 229, 160, 0.3);
+}
+
+.goal-met {
+  background: rgba(255, 184, 48, 0.08);
+  color: var(--xlm-gold);
+  border: 1px solid rgba(255, 184, 48, 0.4);
+}
+
+.successful {
+  background: rgba(124, 106, 255, 0.1);
+  color: var(--accent-bright);
+  border: 1px solid rgba(124, 106, 255, 0.3);
+}
+
+.failed {
+  background: rgba(255, 77, 109, 0.1);
+  color: var(--error);
+  border: 1px solid rgba(255, 77, 109, 0.3);
+}

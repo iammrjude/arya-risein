@@ -1,0 +1,21 @@
+# Deployment notes - info captured in README
+deployment.txt
+
+# Rust build artifacts
+contract/target/
+**/*.pdb
+**/*.rlib
+**/*.rmeta
+**/*.d
+**/*.dll
+**/*.dll.exp
+**/*.dll.lib
+**/*.exe
+
+# Frontend artifacts
+frontend/node_modules/
+frontend/dist/
+
+# Editor / OS
+.DS_Store
+Thumbs.db

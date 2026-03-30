@@ -1,0 +1,23 @@
+.footer {
+  padding: 20px 32px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+}
+
+.dot {
+  color: var(--border);
+}
+
+.link {
+  color: var(--accent);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.link:hover { opacity: 0.7; }

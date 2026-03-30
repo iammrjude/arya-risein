@@ -1,0 +1,60 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.track {
+  position: relative;
+  height: 6px;
+  background: var(--bg-raised);
+  border-radius: 99px;
+  overflow: visible;
+}
+
+.fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+  transition: width 0.6s ease;
+}
+
+.fill70 {
+  background: linear-gradient(90deg, var(--accent), var(--success));
+}
+
+.marker70 {
+  position: absolute;
+  left: 70%;
+  top: -3px;
+  width: 2px;
+  height: 12px;
+  background: var(--warning);
+  border-radius: 1px;
+  opacity: 0.6;
+}
+
+.labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.raised {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.percent {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent-bright);
+  font-weight: 500;
+}
+
+.goal {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+}
