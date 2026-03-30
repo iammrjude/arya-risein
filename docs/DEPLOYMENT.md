@@ -11,6 +11,8 @@ This guide covers the full Arya testnet deployment flow.
 - ARYA token/SAC available
 - USDC SAC available for your test setup
 
+Git Bash is recommended for local command-line work. PowerShell remains available as a Windows fallback for the helper scripts.
+
 Install the target:
 
 ```bash
@@ -63,9 +65,10 @@ cd contract
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo test --workspace
+bash scripts/build-all.sh
 ```
 
-Build the Wasm packages:
+Windows fallback:
 
 ```powershell
 C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File scripts/build-all.ps1
@@ -159,3 +162,20 @@ After deployment, save:
 - screenshots
 
 Those values belong in the root README and submission materials.
+
+## GitHub Actions Setup
+
+Before CI/CD can work on GitHub:
+
+1. open the repository on GitHub
+2. go to `Settings -> Actions -> General`
+3. ensure GitHub Actions is enabled
+4. go to `Settings -> Secrets and variables -> Actions`
+5. add:
+   - secret: `STELLAR_ACCOUNT`
+   - variables: `STELLAR_RPC_URL`, `STELLAR_NETWORK_PASSPHRASE`, `ARYA_PLATFORM_OWNER`, `ARYA_TREASURY`, `ARYA_TOKEN_SAC_ID`, `ARYA_USDC_SAC_ID`
+6. after first deploy, add:
+   - `ARYA_REGISTRY_ID`
+   - `ARYA_STAKING_ID`
+   - `ARYA_CROWDFUNDING_ID`
+   - `ARYA_LAUNCHPAD_ID`

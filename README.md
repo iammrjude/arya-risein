@@ -227,6 +227,10 @@ npm run dev
 
 ## CI/CD
 
+CI means `Continuous Integration`: every push or pull request runs automated checks so broken code is caught early.
+
+CD means `Continuous Deployment` or `Continuous Delivery`: after validation passes, the deployment workflow can publish or upgrade the contracts on testnet.
+
 GitHub Actions workflows:
 
 - [ci.yml](.github/workflows/ci.yml)
@@ -235,6 +239,40 @@ GitHub Actions workflows:
   Automatically deploys on the first run and upgrades on later runs when stored contract ID variables are present.
 
 Add a badge or screenshot here after the first passing run.
+
+### Can I Use Git Bash Instead of PowerShell?
+
+Yes. For day-to-day development, Git Bash is a good default shell and matches the Linux-based GitHub Actions runners more closely.
+
+Recommended Git Bash contract commands:
+
+```bash
+cd contract
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets --all-features -- -D warnings
+cargo test --workspace
+bash scripts/build-all.sh
+```
+
+PowerShell helper scripts are still kept in the repo as a Windows-friendly fallback for local deployment flows.
+
+### What You Need To Configure On GitHub
+
+Yes, you do need some repository setup on GitHub before CI/CD can work properly.
+
+Required repository setup:
+
+1. push this repo to GitHub
+2. open `Settings -> Actions -> General`
+3. make sure GitHub Actions is enabled for the repository
+4. open `Settings -> Secrets and variables -> Actions`
+5. add the required secret and variables listed below
+
+Recommended but optional:
+
+- protect `main` and require the `CI` workflow before merge
+- keep deployment only on `main`
+- leave testnet deploy variables empty until the first deployment run
 
 ### GitHub Actions Variables
 
@@ -284,6 +322,22 @@ Important notes:
 - use GitHub Actions `Variables` for public addresses, contract IDs, RPC URLs, and passphrases
 - on the first workflow run, leave the contract ID variables empty so the workflow performs a fresh deploy
 - after the first deploy succeeds, copy the printed contract IDs into the four GitHub repository variables above so future runs automatically use the upgrade path
+
+### Frontend Deployment And CI/CD
+
+You do not need GitHub Actions to deploy the frontend to Vercel.
+
+Recommended setup:
+
+1. import the GitHub repo into Vercel
+2. point Vercel at the `frontend/` app
+3. add the `VITE_*` environment variables in Vercel
+4. let Vercel handle frontend deployments on push
+
+So in this project:
+
+- GitHub Actions handles validation and testnet contract deployment
+- Vercel can handle frontend deployment independently
 
 ## Submission Checklist
 

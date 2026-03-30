@@ -53,6 +53,8 @@ Add screenshots after running the flows below.
 - PowerShell for the helper scripts
 - Bash for the GitHub Actions deploy/build scripts
 
+Git Bash is a good default shell for local work too, especially for the bash scripts in `contract/scripts/`.
+
 Install the Wasm target:
 
 ```bash
@@ -131,6 +133,12 @@ Build deployable Wasm files locally:
 
 ```powershell
 C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File scripts/build-all.ps1
+```
+
+Equivalent Git Bash command:
+
+```bash
+bash scripts/build-all.sh
 ```
 
 This builds:
@@ -265,6 +273,10 @@ Go to:
 
 `Settings -> Secrets and variables -> Actions`
 
+Also make sure Actions is enabled in:
+
+`Settings -> Actions -> General`
+
 Create this GitHub Actions secret:
 
 - `STELLAR_ACCOUNT`
@@ -302,6 +314,11 @@ Notes:
 - the workflow now uses bash on GitHub Actions for build/deploy reliability
 - if `ARYA_REGISTRY_ID` is empty, the workflow performs a first-time deploy and prints the new contract IDs
 - once you copy those IDs into the repository variables, later runs automatically take the upgrade path
+
+In plain English:
+
+- `CI` means every push is validated automatically
+- `CD` means the deploy workflow can publish or upgrade contracts after validation passes
 
 ## Upgrade Flow
 

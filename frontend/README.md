@@ -141,4 +141,11 @@ You said you will deploy on Vercel. Recommended flow:
 4. copy the live URL into the root README
 5. capture screenshots for the submission checklist
 
+You do not need GitHub Actions to deploy the frontend to Vercel.
+
+Recommended split of responsibilities:
+
+- GitHub Actions: lint, test, build, contract validation, contract deployment workflow
+- Vercel: frontend hosting and frontend preview/production deploys
+
 See [../docs/FRONTEND_CONFIGURATION.md](../docs/FRONTEND_CONFIGURATION.md) for contract env details.
