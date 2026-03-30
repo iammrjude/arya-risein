@@ -76,6 +76,7 @@ Add screenshots in the `screenshots/` folder and replace the placeholder filenam
 - Real-time frontend event syncing through Soroban RPC event polling
 - Mobile-first responsive navigation
 - CI/CD with Rust and frontend validation
+- Frontend smoke tests with Vitest and Testing Library
 - Error reporting hook in the frontend
 - Wasm build verification for deployable contracts
 
@@ -83,41 +84,43 @@ Add screenshots in the `screenshots/` folder and replace the placeholder filenam
 
 ```text
 arya-risein/
-├── contract/
-│   ├── contracts/
-│   │   ├── arya_fund/           # legacy baseline contract kept for migration context
-│   │   ├── arya_registry/       # shared address registry and config
-│   │   ├── arya_staking/        # ARYA staking with XLM and USDC reward pools
-│   │   ├── arya_crowdfunding/   # single-asset campaigns + staking fee split
-│   │   └── arya_launchpad/      # single-asset sales + staking fee split
-│   ├── scripts/
-│   │   ├── build-all.ps1
-│   │   ├── deploy-testnet.ps1
-│   │   ├── init-testnet.ps1
-│   │   └── upgrade-testnet.ps1
-│   └── README.md
-├── docs/
-│   ├── ARCHITECTURE.md
-│   ├── DEPLOYMENT.md
-│   ├── UPGRADES.md
-│   ├── MIGRATIONS.md
-│   ├── TESTNET_SETUP.md
-│   ├── FRONTEND_CONFIGURATION.md
-│   ├── FEE_FLOW.md
-│   ├── STAKING_DESIGN.md
-│   ├── LAUNCHPAD_DESIGN.md
-│   └── SECURITY_MODEL.md
-├── frontend/
-│   ├── src/
-│   │   ├── app/
-│   │   ├── components/
-│   │   ├── contract/
-│   │   ├── hooks/
-│   │   ├── modules/
-│   │   └── lib/
-│   └── README.md
-├── screenshots/
-└── CONTRIBUTING.md
+|-- contract/
+|   |-- contracts/
+|   |   |-- arya_fund/           # legacy baseline contract kept for migration context
+|   |   |-- arya_registry/       # shared address registry and config
+|   |   |-- arya_staking/        # ARYA staking with XLM and USDC reward pools
+|   |   |-- arya_crowdfunding/   # single-asset campaigns + staking fee split
+|   |   `-- arya_launchpad/      # single-asset sales + staking fee split
+|   |-- scripts/
+|   |   |-- build-all.ps1
+|   |   |-- build-all.sh
+|   |   |-- deploy-testnet.ps1
+|   |   |-- deploy-or-upgrade-testnet.sh
+|   |   |-- init-testnet.ps1
+|   |   `-- upgrade-testnet.ps1
+|   `-- README.md
+|-- docs/
+|   |-- ARCHITECTURE.md
+|   |-- DEPLOYMENT.md
+|   |-- UPGRADES.md
+|   |-- MIGRATIONS.md
+|   |-- TESTNET_SETUP.md
+|   |-- FRONTEND_CONFIGURATION.md
+|   |-- FEE_FLOW.md
+|   |-- STAKING_DESIGN.md
+|   |-- LAUNCHPAD_DESIGN.md
+|   `-- SECURITY_MODEL.md
+|-- frontend/
+|   |-- src/
+|   |   |-- app/
+|   |   |-- components/
+|   |   |-- contract/
+|   |   |-- hooks/
+|   |   |-- modules/
+|   |   `-- lib/
+|   `-- README.md
+|-- screenshots/
+`-- CONTRIBUTING.md
 ```
 
 ## Contracts
@@ -167,9 +170,9 @@ arya-risein/
 
 ### Contract Workspace
 
-- Rust
-- Soroban SDK `25`
-- Stellar CLI `25.1.0`
+- Rust 2024 edition
+- Soroban SDK `25.3.0`
+- Stellar CLI GitHub Action `stellar/stellar-cli@v23.3.0`
 - `wasm32v1-none`
 
 ### Frontend
@@ -177,22 +180,24 @@ arya-risein/
 - React `19`
 - React Router `7`
 - Vite `7`
+- Vitest + Testing Library
 - `@stellar/stellar-sdk`
 - `@creit-tech/stellar-wallets-kit`
 - CSS Modules
 
 ## Local Development
 
-### Smart Contracts
+### Contract Workspace
 
 ```bash
 cd contract
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo test --workspace
+bash scripts/build-all.sh
 ```
 
-Build deployable Wasm:
+Build deployable Wasm with the Windows helper:
 
 ```powershell
 C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File scripts/build-all.ps1
@@ -204,6 +209,7 @@ C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypas
 cd frontend
 npm ci
 npm run lint
+npm run test
 npm run build
 npm run dev
 ```
@@ -224,9 +230,9 @@ npm run dev
 GitHub Actions workflows:
 
 - [ci.yml](.github/workflows/ci.yml)
-  Runs Rust format, clippy, tests, Wasm builds, and frontend lint/build.
+  Runs Rust format, clippy, tests, Wasm builds, and frontend lint/test/build.
 - [testnet-deploy.yml](.github/workflows/testnet-deploy.yml)
-  Supports testnet deploy or upgrade when secrets are configured.
+  Automatically deploys on the first run and upgrades on later runs when stored contract ID variables are present.
 
 Add a badge or screenshot here after the first passing run.
 
@@ -257,29 +263,27 @@ GitHub Actions Variables:
   The public Stellar address `G...` that should own the Arya contracts.
 - `ARYA_TREASURY`
   The treasury public Stellar address `G...`.
+- `ARYA_TOKEN_SAC_ID`
+  The ARYA token Stellar Asset Contract ID `C...`.
 - `ARYA_USDC_SAC_ID`
   The USDC Stellar Asset Contract ID `C...` used on your testnet setup.
-
-Needed only for `upgrade` mode as variables:
-
-- `ARYA_EXISTING_REGISTRY_ID`
-- `ARYA_EXISTING_STAKING_ID`
-- `ARYA_EXISTING_CROWDFUNDING_ID`
-- `ARYA_EXISTING_LAUNCHPAD_ID`
-
-Recommended additional variable for later operational use:
-
-- `ARYA_TOKEN_SAC_ID`
-  Your ARYA token Stellar Asset Contract ID, useful for init/deploy docs and future workflow expansion.
 - `ARYA_XLM_SAC_ID`
-  Optional override for the native XLM SAC if you want to provide it explicitly.
+  Optional explicit native XLM SAC override if you want to provide it instead of letting the scripts derive it.
+
+Used to detect that the suite has already been deployed and should now upgrade:
+
+- `ARYA_REGISTRY_ID`
+- `ARYA_STAKING_ID`
+- `ARYA_CROWDFUNDING_ID`
+- `ARYA_LAUNCHPAD_ID`
 
 Important notes:
 
 - never put secret keys in normal repository variables or commit them to the repo
 - only store signing material in GitHub Actions `Secrets`
 - use GitHub Actions `Variables` for public addresses, contract IDs, RPC URLs, and passphrases
-- the current `testnet-deploy.yml` validates, builds, and then deploys or upgrades contract Wasm; contract initialization is documented separately in the contract README and deployment docs
+- on the first workflow run, leave the contract ID variables empty so the workflow performs a fresh deploy
+- after the first deploy succeeds, copy the printed contract IDs into the four GitHub repository variables above so future runs automatically use the upgrade path
 
 ## Submission Checklist
 
@@ -290,6 +294,7 @@ Important notes:
 - [x] Mobile-responsive frontend
 - [x] Real-time event stream hook
 - [x] CI/CD workflows configured
+- [x] Frontend smoke tests configured
 - [ ] Live demo URL filled in
 - [ ] Screenshots added
 - [ ] Contract addresses added

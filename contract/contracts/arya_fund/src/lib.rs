@@ -1,7 +1,6 @@
 #![no_std]
 use soroban_sdk::{
-    contract, contractimpl, contracttype, /* symbol_short, */
-    Address, Env, String,
+    Address, Env, String, contract, contractimpl, contracttype, /* symbol_short, */
 };
 
 // ===== DATA TYPES =====

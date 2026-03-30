@@ -48,8 +48,10 @@ Add screenshots after running the flows below.
 
 - Rust stable
 - `wasm32v1-none` target
-- Stellar CLI `25.1.0`
+- Soroban SDK `25.3.0`
+- Stellar CLI GitHub Action `stellar/stellar-cli@v23.3.0`
 - PowerShell for the helper scripts
+- Bash for the GitHub Actions deploy/build scripts
 
 Install the Wasm target:
 
@@ -122,9 +124,10 @@ cd contract
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo test --workspace
+bash scripts/build-all.sh
 ```
 
-Build deployable Wasm files:
+Build deployable Wasm files locally:
 
 ```powershell
 C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File scripts/build-all.ps1
@@ -166,7 +169,7 @@ Notes:
 - `ARYA_USDC_SAC_ID` is the USDC Stellar Asset Contract ID for your test setup.
 - If you already know the native XLM SAC, you can also set `ARYA_XLM_SAC_ID`. Otherwise the scripts derive it automatically.
 
-### Step 1: Deploy the Contracts
+### Step 1: Deploy the Contracts Locally
 
 ```powershell
 C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File scripts/deploy-testnet.ps1
@@ -279,24 +282,26 @@ Create these GitHub Actions variables:
   Treasury public address `G...`
 - `ARYA_USDC_SAC_ID`
   Testnet USDC SAC contract ID `C...`
-
-For upgrade mode, also add these variables:
-
-- `ARYA_EXISTING_REGISTRY_ID`
-- `ARYA_EXISTING_STAKING_ID`
-- `ARYA_EXISTING_CROWDFUNDING_ID`
-- `ARYA_EXISTING_LAUNCHPAD_ID`
-
-Recommended extra variable for future workflow extensions:
-
 - `ARYA_TOKEN_SAC_ID`
+  ARYA token Stellar Asset Contract ID `C...`
+- `ARYA_XLM_SAC_ID`
+  Optional native XLM SAC override `C...`
+
+Leave these empty on the very first deploy. After the first deploy succeeds, set them so future runs auto-upgrade:
+
+- `ARYA_REGISTRY_ID`
+- `ARYA_STAKING_ID`
+- `ARYA_CROWDFUNDING_ID`
+- `ARYA_LAUNCHPAD_ID`
 
 Notes:
 
 - do not store secret keys in plain repo variables
 - only store them in GitHub Actions secrets
 - use GitHub Actions variables for non-sensitive config values
-- if you only want CI and not deploys yet, you can leave deploy secrets unset and the deploy job will not run
+- the workflow now uses bash on GitHub Actions for build/deploy reliability
+- if `ARYA_REGISTRY_ID` is empty, the workflow performs a first-time deploy and prints the new contract IDs
+- once you copy those IDs into the repository variables, later runs automatically take the upgrade path
 
 ## Upgrade Flow
 
@@ -308,18 +313,18 @@ When you make a contract change:
 4. verify read functions still work
 5. update frontend config if addresses change
 
-Automated upgrade:
+Automated local upgrade:
 
 ```powershell
 C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File scripts/upgrade-testnet.ps1
 ```
 
-Required environment variables:
+Required environment variables for the local PowerShell upgrade script:
 
-- `ARYA_EXISTING_REGISTRY_ID`
-- `ARYA_EXISTING_STAKING_ID`
-- `ARYA_EXISTING_CROWDFUNDING_ID`
-- `ARYA_EXISTING_LAUNCHPAD_ID`
+- `ARYA_REGISTRY_ID`
+- `ARYA_STAKING_ID`
+- `ARYA_CROWDFUNDING_ID`
+- `ARYA_LAUNCHPAD_ID`
 
 ## Contract Build Commands
 

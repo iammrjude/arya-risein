@@ -35,10 +35,10 @@ try {
     $sourceArgs = @("--source-account", $env:STELLAR_ACCOUNT)
 
     $contracts = @(
-        @{ Name = "arya_registry"; Path = "target/wasm32v1-none/release/arya_registry.wasm"; Id = $env:ARYA_EXISTING_REGISTRY_ID },
-        @{ Name = "arya_staking"; Path = "target/wasm32v1-none/release/arya_staking.wasm"; Id = $env:ARYA_EXISTING_STAKING_ID },
-        @{ Name = "arya_crowdfunding"; Path = "target/wasm32v1-none/release/arya_crowdfunding.wasm"; Id = $env:ARYA_EXISTING_CROWDFUNDING_ID },
-        @{ Name = "arya_launchpad"; Path = "target/wasm32v1-none/release/arya_launchpad.wasm"; Id = $env:ARYA_EXISTING_LAUNCHPAD_ID }
+        @{ Name = "arya_registry"; Path = "target/wasm32v1-none/release/arya_registry.wasm"; Id = $env:ARYA_REGISTRY_ID },
+        @{ Name = "arya_staking"; Path = "target/wasm32v1-none/release/arya_staking.wasm"; Id = $env:ARYA_STAKING_ID },
+        @{ Name = "arya_crowdfunding"; Path = "target/wasm32v1-none/release/arya_crowdfunding.wasm"; Id = $env:ARYA_CROWDFUNDING_ID },
+        @{ Name = "arya_launchpad"; Path = "target/wasm32v1-none/release/arya_launchpad.wasm"; Id = $env:ARYA_LAUNCHPAD_ID }
     )
 
     foreach ($contract in $contracts) {

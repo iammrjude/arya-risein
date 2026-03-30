@@ -63,7 +63,7 @@ Be respectful and constructive. We welcome contributors of all experience levels
 **Prerequisites:**
 
 - Rust `1.84.0+`
-- Stellar CLI `v25.1.0+`
+- Stellar CLI GitHub Action `stellar/stellar-cli@v23.3.0`
 - `wasm32v1-none` target
 
 ```bash

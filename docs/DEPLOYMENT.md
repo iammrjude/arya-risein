@@ -6,7 +6,7 @@ This guide covers the full Arya testnet deployment flow.
 
 - Rust stable installed
 - `wasm32v1-none` target installed
-- Stellar CLI `25.1.0`
+- Stellar CLI GitHub Action `stellar/stellar-cli@v23.3.0`
 - a funded Stellar testnet identity in the CLI
 - ARYA token/SAC available
 - USDC SAC available for your test setup

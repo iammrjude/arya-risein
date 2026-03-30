@@ -61,6 +61,7 @@ Add screenshots after deployment.
 cd frontend
 npm ci
 npm run lint
+npm run test
 npm run build
 npm run dev
 ```
@@ -125,7 +126,7 @@ The app is designed to remain discoverable on small screens:
 ## Production Build Notes
 
 - Vite is pinned to the stable `7.x` line
-- frontend lint and production build pass locally
+- frontend lint, tests, and production build pass locally
 - bundle splitting is configured in `vite.config.js`
 
 Large SDK chunks may still produce a warning because Stellar SDK is sizeable in browser builds, but the build completes successfully.

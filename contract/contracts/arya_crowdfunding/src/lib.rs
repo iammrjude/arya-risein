@@ -1,8 +1,8 @@
 #![no_std]
 #![allow(clippy::too_many_arguments)]
 use soroban_sdk::{
-    contract, contractclient, contractevent, contractimpl, contracttype, Address, BytesN, Env,
-    String,
+    Address, BytesN, Env, String, contract, contractclient, contractevent, contractimpl,
+    contracttype,
 };
 
 #[contracttype]
