@@ -1,0 +1,56 @@
+name: Testnet Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "deploy or upgrade"
+        required: true
+        default: deploy
+        type: choice
+        options:
+          - deploy
+          - upgrade
+  push:
+    branches:
+      - main
+    paths:
+      - "contract/**"
+      - ".github/workflows/testnet-deploy.yml"
+
+jobs:
+  deploy-testnet:
+    runs-on: ubuntu-latest
+    if: ${{ secrets.STELLAR_ACCOUNT != '' && secrets.STELLAR_RPC_URL != '' && secrets.STELLAR_NETWORK_PASSPHRASE != '' }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: contract
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32v1-none
+      - name: Install Stellar CLI
+        run: cargo install --locked stellar-cli || true
+      - name: Build contracts
+        run: cargo test --workspace
+      - name: Deploy or upgrade on testnet
+        env:
+          STELLAR_ACCOUNT: ${{ secrets.STELLAR_ACCOUNT }}
+          STELLAR_RPC_URL: ${{ secrets.STELLAR_RPC_URL }}
+          STELLAR_NETWORK_PASSPHRASE: ${{ secrets.STELLAR_NETWORK_PASSPHRASE }}
+          STELLAR_NETWORK: testnet
+          ARYA_TREASURY: ${{ secrets.ARYA_TREASURY }}
+          ARYA_PLATFORM_OWNER: ${{ secrets.ARYA_PLATFORM_OWNER }}
+          ARYA_USDC_SAC_ID: ${{ secrets.ARYA_USDC_SAC_ID }}
+          ARYA_EXISTING_REGISTRY_ID: ${{ secrets.ARYA_EXISTING_REGISTRY_ID }}
+          ARYA_EXISTING_CROWDFUNDING_ID: ${{ secrets.ARYA_EXISTING_CROWDFUNDING_ID }}
+          ARYA_EXISTING_STAKING_ID: ${{ secrets.ARYA_EXISTING_STAKING_ID }}
+          ARYA_EXISTING_LAUNCHPAD_ID: ${{ secrets.ARYA_EXISTING_LAUNCHPAD_ID }}
+        run: |
+          if [ "${{ github.event.inputs.mode || 'deploy' }}" = "upgrade" ]; then
+            pwsh -File scripts/upgrade-testnet.ps1
+          else
+            pwsh -File scripts/deploy-testnet.ps1
+          fi
