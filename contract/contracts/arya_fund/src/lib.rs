@@ -57,7 +57,6 @@ pub struct AryaFund;
 
 #[contractimpl]
 impl AryaFund {
-
     // ===== INITIALIZE =====
 
     pub fn initialize(
@@ -98,7 +97,11 @@ impl AryaFund {
     ) -> u32 {
         organizer.require_auth();
 
-        let count: u32 = env.storage().instance().get(&DataKey::CampaignCount).unwrap_or(0);
+        let count: u32 = env
+            .storage()
+            .instance()
+            .get(&DataKey::CampaignCount)
+            .unwrap_or(0);
         let campaign_id = count;
 
         let campaign = Campaign {
@@ -114,18 +117,17 @@ impl AryaFund {
             status: CampaignStatus::Active,
         };
 
-        env.storage().persistent().set(&DataKey::Campaign(campaign_id), &campaign);
-        env.storage().instance().set(&DataKey::CampaignCount, &(count + 1));
+        env.storage()
+            .persistent()
+            .set(&DataKey::Campaign(campaign_id), &campaign);
+        env.storage()
+            .instance()
+            .set(&DataKey::CampaignCount, &(count + 1));
 
         campaign_id
     }
 
-    pub fn donate(
-        env: Env,
-        donor: Address,
-        campaign_id: u32,
-        amount: i128,
-    ) {
+    pub fn donate(env: Env, donor: Address, campaign_id: u32, amount: i128) {
         donor.require_auth();
 
         let mut campaign: Campaign = env
@@ -140,7 +142,7 @@ impl AryaFund {
         }
 
         match campaign.status {
-            CampaignStatus::Active => {},
+            CampaignStatus::Active => {}
             _ => panic!("Campaign is not active"),
         }
 
@@ -158,7 +160,7 @@ impl AryaFund {
 
         // Transfer XLM from donor to contract using native SAC
         let native_token = get_native_token(&env);
-        native_token.transfer(&donor, &env.current_contract_address(), &amount);
+        native_token.transfer(&donor, env.current_contract_address(), &amount);
 
         // Record donation
         let prev: i128 = env
@@ -172,7 +174,9 @@ impl AryaFund {
             .set(&DataKey::Donation(campaign_id, donor), &(prev + amount));
 
         campaign.total_raised += amount;
-        env.storage().persistent().set(&DataKey::Campaign(campaign_id), &campaign);
+        env.storage()
+            .persistent()
+            .set(&DataKey::Campaign(campaign_id), &campaign);
     }
 
     pub fn withdraw(env: Env, campaign_id: u32) {
@@ -190,15 +194,11 @@ impl AryaFund {
         }
 
         match campaign.status {
-            CampaignStatus::Active => {},
+            CampaignStatus::Active => {}
             _ => panic!("Campaign is not active"),
         }
 
-        let settings: PlatformSettings = env
-            .storage()
-            .instance()
-            .get(&DataKey::Settings)
-            .unwrap();
+        let settings: PlatformSettings = env.storage().instance().get(&DataKey::Settings).unwrap();
 
         // Calculate fee
         let fee = (campaign.total_raised * settings.fee_basis_points as i128) / 10000;
@@ -223,7 +223,9 @@ impl AryaFund {
         );
 
         campaign.status = CampaignStatus::Successful;
-        env.storage().persistent().set(&DataKey::Campaign(campaign_id), &campaign);
+        env.storage()
+            .persistent()
+            .set(&DataKey::Campaign(campaign_id), &campaign);
     }
 
     pub fn extend_deadline(env: Env, campaign_id: u32) {
@@ -235,11 +237,7 @@ impl AryaFund {
 
         campaign.organizer.require_auth();
 
-        let settings: PlatformSettings = env
-            .storage()
-            .instance()
-            .get(&DataKey::Settings)
-            .unwrap();
+        let settings: PlatformSettings = env.storage().instance().get(&DataKey::Settings).unwrap();
 
         let now = env.ledger().timestamp();
         let action_window_secs = settings.action_window_days as u64 * 24 * 60 * 60;
@@ -262,10 +260,12 @@ impl AryaFund {
         }
 
         let extension_secs = campaign.extension_days as u64 * 24 * 60 * 60;
-        campaign.deadline = campaign.deadline + extension_secs;
+        campaign.deadline += extension_secs;
         campaign.extension_used = true;
 
-        env.storage().persistent().set(&DataKey::Campaign(campaign_id), &campaign);
+        env.storage()
+            .persistent()
+            .set(&DataKey::Campaign(campaign_id), &campaign);
     }
 
     pub fn mark_as_failed(env: Env, campaign_id: u32) {
@@ -278,12 +278,14 @@ impl AryaFund {
         campaign.organizer.require_auth();
 
         match campaign.status {
-            CampaignStatus::Active => {},
+            CampaignStatus::Active => {}
             _ => panic!("Campaign is not active"),
         }
 
         campaign.status = CampaignStatus::Failed;
-        env.storage().persistent().set(&DataKey::Campaign(campaign_id), &campaign);
+        env.storage()
+            .persistent()
+            .set(&DataKey::Campaign(campaign_id), &campaign);
     }
 
     pub fn claim_refund(env: Env, donor: Address, campaign_id: u32) {
@@ -382,11 +384,8 @@ impl AryaFund {
     // ===== ADMIN FUNCTIONS =====
 
     pub fn update_fee_percent(env: Env, new_fee: u32) {
-        let mut settings: PlatformSettings = env
-            .storage()
-            .instance()
-            .get(&DataKey::Settings)
-            .unwrap();
+        let mut settings: PlatformSettings =
+            env.storage().instance().get(&DataKey::Settings).unwrap();
 
         settings.platform_owner.require_auth();
         settings.fee_basis_points = new_fee;
@@ -395,11 +394,8 @@ impl AryaFund {
     }
 
     pub fn update_treasury_wallet(env: Env, new_wallet: Address) {
-        let mut settings: PlatformSettings = env
-            .storage()
-            .instance()
-            .get(&DataKey::Settings)
-            .unwrap();
+        let mut settings: PlatformSettings =
+            env.storage().instance().get(&DataKey::Settings).unwrap();
 
         settings.platform_owner.require_auth();
         settings.treasury_wallet = new_wallet;
@@ -408,11 +404,8 @@ impl AryaFund {
     }
 
     pub fn update_action_window(env: Env, new_days: u32) {
-        let mut settings: PlatformSettings = env
-            .storage()
-            .instance()
-            .get(&DataKey::Settings)
-            .unwrap();
+        let mut settings: PlatformSettings =
+            env.storage().instance().get(&DataKey::Settings).unwrap();
 
         settings.platform_owner.require_auth();
         settings.action_window_days = new_days;
@@ -421,11 +414,8 @@ impl AryaFund {
     }
 
     pub fn transfer_ownership(env: Env, new_owner: Address) {
-        let mut settings: PlatformSettings = env
-            .storage()
-            .instance()
-            .get(&DataKey::Settings)
-            .unwrap();
+        let mut settings: PlatformSettings =
+            env.storage().instance().get(&DataKey::Settings).unwrap();
 
         settings.platform_owner.require_auth();
         settings.platform_owner = new_owner;
@@ -440,14 +430,10 @@ impl AryaFund {
         match campaign.status {
             CampaignStatus::Failed => return true,
             CampaignStatus::Successful => return false,
-            CampaignStatus::Active => {},
+            CampaignStatus::Active => {}
         }
 
-        let settings: PlatformSettings = env
-            .storage()
-            .instance()
-            .get(&DataKey::Settings)
-            .unwrap();
+        let settings: PlatformSettings = env.storage().instance().get(&DataKey::Settings).unwrap();
 
         let now = env.ledger().timestamp();
         let action_window_secs = settings.action_window_days as u64 * 24 * 60 * 60;
@@ -459,13 +445,19 @@ impl AryaFund {
         }
 
         // Extended deadline passed and goal not met
-        if campaign.extension_used && now > campaign.deadline && campaign.total_raised < campaign.goal_amount {
+        if campaign.extension_used
+            && now > campaign.deadline
+            && campaign.total_raised < campaign.goal_amount
+        {
             return true;
         }
 
         // Action window expired with no action taken (70%+ raised but organizer did nothing)
         let action_window_expiry = campaign.deadline + action_window_secs;
-        if now > action_window_expiry && !campaign.extension_used && campaign.total_raised >= threshold {
+        if now > action_window_expiry
+            && !campaign.extension_used
+            && campaign.total_raised >= threshold
+        {
             return true;
         }
 
@@ -476,11 +468,7 @@ impl AryaFund {
 // ===== NATIVE TOKEN HELPER =====
 
 fn get_native_token(env: &Env) -> soroban_sdk::token::Client<'_> {
-    let settings: PlatformSettings = env
-        .storage()
-        .instance()
-        .get(&DataKey::Settings)
-        .unwrap();
+    let settings: PlatformSettings = env.storage().instance().get(&DataKey::Settings).unwrap();
 
     soroban_sdk::token::Client::new(env, &settings.native_token)
 }

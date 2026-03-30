@@ -1,7 +1,7 @@
 $ErrorActionPreference = "Stop"
 
 function Require-Env($Name) {
-    if (-not $env:$Name) {
+    if (-not (Get-Item -Path "Env:$Name" -ErrorAction SilentlyContinue)) {
         throw "Missing required environment variable: $Name"
     }
 }

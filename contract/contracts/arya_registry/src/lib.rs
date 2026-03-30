@@ -1,8 +1,6 @@
 #![no_std]
 
-use soroban_sdk::{
-    contract, contractimpl, contracttype, symbol_short, Address, BytesN, Env,
-};
+use soroban_sdk::{contract, contractevent, contractimpl, contracttype, Address, BytesN, Env};
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -22,6 +20,39 @@ pub enum DataKey {
     Config,
 }
 
+#[contractevent(topics = ["arya", "registry_initialized"])]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct RegistryInitializedEvent {
+    pub owner: Address,
+    pub treasury: Address,
+    pub arya_token: Address,
+    pub xlm_token: Address,
+    pub usdc_token: Address,
+    pub staking_contract: Address,
+    pub crowdfunding_contract: Address,
+    pub launchpad_contract: Address,
+}
+
+#[contractevent(topics = ["arya", "treasury_updated"])]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct TreasuryUpdatedEvent {
+    pub treasury: Address,
+}
+
+#[contractevent(topics = ["arya", "contracts_updated"])]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ContractsUpdatedEvent {
+    pub staking_contract: Address,
+    pub crowdfunding_contract: Address,
+    pub launchpad_contract: Address,
+}
+
+#[contractevent(topics = ["arya", "ownership_transferred"])]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct OwnershipTransferredEvent {
+    pub new_owner: Address,
+}
+
 #[contract]
 pub struct AryaRegistry;
 
@@ -33,8 +64,17 @@ impl AryaRegistry {
         }
 
         env.storage().instance().set(&DataKey::Config, &config);
-        env.events()
-            .publish((symbol_short!("init"),), config.clone());
+        RegistryInitializedEvent {
+            owner: config.owner,
+            treasury: config.treasury,
+            arya_token: config.arya_token,
+            xlm_token: config.xlm_token,
+            usdc_token: config.usdc_token,
+            staking_contract: config.staking_contract,
+            crowdfunding_contract: config.crowdfunding_contract,
+            launchpad_contract: config.launchpad_contract,
+        }
+        .publish(&env);
     }
 
     pub fn upgrade(env: Env, new_wasm_hash: BytesN<32>) {
@@ -55,7 +95,7 @@ impl AryaRegistry {
         config.owner.require_auth();
         config.treasury = treasury.clone();
         env.storage().instance().set(&DataKey::Config, &config);
-        env.events().publish((symbol_short!("treasury"),), treasury);
+        TreasuryUpdatedEvent { treasury }.publish(&env);
     }
 
     pub fn set_contracts(
@@ -70,10 +110,12 @@ impl AryaRegistry {
         config.crowdfunding_contract = crowdfunding_contract.clone();
         config.launchpad_contract = launchpad_contract.clone();
         env.storage().instance().set(&DataKey::Config, &config);
-        env.events().publish(
-            (symbol_short!("contracts"),),
-            (staking_contract, crowdfunding_contract, launchpad_contract),
-        );
+        ContractsUpdatedEvent {
+            staking_contract,
+            crowdfunding_contract,
+            launchpad_contract,
+        }
+        .publish(&env);
     }
 
     pub fn transfer_ownership(env: Env, new_owner: Address) {
@@ -81,7 +123,7 @@ impl AryaRegistry {
         config.owner.require_auth();
         config.owner = new_owner.clone();
         env.storage().instance().set(&DataKey::Config, &config);
-        env.events().publish((symbol_short!("owner"),), new_owner);
+        OwnershipTransferredEvent { new_owner }.publish(&env);
     }
 }
 

@@ -1,8 +1,6 @@
 #![no_std]
 
-use soroban_sdk::{
-    contract, contractimpl, contracttype, symbol_short, Address, BytesN, Env,
-};
+use soroban_sdk::{contract, contractevent, contractimpl, contracttype, Address, BytesN, Env};
 
 const REWARD_SCALE: i128 = 1_000_000_000;
 
@@ -49,6 +47,42 @@ pub enum DataKey {
     TotalStaked,
     Position(Address),
     Pool(RewardAsset),
+}
+
+#[contractevent(topics = ["arya", "stake_created"])]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct StakeCreatedEvent {
+    #[topic]
+    pub staker: Address,
+    pub amount: i128,
+    pub total_staked: i128,
+}
+
+#[contractevent(topics = ["arya", "stake_removed"])]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct StakeRemovedEvent {
+    #[topic]
+    pub staker: Address,
+    pub amount: i128,
+    pub total_staked: i128,
+}
+
+#[contractevent(topics = ["arya", "rewards_claimed"])]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct RewardsClaimedEvent {
+    #[topic]
+    pub staker: Address,
+    pub xlm_amount: i128,
+    pub usdc_amount: i128,
+}
+
+#[contractevent(topics = ["arya", "reward_deposited"])]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct RewardDepositedEvent {
+    #[topic]
+    pub distributor: Address,
+    pub reward_asset: RewardAsset,
+    pub amount: i128,
 }
 
 #[contract]
@@ -119,7 +153,7 @@ impl AryaStaking {
         let mut position = Self::sync_position(&env, staker.clone());
 
         let token = soroban_sdk::token::Client::new(&env, &settings.stake_token);
-        token.transfer(&staker, &env.current_contract_address(), &amount);
+        token.transfer(&staker, env.current_contract_address(), &amount);
 
         position.staked_amount += amount;
         let now = env.ledger().timestamp();
@@ -135,8 +169,12 @@ impl AryaStaking {
             .persistent()
             .set(&DataKey::Position(staker.clone()), &position);
 
-        env.events()
-            .publish((symbol_short!("stake"), staker), (amount, total));
+        StakeCreatedEvent {
+            staker,
+            amount,
+            total_staked: total,
+        }
+        .publish(&env);
     }
 
     pub fn unstake(env: Env, staker: Address, amount: i128) {
@@ -166,8 +204,12 @@ impl AryaStaking {
         let token = soroban_sdk::token::Client::new(&env, &settings.stake_token);
         token.transfer(&env.current_contract_address(), &staker, &amount);
 
-        env.events()
-            .publish((symbol_short!("unstake"), staker), (amount, total));
+        StakeRemovedEvent {
+            staker,
+            amount,
+            total_staked: total,
+        }
+        .publish(&env);
     }
 
     pub fn claim_rewards(env: Env, staker: Address) -> (i128, i128) {
@@ -198,8 +240,12 @@ impl AryaStaking {
             .persistent()
             .set(&DataKey::Position(staker.clone()), &position);
 
-        env.events()
-            .publish((symbol_short!("claim"), staker), (xlm_amount, usdc_amount));
+        RewardsClaimedEvent {
+            staker,
+            xlm_amount,
+            usdc_amount,
+        }
+        .publish(&env);
 
         (xlm_amount, usdc_amount)
     }
@@ -220,7 +266,10 @@ impl AryaStaking {
     }
 
     pub fn get_total_staked(env: Env) -> i128 {
-        env.storage().instance().get(&DataKey::TotalStaked).unwrap_or(0)
+        env.storage()
+            .instance()
+            .get(&DataKey::TotalStaked)
+            .unwrap_or(0)
     }
 
     pub fn get_position(env: Env, staker: Address) -> StakePosition {
@@ -254,8 +303,12 @@ impl AryaStaking {
         env.storage()
             .persistent()
             .set(&DataKey::Pool(reward_asset.clone()), &pool);
-        env.events()
-            .publish((symbol_short!("reward"), reward_asset), (from, amount));
+        RewardDepositedEvent {
+            distributor: from,
+            reward_asset,
+            amount,
+        }
+        .publish(&env);
     }
 
     fn settle_queued_rewards(env: &Env) {
@@ -269,9 +322,7 @@ impl AryaStaking {
             if pool.queued_rewards > 0 {
                 pool.reward_per_token += pool.queued_rewards * REWARD_SCALE / total_staked;
                 pool.queued_rewards = 0;
-                env.storage()
-                    .persistent()
-                    .set(&DataKey::Pool(asset), &pool);
+                env.storage().persistent().set(&DataKey::Pool(asset), &pool);
             }
         }
     }
@@ -303,8 +354,10 @@ impl AryaStaking {
     fn update_reward_debts(env: &Env, position: &mut StakePosition) {
         let xlm_pool = Self::get_pool(env.clone(), RewardAsset::Xlm);
         let usdc_pool = Self::get_pool(env.clone(), RewardAsset::Usdc);
-        position.reward_debt_xlm = position.staked_amount * xlm_pool.reward_per_token / REWARD_SCALE;
-        position.reward_debt_usdc = position.staked_amount * usdc_pool.reward_per_token / REWARD_SCALE;
+        position.reward_debt_xlm =
+            position.staked_amount * xlm_pool.reward_per_token / REWARD_SCALE;
+        position.reward_debt_usdc =
+            position.staked_amount * usdc_pool.reward_per_token / REWARD_SCALE;
     }
 
     fn empty_position() -> StakePosition {

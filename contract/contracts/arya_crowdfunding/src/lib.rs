@@ -1,8 +1,8 @@
 #![no_std]
-
-use arya_staking::AryaStakingClient;
+#![allow(clippy::too_many_arguments)]
 use soroban_sdk::{
-    contract, contractimpl, contracttype, symbol_short, Address, BytesN, Env, String,
+    contract, contractclient, contractevent, contractimpl, contracttype, Address, BytesN, Env,
+    String,
 };
 
 #[contracttype]
@@ -56,6 +56,51 @@ pub enum DataKey {
     Campaign(u32),
     Donation(u32, Address),
     RefundClaimed(u32, Address),
+}
+
+#[contractclient(name = "AryaStakingClient")]
+pub trait StakingContract {
+    fn deposit_xlm_rewards(env: Env, from: Address, amount: i128);
+    fn deposit_usdc_rewards(env: Env, from: Address, amount: i128);
+}
+
+#[contractevent(topics = ["arya", "campaign_created"])]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct CampaignCreatedEvent {
+    #[topic]
+    pub campaign_id: u32,
+    #[topic]
+    pub organizer: Address,
+}
+
+#[contractevent(topics = ["arya", "campaign_donated"])]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct CampaignDonatedEvent {
+    #[topic]
+    pub campaign_id: u32,
+    #[topic]
+    pub donor: Address,
+    pub amount: i128,
+}
+
+#[contractevent(topics = ["arya", "campaign_withdrawn"])]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct CampaignWithdrawnEvent {
+    #[topic]
+    pub campaign_id: u32,
+    pub organizer_share: i128,
+    pub treasury_share: i128,
+    pub staking_share: i128,
+}
+
+#[contractevent(topics = ["arya", "campaign_refunded"])]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct CampaignRefundedEvent {
+    #[topic]
+    pub campaign_id: u32,
+    #[topic]
+    pub donor: Address,
+    pub amount: i128,
 }
 
 #[contract]
@@ -120,7 +165,11 @@ impl AryaCrowdfunding {
             panic!("deadline in past");
         }
 
-        let count: u32 = env.storage().instance().get(&DataKey::CampaignCount).unwrap_or(0);
+        let count: u32 = env
+            .storage()
+            .instance()
+            .get(&DataKey::CampaignCount)
+            .unwrap_or(0);
         let campaign = Campaign {
             id: count,
             title,
@@ -137,9 +186,14 @@ impl AryaCrowdfunding {
         env.storage()
             .persistent()
             .set(&DataKey::Campaign(count), &campaign);
-        env.storage().instance().set(&DataKey::CampaignCount, &(count + 1));
-        env.events()
-            .publish((symbol_short!("create"), count), organizer);
+        env.storage()
+            .instance()
+            .set(&DataKey::CampaignCount, &(count + 1));
+        CampaignCreatedEvent {
+            campaign_id: count,
+            organizer,
+        }
+        .publish(&env);
         count
     }
 
@@ -164,23 +218,28 @@ impl AryaCrowdfunding {
         }
 
         let token = Self::funding_token(&env, &campaign.funding_asset);
-        token.transfer(&donor, &env.current_contract_address(), &amount);
+        token.transfer(&donor, env.current_contract_address(), &amount);
 
         let previous: i128 = env
             .storage()
             .persistent()
             .get(&DataKey::Donation(campaign_id, donor.clone()))
             .unwrap_or(0);
-        env.storage()
-            .persistent()
-            .set(&DataKey::Donation(campaign_id, donor.clone()), &(previous + amount));
+        env.storage().persistent().set(
+            &DataKey::Donation(campaign_id, donor.clone()),
+            &(previous + amount),
+        );
 
         campaign.total_raised += amount;
         env.storage()
             .persistent()
             .set(&DataKey::Campaign(campaign_id), &campaign);
-        env.events()
-            .publish((symbol_short!("donate"), campaign_id), (donor, amount));
+        CampaignDonatedEvent {
+            campaign_id,
+            donor,
+            amount,
+        }
+        .publish(&env);
     }
 
     pub fn withdraw(env: Env, campaign_id: u32) {
@@ -235,10 +294,13 @@ impl AryaCrowdfunding {
         env.storage()
             .persistent()
             .set(&DataKey::Campaign(campaign_id), &campaign);
-        env.events().publish(
-            (symbol_short!("withdraw"), campaign_id),
-            (organizer_share, treasury_share, staking_share),
-        );
+        CampaignWithdrawnEvent {
+            campaign_id,
+            organizer_share,
+            treasury_share,
+            staking_share,
+        }
+        .publish(&env);
     }
 
     pub fn extend_deadline(env: Env, campaign_id: u32) {
@@ -309,8 +371,12 @@ impl AryaCrowdfunding {
             .set(&DataKey::RefundClaimed(campaign_id, donor.clone()), &true);
         let token = Self::funding_token(&env, &campaign.funding_asset);
         token.transfer(&env.current_contract_address(), &donor, &amount);
-        env.events()
-            .publish((symbol_short!("refund"), campaign_id), (donor, amount));
+        CampaignRefundedEvent {
+            campaign_id,
+            donor,
+            amount,
+        }
+        .publish(&env);
     }
 
     pub fn get_campaign(env: Env, campaign_id: u32) -> Campaign {
@@ -321,7 +387,10 @@ impl AryaCrowdfunding {
     }
 
     pub fn get_campaign_count(env: Env) -> u32 {
-        env.storage().instance().get(&DataKey::CampaignCount).unwrap_or(0)
+        env.storage()
+            .instance()
+            .get(&DataKey::CampaignCount)
+            .unwrap_or(0)
     }
 
     pub fn get_platform_settings(env: Env) -> PlatformSettings {
@@ -394,15 +463,22 @@ impl AryaCrowdfunding {
         let settings = Self::get_platform_settings(env.clone());
         let now = env.ledger().timestamp();
         let threshold = campaign.goal_amount * 70 / 100;
-        let action_window_expiry = campaign.deadline + settings.action_window_days as u64 * 24 * 60 * 60;
+        let action_window_expiry =
+            campaign.deadline + settings.action_window_days as u64 * 24 * 60 * 60;
 
         if now > campaign.deadline && campaign.total_raised < threshold {
             return true;
         }
-        if campaign.extension_used && now > campaign.deadline && campaign.total_raised < campaign.goal_amount {
+        if campaign.extension_used
+            && now > campaign.deadline
+            && campaign.total_raised < campaign.goal_amount
+        {
             return true;
         }
-        if now > action_window_expiry && !campaign.extension_used && campaign.total_raised >= threshold {
+        if now > action_window_expiry
+            && !campaign.extension_used
+            && campaign.total_raised >= threshold
+        {
             return true;
         }
         false

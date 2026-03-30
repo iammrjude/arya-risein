@@ -10,11 +10,10 @@ doctest = false
 
 [dependencies]
 soroban-sdk = { workspace = true }
-arya_staking = { path = "../arya_staking" }
 
 [dev-dependencies]
 soroban-sdk = { workspace = true, features = ["testutils"] }
 arya_staking = { path = "../arya_staking", features = ["testutils"] }
 
 [features]
-testutils = ["soroban-sdk/testutils", "arya_staking/testutils"]
+testutils = ["soroban-sdk/testutils"]

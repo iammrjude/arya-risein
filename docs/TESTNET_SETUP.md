@@ -1,21 +1,53 @@
 # Testnet Setup
 
-## Friendbot / funding
+## Identity
 
-Use:
+Generate:
 
 ```bash
-stellar keys fund your-identity --network testnet
+stellar keys generate arya-admin -q
+```
+
+Use it:
+
+```bash
+stellar keys use arya-admin
+```
+
+Show the public key:
+
+```bash
+stellar keys public-key arya-admin
+```
+
+## Fund the Identity
+
+```bash
+stellar keys fund arya-admin --network testnet
 ```
 
 ## Native XLM SAC
-
-Retrieve the Stellar native asset contract ID:
 
 ```bash
 stellar contract id asset --asset native --network testnet
 ```
 
-## USDC testnet
+## USDC on Testnet
 
-Set the testnet USDC Stellar Asset Contract ID after creating / confirming the asset setup for your environment.
+Provide the USDC SAC ID you are using for your test environment and store it in:
+
+```powershell
+$env:ARYA_USDC_SAC_ID="C..."
+```
+
+## Suggested Deployment Variables
+
+```powershell
+$env:STELLAR_ACCOUNT="arya-admin"
+$env:STELLAR_RPC_URL="https://soroban-testnet.stellar.org"
+$env:STELLAR_NETWORK_PASSPHRASE="Test SDF Network ; September 2015"
+$env:ARYA_PLATFORM_OWNER="G..."
+$env:ARYA_TREASURY="G..."
+$env:ARYA_TOKEN_SAC_ID="C..."
+$env:ARYA_USDC_SAC_ID="C..."
+```

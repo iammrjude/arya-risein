@@ -1,7 +1,5 @@
-#![cfg(test)]
-
-use arya_staking::{AryaStaking, AryaStakingClient, RewardAsset};
 use super::*;
+use arya_staking::{AryaStaking, AryaStakingClient, RewardAsset};
 use soroban_sdk::{
     testutils::{Address as _, Ledger},
     token::{Client as TokenClient, StellarAssetClient},
@@ -12,16 +10,11 @@ struct Setup<'a> {
     env: Env,
     client: AryaCrowdfundingClient<'a>,
     staking_client: AryaStakingClient<'a>,
-    owner: Address,
     organizer: Address,
     donor: Address,
     treasury: Address,
-    xlm_token: Address,
-    usdc_token: Address,
     xlm_client: TokenClient<'a>,
     usdc_client: TokenClient<'a>,
-    xlm_admin: StellarAssetClient<'a>,
-    usdc_admin: StellarAssetClient<'a>,
 }
 
 fn setup<'a>() -> Setup<'a> {
@@ -33,16 +26,22 @@ fn setup<'a>() -> Setup<'a> {
     let donor = Address::generate(&env);
     let treasury = Address::generate(&env);
 
-    let arya_token = env.register_stellar_asset_contract_v2(owner.clone()).address();
-    let xlm_token = env.register_stellar_asset_contract_v2(owner.clone()).address();
-    let usdc_token = env.register_stellar_asset_contract_v2(owner.clone()).address();
+    let arya_token = env
+        .register_stellar_asset_contract_v2(owner.clone())
+        .address();
+    let xlm_token = env
+        .register_stellar_asset_contract_v2(owner.clone())
+        .address();
+    let usdc_token = env
+        .register_stellar_asset_contract_v2(owner.clone())
+        .address();
 
     let xlm_client = TokenClient::new(&env, &xlm_token);
     let usdc_client = TokenClient::new(&env, &usdc_token);
     let xlm_admin = StellarAssetClient::new(&env, &xlm_token);
     let usdc_admin = StellarAssetClient::new(&env, &usdc_token);
-    xlm_admin.mint(&donor, &1_000_0000000i128);
-    usdc_admin.mint(&donor, &1_000_0000000i128);
+    xlm_admin.mint(&donor, &10_000_000_000_i128);
+    usdc_admin.mint(&donor, &10_000_000_000_i128);
 
     let staking_id = env.register(AryaStaking, ());
     let staking_client = AryaStakingClient::new(&env, &staking_id);
@@ -65,16 +64,11 @@ fn setup<'a>() -> Setup<'a> {
         env,
         client,
         staking_client,
-        owner,
         organizer,
         donor,
         treasury,
-        xlm_token,
-        usdc_token,
         xlm_client,
         usdc_client,
-        xlm_admin,
-        usdc_admin,
     }
 }
 

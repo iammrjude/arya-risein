@@ -1,8 +1,8 @@
 #![no_std]
+#![allow(clippy::too_many_arguments)]
 
-use arya_staking::AryaStakingClient;
 use soroban_sdk::{
-    contract, contractimpl, contracttype, symbol_short, Address, BytesN, Env,
+    contract, contractclient, contractevent, contractimpl, contracttype, Address, BytesN, Env,
 };
 
 #[contracttype]
@@ -59,6 +59,51 @@ pub enum DataKey {
     Sale(u32),
     Contribution(u32, Address),
     Claimed(u32, Address),
+}
+
+#[contractclient(name = "AryaStakingClient")]
+pub trait StakingContract {
+    fn deposit_xlm_rewards(env: Env, from: Address, amount: i128);
+    fn deposit_usdc_rewards(env: Env, from: Address, amount: i128);
+}
+
+#[contractevent(topics = ["arya", "sale_created"])]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct SaleCreatedEvent {
+    #[topic]
+    pub sale_id: u32,
+    #[topic]
+    pub project_owner: Address,
+}
+
+#[contractevent(topics = ["arya", "sale_contributed"])]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct SaleContributedEvent {
+    #[topic]
+    pub sale_id: u32,
+    #[topic]
+    pub buyer: Address,
+    pub amount: i128,
+}
+
+#[contractevent(topics = ["arya", "sale_settled"])]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct SaleSettledEvent {
+    #[topic]
+    pub sale_id: u32,
+    pub project_share: i128,
+    pub treasury_share: i128,
+    pub staking_share: i128,
+}
+
+#[contractevent(topics = ["arya", "sale_claimed"])]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct SaleClaimedEvent {
+    #[topic]
+    pub sale_id: u32,
+    #[topic]
+    pub buyer: Address,
+    pub token_amount: i128,
 }
 
 #[contract]
@@ -128,11 +173,15 @@ impl AryaLaunchpad {
         let sale_token_client = soroban_sdk::token::Client::new(&env, &sale_token);
         sale_token_client.transfer(
             &project_owner,
-            &env.current_contract_address(),
+            env.current_contract_address(),
             &token_supply,
         );
 
-        let id: u32 = env.storage().instance().get(&DataKey::SaleCount).unwrap_or(0);
+        let id: u32 = env
+            .storage()
+            .instance()
+            .get(&DataKey::SaleCount)
+            .unwrap_or(0);
         let sale = Sale {
             id,
             project_owner: project_owner.clone(),
@@ -152,8 +201,11 @@ impl AryaLaunchpad {
         };
         env.storage().persistent().set(&DataKey::Sale(id), &sale);
         env.storage().instance().set(&DataKey::SaleCount, &(id + 1));
-        env.events()
-            .publish((symbol_short!("sale"), id), project_owner);
+        SaleCreatedEvent {
+            sale_id: id,
+            project_owner,
+        }
+        .publish(&env);
         id
     }
 
@@ -184,22 +236,29 @@ impl AryaLaunchpad {
         }
 
         let token = Self::funding_token(&env, &sale.funding_asset);
-        token.transfer(&buyer, &env.current_contract_address(), &amount);
+        token.transfer(&buyer, env.current_contract_address(), &amount);
 
         let previous: i128 = env
             .storage()
             .persistent()
             .get(&DataKey::Contribution(sale_id, buyer.clone()))
             .unwrap_or(0);
-        env.storage()
-            .persistent()
-            .set(&DataKey::Contribution(sale_id, buyer.clone()), &(previous + amount));
+        env.storage().persistent().set(
+            &DataKey::Contribution(sale_id, buyer.clone()),
+            &(previous + amount),
+        );
 
         sale.total_raised += amount;
         sale.tokens_sold += tokens_reserved;
-        env.storage().persistent().set(&DataKey::Sale(sale_id), &sale);
-        env.events()
-            .publish((symbol_short!("buy"), sale_id), (buyer, amount));
+        env.storage()
+            .persistent()
+            .set(&DataKey::Sale(sale_id), &sale);
+        SaleContributedEvent {
+            sale_id,
+            buyer,
+            amount,
+        }
+        .publish(&env);
     }
 
     pub fn withdraw_funds(env: Env, sale_id: u32) {
@@ -255,11 +314,16 @@ impl AryaLaunchpad {
 
         sale.status = SaleStatus::Successful;
         sale.funds_withdrawn = true;
-        env.storage().persistent().set(&DataKey::Sale(sale_id), &sale);
-        env.events().publish(
-            (symbol_short!("settle"), sale_id),
-            (project_share, treasury_share, staking_share),
-        );
+        env.storage()
+            .persistent()
+            .set(&DataKey::Sale(sale_id), &sale);
+        SaleSettledEvent {
+            sale_id,
+            project_share,
+            treasury_share,
+            staking_share,
+        }
+        .publish(&env);
     }
 
     pub fn claim_tokens(env: Env, buyer: Address, sale_id: u32) -> i128 {
@@ -290,8 +354,12 @@ impl AryaLaunchpad {
         env.storage()
             .persistent()
             .set(&DataKey::Claimed(sale_id, buyer.clone()), &true);
-        env.events()
-            .publish((symbol_short!("claim"), sale_id), (buyer, token_amount));
+        SaleClaimedEvent {
+            sale_id,
+            buyer,
+            token_amount,
+        }
+        .publish(&env);
         token_amount
     }
 
@@ -338,13 +406,19 @@ impl AryaLaunchpad {
         let unsold = sale.token_supply - sale.tokens_sold;
         if unsold > 0 {
             let token = soroban_sdk::token::Client::new(&env, &sale.sale_token);
-            token.transfer(&env.current_contract_address(), &sale.project_owner, &unsold);
+            token.transfer(
+                &env.current_contract_address(),
+                &sale.project_owner,
+                &unsold,
+            );
         }
         sale.unsold_reclaimed = true;
         if sale.total_raised < sale.soft_cap {
             sale.status = SaleStatus::Failed;
         }
-        env.storage().persistent().set(&DataKey::Sale(sale_id), &sale);
+        env.storage()
+            .persistent()
+            .set(&DataKey::Sale(sale_id), &sale);
     }
 
     pub fn get_platform_settings(env: Env) -> PlatformSettings {
@@ -362,7 +436,10 @@ impl AryaLaunchpad {
     }
 
     pub fn get_sale_count(env: Env) -> u32 {
-        env.storage().instance().get(&DataKey::SaleCount).unwrap_or(0)
+        env.storage()
+            .instance()
+            .get(&DataKey::SaleCount)
+            .unwrap_or(0)
     }
 
     pub fn get_contribution(env: Env, sale_id: u32, buyer: Address) -> i128 {

@@ -20,8 +20,14 @@ jobs:
           targets: wasm32v1-none
       - name: Install Stellar CLI
         run: cargo install --locked stellar-cli || true
+      - name: Cargo fmt
+        run: cargo fmt --all -- --check
+      - name: Cargo clippy
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
       - name: Cargo test
         run: cargo test --workspace
+      - name: Build Wasm contracts
+        run: pwsh -File scripts/build-all.ps1
 
   frontend:
     runs-on: ubuntu-latest

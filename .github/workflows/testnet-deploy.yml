@@ -21,7 +21,6 @@ on:
 jobs:
   deploy-testnet:
     runs-on: ubuntu-latest
-    if: ${{ secrets.STELLAR_ACCOUNT != '' && secrets.STELLAR_RPC_URL != '' && secrets.STELLAR_NETWORK_PASSPHRASE != '' }}
     defaults:
       run:
         shell: bash
@@ -33,21 +32,36 @@ jobs:
           targets: wasm32v1-none
       - name: Install Stellar CLI
         run: cargo install --locked stellar-cli || true
-      - name: Build contracts
+      - name: Check required secrets
+        env:
+          STELLAR_ACCOUNT: ${{ secrets.STELLAR_ACCOUNT }}
+          STELLAR_RPC_URL: ${{ vars.STELLAR_RPC_URL }}
+          STELLAR_NETWORK_PASSPHRASE: ${{ vars.STELLAR_NETWORK_PASSPHRASE }}
+        run: |
+          test -n "$STELLAR_ACCOUNT" || { echo "Missing STELLAR_ACCOUNT secret"; exit 1; }
+          test -n "$STELLAR_RPC_URL" || { echo "Missing STELLAR_RPC_URL variable"; exit 1; }
+          test -n "$STELLAR_NETWORK_PASSPHRASE" || { echo "Missing STELLAR_NETWORK_PASSPHRASE variable"; exit 1; }
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+      - name: Lint contracts
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+      - name: Test contracts
         run: cargo test --workspace
+      - name: Build Wasm contracts
+        run: pwsh -File scripts/build-all.ps1
       - name: Deploy or upgrade on testnet
         env:
           STELLAR_ACCOUNT: ${{ secrets.STELLAR_ACCOUNT }}
-          STELLAR_RPC_URL: ${{ secrets.STELLAR_RPC_URL }}
-          STELLAR_NETWORK_PASSPHRASE: ${{ secrets.STELLAR_NETWORK_PASSPHRASE }}
+          STELLAR_RPC_URL: ${{ vars.STELLAR_RPC_URL }}
+          STELLAR_NETWORK_PASSPHRASE: ${{ vars.STELLAR_NETWORK_PASSPHRASE }}
           STELLAR_NETWORK: testnet
-          ARYA_TREASURY: ${{ secrets.ARYA_TREASURY }}
-          ARYA_PLATFORM_OWNER: ${{ secrets.ARYA_PLATFORM_OWNER }}
-          ARYA_USDC_SAC_ID: ${{ secrets.ARYA_USDC_SAC_ID }}
-          ARYA_EXISTING_REGISTRY_ID: ${{ secrets.ARYA_EXISTING_REGISTRY_ID }}
-          ARYA_EXISTING_CROWDFUNDING_ID: ${{ secrets.ARYA_EXISTING_CROWDFUNDING_ID }}
-          ARYA_EXISTING_STAKING_ID: ${{ secrets.ARYA_EXISTING_STAKING_ID }}
-          ARYA_EXISTING_LAUNCHPAD_ID: ${{ secrets.ARYA_EXISTING_LAUNCHPAD_ID }}
+          ARYA_TREASURY: ${{ vars.ARYA_TREASURY }}
+          ARYA_PLATFORM_OWNER: ${{ vars.ARYA_PLATFORM_OWNER }}
+          ARYA_USDC_SAC_ID: ${{ vars.ARYA_USDC_SAC_ID }}
+          ARYA_EXISTING_REGISTRY_ID: ${{ vars.ARYA_EXISTING_REGISTRY_ID }}
+          ARYA_EXISTING_CROWDFUNDING_ID: ${{ vars.ARYA_EXISTING_CROWDFUNDING_ID }}
+          ARYA_EXISTING_STAKING_ID: ${{ vars.ARYA_EXISTING_STAKING_ID }}
+          ARYA_EXISTING_LAUNCHPAD_ID: ${{ vars.ARYA_EXISTING_LAUNCHPAD_ID }}
         run: |
           if [ "${{ github.event.inputs.mode || 'deploy' }}" = "upgrade" ]; then
             pwsh -File scripts/upgrade-testnet.ps1

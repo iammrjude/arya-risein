@@ -1,5 +1,3 @@
-#![cfg(test)]
-
 use super::*;
 use soroban_sdk::{
     testutils::{Address as _, Ledger},
@@ -10,15 +8,10 @@ use soroban_sdk::{
 struct Setup<'a> {
     env: Env,
     client: AryaStakingClient<'a>,
-    owner: Address,
     staker: Address,
-    arya_token: Address,
-    xlm_token: Address,
-    usdc_token: Address,
     arya_client: TokenClient<'a>,
     xlm_client: TokenClient<'a>,
     usdc_client: TokenClient<'a>,
-    arya_admin: StellarAssetClient<'a>,
     xlm_admin: StellarAssetClient<'a>,
     usdc_admin: StellarAssetClient<'a>,
 }
@@ -31,9 +24,15 @@ fn setup<'a>() -> Setup<'a> {
     let staker = Address::generate(&env);
     let distributor = Address::generate(&env);
 
-    let arya_token = env.register_stellar_asset_contract_v2(owner.clone()).address();
-    let xlm_token = env.register_stellar_asset_contract_v2(owner.clone()).address();
-    let usdc_token = env.register_stellar_asset_contract_v2(owner.clone()).address();
+    let arya_token = env
+        .register_stellar_asset_contract_v2(owner.clone())
+        .address();
+    let xlm_token = env
+        .register_stellar_asset_contract_v2(owner.clone())
+        .address();
+    let usdc_token = env
+        .register_stellar_asset_contract_v2(owner.clone())
+        .address();
 
     let arya_client = TokenClient::new(&env, &arya_token);
     let xlm_client = TokenClient::new(&env, &xlm_token);
@@ -42,9 +41,9 @@ fn setup<'a>() -> Setup<'a> {
     let xlm_admin = StellarAssetClient::new(&env, &xlm_token);
     let usdc_admin = StellarAssetClient::new(&env, &usdc_token);
 
-    arya_admin.mint(&staker, &1_000_0000000i128);
-    xlm_admin.mint(&distributor, &1_000_0000000i128);
-    usdc_admin.mint(&distributor, &1_000_0000000i128);
+    arya_admin.mint(&staker, &10_000_000_000_i128);
+    xlm_admin.mint(&distributor, &10_000_000_000_i128);
+    usdc_admin.mint(&distributor, &10_000_000_000_i128);
 
     let contract_id = env.register(AryaStaking, ());
     let client = AryaStakingClient::new(&env, &contract_id);
@@ -53,15 +52,10 @@ fn setup<'a>() -> Setup<'a> {
     Setup {
         env,
         client,
-        owner,
         staker,
-        arya_token,
-        xlm_token,
-        usdc_token,
         arya_client,
         xlm_client,
         usdc_client,
-        arya_admin,
         xlm_admin,
         usdc_admin,
     }
@@ -114,5 +108,5 @@ fn unstake_requires_lock_expiry() {
     s.client.stake(&s.staker, &100_0000000i128, &7u32);
     s.env.ledger().set_timestamp(8 * 24 * 60 * 60);
     s.client.unstake(&s.staker, &100_0000000i128);
-    assert_eq!(s.arya_client.balance(&s.staker), 1_000_0000000i128);
+    assert_eq!(s.arya_client.balance(&s.staker), 10_000_000_000_i128);
 }

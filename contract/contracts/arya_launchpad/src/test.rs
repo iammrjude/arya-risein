@@ -1,7 +1,5 @@
-#![cfg(test)]
-
-use arya_staking::{AryaStaking, AryaStakingClient, RewardAsset};
 use super::*;
+use arya_staking::{AryaStaking, AryaStakingClient, RewardAsset};
 use soroban_sdk::{
     testutils::{Address as _, Ledger},
     token::{Client as TokenClient, StellarAssetClient},
@@ -17,8 +15,6 @@ struct Setup<'a> {
     treasury: Address,
     sale_token: Address,
     xlm_client: TokenClient<'a>,
-    sale_token_client: TokenClient<'a>,
-    xlm_admin: StellarAssetClient<'a>,
 }
 
 fn setup<'a>() -> Setup<'a> {
@@ -29,17 +25,24 @@ fn setup<'a>() -> Setup<'a> {
     let buyer = Address::generate(&env);
     let treasury = Address::generate(&env);
 
-    let arya_token = env.register_stellar_asset_contract_v2(owner.clone()).address();
-    let xlm_token = env.register_stellar_asset_contract_v2(owner.clone()).address();
-    let usdc_token = env.register_stellar_asset_contract_v2(owner.clone()).address();
-    let sale_token = env.register_stellar_asset_contract_v2(owner.clone()).address();
+    let arya_token = env
+        .register_stellar_asset_contract_v2(owner.clone())
+        .address();
+    let xlm_token = env
+        .register_stellar_asset_contract_v2(owner.clone())
+        .address();
+    let usdc_token = env
+        .register_stellar_asset_contract_v2(owner.clone())
+        .address();
+    let sale_token = env
+        .register_stellar_asset_contract_v2(owner.clone())
+        .address();
 
     let xlm_client = TokenClient::new(&env, &xlm_token);
-    let sale_token_client = TokenClient::new(&env, &sale_token);
     let xlm_admin = StellarAssetClient::new(&env, &xlm_token);
     let sale_admin = StellarAssetClient::new(&env, &sale_token);
-    xlm_admin.mint(&buyer, &1_000_0000000i128);
-    sale_admin.mint(&project_owner, &1_000_0000000i128);
+    xlm_admin.mint(&buyer, &10_000_000_000_i128);
+    sale_admin.mint(&project_owner, &10_000_000_000_i128);
 
     let staking_id = env.register(AryaStaking, ());
     let staking_client = AryaStakingClient::new(&env, &staking_id);
@@ -47,7 +50,15 @@ fn setup<'a>() -> Setup<'a> {
 
     let contract_id = env.register(AryaLaunchpad, ());
     let client = AryaLaunchpadClient::new(&env, &contract_id);
-    client.initialize(&owner, &treasury, &staking_id, &xlm_token, &usdc_token, &300u32, &5000u32);
+    client.initialize(
+        &owner,
+        &treasury,
+        &staking_id,
+        &xlm_token,
+        &usdc_token,
+        &300u32,
+        &5000u32,
+    );
 
     Setup {
         env,
@@ -58,8 +69,6 @@ fn setup<'a>() -> Setup<'a> {
         treasury,
         sale_token,
         xlm_client,
-        sale_token_client,
-        xlm_admin,
     }
 }
 

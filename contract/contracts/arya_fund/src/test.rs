@@ -1,5 +1,3 @@
-#![cfg(test)]
-
 use super::*;
 use soroban_sdk::{
     testutils::{Address as _, Ledger},
@@ -18,7 +16,8 @@ fn days(n: u64) -> u64 {
 }
 
 fn advance_time(env: &Env, seconds: u64) {
-    env.ledger().set_timestamp(env.ledger().timestamp() + seconds);
+    env.ledger()
+        .set_timestamp(env.ledger().timestamp() + seconds);
 }
 
 fn now(env: &Env) -> u64 {
@@ -59,15 +58,15 @@ fn setup<'a>() -> TestSetup<'a> {
     let token_admin = StellarAssetClient::new(&env, &native_token);
 
     // Mint tokens to organizer and donor for testing
-    token_admin.mint(&organizer, &1_000_000_0000000i128); // 1M XLM
-    token_admin.mint(&donor, &1_000_000_0000000i128);     // 1M XLM
+    token_admin.mint(&organizer, &10_000_000_000_000_i128); // 1M XLM
+    token_admin.mint(&donor, &10_000_000_000_000_i128); // 1M XLM
 
     // Initialize contract
     client.initialize(
         &platform_owner,
         &treasury,
-        &250u32,  // 2.5% fee
-        &7u32,    // 7 day action window
+        &250u32, // 2.5% fee
+        &7u32,   // 7 day action window
         &native_token,
     );
 
@@ -156,7 +155,7 @@ fn test_create_campaign() {
         &s.organizer,
         &String::from_str(&s.env, "Solar Panels"),
         &String::from_str(&s.env, "Community solar project"),
-        &10_000_0000000i128,
+        &100_000_000_000_i128,
         &deadline,
         &45u32,
     );
@@ -164,9 +163,9 @@ fn test_create_campaign() {
     assert_eq!(campaign_id, 0);
     let campaign = s.client.get_campaign(&campaign_id);
     assert_eq!(campaign.id, 0);
-    assert_eq!(campaign.goal_amount, 10_000_0000000i128);
+    assert_eq!(campaign.goal_amount, 100_000_000_000_i128);
     assert_eq!(campaign.total_raised, 0);
-    assert_eq!(campaign.extension_used, false);
+    assert!(!campaign.extension_used);
     assert_eq!(campaign.extension_days, 45);
     assert_eq!(campaign.organizer, s.organizer);
 }
@@ -180,7 +179,7 @@ fn test_campaign_count_increments() {
         &s.organizer,
         &String::from_str(&s.env, "Campaign 1"),
         &String::from_str(&s.env, "Description 1"),
-        &1_000_0000000i128,
+        &10_000_000_000_i128,
         &deadline,
         &30u32,
     );
@@ -188,7 +187,7 @@ fn test_campaign_count_increments() {
         &s.organizer,
         &String::from_str(&s.env, "Campaign 2"),
         &String::from_str(&s.env, "Description 2"),
-        &2_000_0000000i128,
+        &20_000_000_000_i128,
         &deadline,
         &30u32,
     );
@@ -201,7 +200,7 @@ fn test_campaign_count_increments() {
 #[test]
 fn test_donate_successful() {
     let s = setup();
-    let goal = 1_000_0000000i128; // 1000 XLM
+    let goal = 10_000_000_000_i128; // 1000 XLM
     let campaign_id = create_campaign_helper(&s, goal, 30);
 
     let donate_amount = 100_0000000i128; // 100 XLM
@@ -217,7 +216,7 @@ fn test_donate_successful() {
 #[test]
 fn test_donate_exact_goal_amount_accepted() {
     let s = setup();
-    let goal = 1_000_0000000i128; // 1000 XLM
+    let goal = 10_000_000_000_i128; // 1000 XLM
     let campaign_id = create_campaign_helper(&s, goal, 30);
 
     // Donate exactly the goal amount — should succeed
@@ -231,7 +230,7 @@ fn test_donate_exact_goal_amount_accepted() {
 #[should_panic(expected = "Donation would exceed campaign goal")]
 fn test_donate_exceeds_goal_cap_rejected() {
     let s = setup();
-    let goal = 1_000_0000000i128; // 1000 XLM
+    let goal = 10_000_000_000_i128; // 1000 XLM
     let campaign_id = create_campaign_helper(&s, goal, 30);
 
     // Donate 80% first
@@ -247,7 +246,7 @@ fn test_donate_exceeds_goal_cap_rejected() {
 #[should_panic(expected = "Donation would exceed campaign goal")]
 fn test_donate_rejected_when_goal_already_reached() {
     let s = setup();
-    let goal = 1_000_0000000i128; // 1000 XLM
+    let goal = 10_000_000_000_i128; // 1000 XLM
     let campaign_id = create_campaign_helper(&s, goal, 30);
 
     // Fill up the goal completely
@@ -261,7 +260,7 @@ fn test_donate_rejected_when_goal_already_reached() {
 #[should_panic(expected = "Campaign has failed")]
 fn test_donate_rejected_after_deadline() {
     let s = setup();
-    let goal = 1_000_0000000i128;
+    let goal = 10_000_000_000_i128;
     let campaign_id = create_campaign_helper(&s, goal, 30);
 
     // Advance past deadline — 0% raised so campaign auto-fails
@@ -276,7 +275,7 @@ fn test_donate_rejected_after_deadline() {
 #[test]
 fn test_get_donor_amount() {
     let s = setup();
-    let goal = 1_000_0000000i128;
+    let goal = 10_000_000_000_i128;
     let campaign_id = create_campaign_helper(&s, goal, 30);
 
     // No donation yet
@@ -296,7 +295,7 @@ fn test_get_donor_amount() {
 #[test]
 fn test_withdraw_successful_with_fee_deduction() {
     let s = setup();
-    let goal = 1_000_0000000i128; // 1000 XLM
+    let goal = 10_000_000_000_i128; // 1000 XLM
     let campaign_id = create_campaign_helper(&s, goal, 30);
 
     // Donate full goal
@@ -314,8 +313,14 @@ fn test_withdraw_successful_with_fee_deduction() {
     let expected_fee = 25_0000000i128;
     let expected_organizer = goal - expected_fee; // 975 XLM
 
-    assert_eq!(treasury_balance_after - treasury_balance_before, expected_fee);
-    assert_eq!(organizer_balance_after - organizer_balance_before, expected_organizer);
+    assert_eq!(
+        treasury_balance_after - treasury_balance_before,
+        expected_fee
+    );
+    assert_eq!(
+        organizer_balance_after - organizer_balance_before,
+        expected_organizer
+    );
 
     // Campaign should now be Successful
     let campaign = s.client.get_campaign(&campaign_id);
@@ -326,7 +331,7 @@ fn test_withdraw_successful_with_fee_deduction() {
 #[should_panic]
 fn test_withdraw_rejected_when_goal_not_met() {
     let s = setup();
-    let goal = 1_000_0000000i128;
+    let goal = 10_000_000_000_i128;
     let campaign_id = create_campaign_helper(&s, goal, 30);
 
     // Only donate 50% of goal
@@ -341,7 +346,7 @@ fn test_withdraw_rejected_when_goal_not_met() {
 #[test]
 fn test_claim_refund_successful_on_failed_campaign() {
     let s = setup();
-    let goal = 1_000_0000000i128;
+    let goal = 10_000_000_000_i128;
     let campaign_id = create_campaign_helper(&s, goal, 30);
 
     let donate_amount = 100_0000000i128; // 100 XLM (10% — campaign will fail)
@@ -353,7 +358,7 @@ fn test_claim_refund_successful_on_failed_campaign() {
     advance_time(&s.env, days(31));
 
     // Verify campaign is failed
-    assert_eq!(s.client.is_campaign_failed(&campaign_id), true);
+    assert!(s.client.is_campaign_failed(&campaign_id));
 
     // Claim refund
     s.client.claim_refund(&s.donor, &campaign_id);
@@ -362,14 +367,14 @@ fn test_claim_refund_successful_on_failed_campaign() {
     assert_eq!(donor_balance_after - donor_balance_before, donate_amount);
 
     // Refund should be marked as claimed
-    assert_eq!(s.client.is_refund_claimed(&campaign_id, &s.donor), true);
+    assert!(s.client.is_refund_claimed(&campaign_id, &s.donor));
 }
 
 #[test]
 #[should_panic]
 fn test_claim_refund_rejected_when_already_claimed() {
     let s = setup();
-    let goal = 1_000_0000000i128;
+    let goal = 10_000_000_000_i128;
     let campaign_id = create_campaign_helper(&s, goal, 30);
 
     s.client.donate(&s.donor, &campaign_id, &100_0000000i128);
@@ -389,19 +394,19 @@ fn test_claim_refund_rejected_when_already_claimed() {
 #[test]
 fn test_is_refund_claimed() {
     let s = setup();
-    let goal = 1_000_0000000i128;
+    let goal = 10_000_000_000_i128;
     let campaign_id = create_campaign_helper(&s, goal, 30);
 
     s.client.donate(&s.donor, &campaign_id, &100_0000000i128);
     advance_time(&s.env, days(31));
 
     // Not claimed yet
-    assert_eq!(s.client.is_refund_claimed(&campaign_id, &s.donor), false);
+    assert!(!s.client.is_refund_claimed(&campaign_id, &s.donor));
 
     s.client.claim_refund(&s.donor, &campaign_id);
 
     // Now claimed
-    assert_eq!(s.client.is_refund_claimed(&campaign_id, &s.donor), true);
+    assert!(s.client.is_refund_claimed(&campaign_id, &s.donor));
 }
 
 // ===== IS CAMPAIGN FAILED TESTS =====
@@ -409,25 +414,25 @@ fn test_is_refund_claimed() {
 #[test]
 fn test_is_campaign_failed_under_70_at_deadline() {
     let s = setup();
-    let goal = 1_000_0000000i128;
+    let goal = 10_000_000_000_i128;
     let campaign_id = create_campaign_helper(&s, goal, 30);
 
-    assert_eq!(s.client.is_campaign_failed(&campaign_id), false);
+    assert!(!s.client.is_campaign_failed(&campaign_id));
 
     // Advance past deadline with 0 raised (0% < 70%)
     advance_time(&s.env, days(31));
-    assert_eq!(s.client.is_campaign_failed(&campaign_id), true);
+    assert!(s.client.is_campaign_failed(&campaign_id));
 }
 
 #[test]
 fn test_is_campaign_failed_action_window_expired() {
     let s = setup();
-    let goal = 1_000_0000000i128;
+    let goal = 10_000_000_000_i128;
     let campaign_id = create_campaign_helper(&s, goal, 30);
 
     // Advance past deadline + 7 day action window
     advance_time(&s.env, days(38));
-    assert_eq!(s.client.is_campaign_failed(&campaign_id), true);
+    assert!(s.client.is_campaign_failed(&campaign_id));
 }
 
 // ===== MARK AS FAILED TEST =====
@@ -435,11 +440,11 @@ fn test_is_campaign_failed_action_window_expired() {
 #[test]
 fn test_mark_as_failed_by_organizer() {
     let s = setup();
-    let goal = 1_000_0000000i128;
+    let goal = 10_000_000_000_i128;
     let campaign_id = create_campaign_helper(&s, goal, 30);
 
     s.client.mark_as_failed(&campaign_id);
-    assert_eq!(s.client.is_campaign_failed(&campaign_id), true);
+    assert!(s.client.is_campaign_failed(&campaign_id));
 }
 
 // ===== EXTEND DEADLINE TESTS =====
@@ -448,7 +453,7 @@ fn test_mark_as_failed_by_organizer() {
 #[should_panic]
 fn test_extend_deadline_not_allowed_before_deadline() {
     let s = setup();
-    let goal = 1_000_0000000i128;
+    let goal = 10_000_000_000_i128;
     let campaign_id = create_campaign_helper(&s, goal, 30);
 
     // Try to extend before deadline — should panic
@@ -458,7 +463,7 @@ fn test_extend_deadline_not_allowed_before_deadline() {
 #[test]
 fn test_extend_deadline_allowed_after_deadline_with_70_percent() {
     let s = setup();
-    let goal = 1_000_0000000i128; // 1000 XLM
+    let goal = 10_000_000_000_i128; // 1000 XLM
     let campaign_id = create_campaign_helper(&s, goal, 30);
 
     // Donate 70% of goal
@@ -472,7 +477,7 @@ fn test_extend_deadline_allowed_after_deadline_with_70_percent() {
     s.client.extend_deadline(&campaign_id);
 
     let campaign = s.client.get_campaign(&campaign_id);
-    assert_eq!(campaign.extension_used, true);
+    assert!(campaign.extension_used);
 }
 
 // ===== ADMIN TESTS =====
