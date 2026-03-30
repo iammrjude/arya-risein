@@ -1,5 +1,5 @@
 import styles from './ProgressBar.module.css'
-import { formatXlm, stroopsToXlm } from '../../utils/format'
+import { formatXlm } from '../../utils/format'
 
 export default function ProgressBar({ totalRaised, goalAmount }) {
     const raised = Number(totalRaised)

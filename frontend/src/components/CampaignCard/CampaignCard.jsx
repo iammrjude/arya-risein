@@ -17,7 +17,7 @@ export default function CampaignCard({ campaign }) {
         : statusLabel
 
     return (
-        <Link to={`/campaign/${id}`} className={styles.card}>
+        <Link to={`/crowdfunding/campaign/${id}`} className={styles.card}>
             <div className={styles.cardHeader}>
                 <h3 className={styles.title}>{title}</h3>
                 <StatusBadge status={displayStatus} />

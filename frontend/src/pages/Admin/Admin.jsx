@@ -24,8 +24,6 @@ export default function Admin() {
     const [txStatus, setTxStatus] = useState(null)
     const [txHash, setTxHash] = useState(null)
     const [txError, setTxError] = useState(null)
-    const [txLabel, setTxLabel] = useState('')
-
     useEffect(() => {
         async function getAddr() {
             const addr = await getAddress()
@@ -34,12 +32,11 @@ export default function Admin() {
         getAddr()
         const interval = setInterval(getAddr, 2000)
         return () => clearInterval(interval)
-    }, [])
+    }, [getAddress])
 
     const isOwner = address && address === PLATFORM_OWNER
 
     async function handleAdminAction(label, action) {
-        setTxLabel(label)
         setTxStatus('pending')
         setTxHash(null)
         setTxError(null)

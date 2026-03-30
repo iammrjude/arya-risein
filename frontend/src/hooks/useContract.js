@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { getCampaigns, getCampaign, getPlatformSettings } from '../contract/client'
+import { useEventStream } from './useEventStream'
+import { CONTRACT_ID } from '../contract/config'
 
 export function useCampaigns() {
     const [campaigns, setCampaigns] = useState([])
@@ -22,6 +24,13 @@ export function useCampaigns() {
     useEffect(() => {
         fetch()
     }, [fetch])
+
+    useEventStream({
+        contractIds: CONTRACT_ID ? [CONTRACT_ID] : [],
+        onEvents: () => {
+            fetch()
+        },
+    })
 
     return { campaigns, loading, error, refresh: fetch }
 }
@@ -47,10 +56,14 @@ export function useCampaign(campaignId) {
 
     useEffect(() => {
         fetch()
-        // Poll every 10 seconds for real-time updates
-        const interval = setInterval(fetch, 10000)
-        return () => clearInterval(interval)
     }, [fetch])
+
+    useEventStream({
+        contractIds: CONTRACT_ID ? [CONTRACT_ID] : [],
+        onEvents: () => {
+            fetch()
+        },
+    })
 
     return { campaign, loading, error, refresh: fetch }
 }

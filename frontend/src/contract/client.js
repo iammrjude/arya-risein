@@ -8,8 +8,9 @@ import {
     rpc,
 } from '@stellar/stellar-sdk'
 import { CONTRACT_ID, NETWORK_PASSPHRASE, RPC_URL, READ_ACCOUNT } from './config'
+import { rpcServer } from './server'
 
-const server = new rpc.Server(RPC_URL)
+const server = rpcServer
 const contract = new Contract(CONTRACT_ID)
 
 // ===== HELPERS =====
