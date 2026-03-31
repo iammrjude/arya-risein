@@ -1,9 +1,10 @@
 .page {
-  padding: 42px 24px 64px;
+  min-height: 100%;
+  padding: 40px 24px 60px;
 }
 
 .container {
-  max-width: 1140px;
+  max-width: 1100px;
   margin: 0 auto;
 }
 
@@ -11,30 +12,33 @@
 .poolCard {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 28px;
+  border-radius: 16px;
+  padding: 24px;
 }
 
 .kicker,
 .metricLabel,
 .fieldLabel {
-  color: var(--accent-bright);
-  font-family: var(--font-mono);
   font-size: 12px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .title {
-  font-size: clamp(28px, 5vw, 46px);
-  letter-spacing: -0.04em;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
   margin-bottom: 12px;
+  color: var(--text-primary);
 }
 
 .subtitle,
 .notice {
   color: var(--text-secondary);
+  font-size: 14px;
   line-height: 1.7;
 }
 
@@ -50,11 +54,14 @@
 .primaryAction,
 .secondaryAction {
   text-decoration: none;
-  border-radius: 12px;
-  padding: 11px 16px;
+  border-radius: 10px;
+  padding: 13px 16px;
+  font-family: var(--font-display);
+  font-size: 14px;
   font-weight: 700;
   border: 1px solid transparent;
   cursor: pointer;
+  transition: all 0.2s;
 }
 
 .primary,
@@ -65,33 +72,46 @@
 
 .secondary,
 .secondaryAction {
-  background: var(--bg-raised);
-  color: var(--text-primary);
-  border-color: var(--border);
+  background: rgba(124, 106, 255, 0.1);
+  color: var(--accent-bright);
+  border-color: rgba(124, 106, 255, 0.25);
+}
+
+.primary:hover,
+.primaryAction:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(124, 106, 255, 0.4);
+}
+
+.secondary:hover,
+.secondaryAction:hover {
+  background: rgba(124, 106, 255, 0.15);
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
-  margin-top: 20px;
+  gap: 12px;
+  margin-top: 16px;
 }
 
 .metricCard {
   background: var(--bg-raised);
   border: 1px solid var(--border);
   border-radius: 14px;
-  padding: 16px;
+  padding: 14px;
 }
 
 .metricValue {
   display: block;
-  font-size: 15px;
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
   word-break: break-word;
 }
 
 .notice {
-  margin-top: 18px;
+  margin-top: 16px;
 }
 
 .formGrid {
@@ -109,10 +129,18 @@
 .input {
   width: 100%;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 10px;
   padding: 12px 14px;
   background: var(--bg-raised);
   color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.input:focus {
+  border-color: var(--accent-dim);
 }
 
 .txBlock,
@@ -121,16 +149,22 @@
 }
 
 .errorBox {
-  color: #ff8f8f;
-  background: rgba(255, 80, 80, 0.08);
-  border: 1px solid rgba(255, 80, 80, 0.2);
-  border-radius: 14px;
-  padding: 14px;
+  color: var(--error);
+  background: rgba(255, 77, 109, 0.08);
+  border: 1px solid rgba(255, 77, 109, 0.2);
+  border-radius: 10px;
+  padding: 16px;
+  font-family: var(--font-mono);
+  font-size: 13px;
 }
 
 @media (max-width: 820px) {
   .grid,
   .formGrid {
     grid-template-columns: 1fr;
+  }
+
+  .title {
+    font-size: 24px;
   }
 }
