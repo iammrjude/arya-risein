@@ -12,10 +12,17 @@ import styles from './TreasuryPage.module.css'
 
 const INITIAL_ARYA = '500000'
 const INITIAL_XLM = '5000'
+const REMOVE_LIQUIDITY_PRESETS = [25, 50, 75, 100]
 
 function formatMaybeNumber(value, digits = 2) {
   if (value === null || value === undefined || Number.isNaN(Number(value))) return 'Not available'
   return Number(value).toLocaleString('en-US', { maximumFractionDigits: digits })
+}
+
+function formatPoolShareInput(value) {
+  if (!Number.isFinite(value)) return ''
+  if (value <= 0) return '0'
+  return value.toFixed(7).replace(/\.?0+$/, '')
 }
 
 export default function TreasuryPage() {
@@ -35,6 +42,8 @@ export default function TreasuryPage() {
 
   const treasuryWallet = settings?.treasury_wallet || registryConfig?.treasury || ''
   const isTreasury = Boolean(address && treasuryWallet && address === treasuryWallet)
+  const numericPoolShareBalance = Number(snapshot?.treasuryPoolShareBalance || 0)
+  const canRemoveLiquidity = numericPoolShareBalance > 0
 
   useEffect(() => {
     async function loadConnectedAddress() {
@@ -72,6 +81,17 @@ export default function TreasuryPage() {
     { label: 'Treasury ARYA', value: snapshot?.treasuryAryaBalance ?? 'Not available' },
     { label: 'Pool Share Balance', value: snapshot?.treasuryPoolShareBalance ?? '0.0000000' },
   ]), [snapshot, treasuryWallet])
+
+  function applyRemoveLiquidityPreset(percent) {
+    if (!canRemoveLiquidity) return
+    const nextAmount = numericPoolShareBalance * (percent / 100)
+    setPoolSharesAmount(formatPoolShareInput(nextAmount))
+  }
+
+  function applyMaxRemoveLiquidity() {
+    if (!canRemoveLiquidity) return
+    setPoolSharesAmount(formatPoolShareInput(numericPoolShareBalance))
+  }
 
   async function handleTreasuryAction(action) {
     setTxStatus('pending')
@@ -212,6 +232,27 @@ export default function TreasuryPage() {
               />
             </label>
           </div>
+          <div className={styles.presetRow}>
+            {REMOVE_LIQUIDITY_PRESETS.map(percent => (
+              <button
+                key={percent}
+                type="button"
+                className={styles.presetButton}
+                onClick={() => applyRemoveLiquidityPreset(percent)}
+                disabled={!canRemoveLiquidity || txStatus === 'pending'}
+              >
+                {percent}%
+              </button>
+            ))}
+            <button
+              type="button"
+              className={styles.presetButton}
+              onClick={applyMaxRemoveLiquidity}
+              disabled={!canRemoveLiquidity || txStatus === 'pending'}
+            >
+              Max
+            </button>
+          </div>
           <button
             className={styles.secondaryButton}
             onClick={() => handleTreasuryAction(() => removeAryaXlmLiquidity({
@@ -219,7 +260,7 @@ export default function TreasuryPage() {
               poolSharesAmount,
               signTransaction,
             }))}
-            disabled={!poolSharesAmount || txStatus === 'pending'}
+            disabled={!poolSharesAmount || !canRemoveLiquidity || txStatus === 'pending'}
           >
             Remove Liquidity
           </button>
