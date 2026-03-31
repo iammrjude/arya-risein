@@ -88,11 +88,6 @@ export default function TreasuryPage() {
     setPoolSharesAmount(formatPoolShareInput(nextAmount))
   }
 
-  function applyMaxRemoveLiquidity() {
-    if (!canRemoveLiquidity) return
-    setPoolSharesAmount(formatPoolShareInput(numericPoolShareBalance))
-  }
-
   async function handleTreasuryAction(action) {
     setTxStatus('pending')
     setTxHash(null)
@@ -244,14 +239,6 @@ export default function TreasuryPage() {
                 {percent}%
               </button>
             ))}
-            <button
-              type="button"
-              className={styles.presetButton}
-              onClick={applyMaxRemoveLiquidity}
-              disabled={!canRemoveLiquidity || txStatus === 'pending'}
-            >
-              Max
-            </button>
           </div>
           <button
             className={styles.secondaryButton}

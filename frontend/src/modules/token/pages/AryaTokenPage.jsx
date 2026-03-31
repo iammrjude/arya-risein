@@ -1,5 +1,10 @@
+import { useEffect, useState } from 'react'
 import styles from './AryaTokenPage.module.css'
 import { ARYA_TOKEN_ID, PLATFORM_OWNER } from '../../../contract/config'
+import { getAryaSwapQuote, getAryaXlmPoolStatus, swapAryaAgainstXlm } from '../../../contract/client'
+import { useWallet } from '../../../hooks/useWallet'
+import TxStatus from '../../../components/TxStatus/TxStatus'
+import { truncateAddress } from '../../../utils/stellar'
 
 const TOKENOMICS = [
   { label: 'Total Supply', value: '100,000,000 ARYA' },
@@ -21,7 +26,120 @@ const TRUSTLINE_STEPS = [
   'After the trustline is active, the wallet can receive ARYA and later swap against the ARYA/XLM pool.',
 ]
 
+const SWAP_DIRECTIONS = {
+  buy: {
+    label: 'Buy ARYA',
+    payLabel: 'You pay in XLM',
+    receiveLabel: 'You receive ARYA',
+  },
+  sell: {
+    label: 'Sell ARYA',
+    payLabel: 'You pay in ARYA',
+    receiveLabel: 'You receive XLM',
+  },
+}
+
 export default function AryaTokenPage() {
+  const { getAddress, signTransaction } = useWallet()
+  const [address, setAddress] = useState(null)
+  const [swapDirection, setSwapDirection] = useState('buy')
+  const [swapAmount, setSwapAmount] = useState('')
+  const [quote, setQuote] = useState(null)
+  const [quoteError, setQuoteError] = useState(null)
+  const [quoteLoading, setQuoteLoading] = useState(false)
+  const [swapStatus, setSwapStatus] = useState(null)
+  const [swapHash, setSwapHash] = useState(null)
+  const [swapError, setSwapError] = useState(null)
+  const [poolStatus, setPoolStatus] = useState(null)
+
+  useEffect(() => {
+    async function loadAddress() {
+      const nextAddress = await getAddress()
+      setAddress(nextAddress)
+    }
+
+    loadAddress()
+    const interval = setInterval(loadAddress, 2000)
+    return () => clearInterval(interval)
+  }, [getAddress])
+
+  useEffect(() => {
+    async function loadPoolStatus() {
+      try {
+        const nextStatus = await getAryaXlmPoolStatus()
+        setPoolStatus(nextStatus)
+      } catch {
+        setPoolStatus(null)
+      }
+    }
+
+    loadPoolStatus()
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadQuote() {
+      if (!swapAmount.trim()) {
+        setQuote(null)
+        setQuoteError(null)
+        return
+      }
+
+      setQuoteLoading(true)
+      setQuoteError(null)
+      try {
+        const nextQuote = await getAryaSwapQuote({ direction: swapDirection, amount: swapAmount })
+        if (!cancelled) {
+          setQuote(nextQuote)
+          if (!nextQuote) {
+            setQuoteError('No live route is available for this swap amount right now.')
+          }
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setQuote(null)
+          setQuoteError(err.message)
+        }
+      } finally {
+        if (!cancelled) {
+          setQuoteLoading(false)
+        }
+      }
+    }
+
+    loadQuote()
+    return () => {
+      cancelled = true
+    }
+  }, [swapAmount, swapDirection])
+
+  async function handleSwap() {
+    if (!address) {
+      setSwapStatus('error')
+      setSwapError('Connect a wallet before swapping.')
+      return
+    }
+
+    setSwapStatus('pending')
+    setSwapHash(null)
+    setSwapError(null)
+
+    try {
+      const result = await swapAryaAgainstXlm({
+        walletAddress: address,
+        direction: swapDirection,
+        amount: swapAmount,
+        signTransaction,
+      })
+      setSwapStatus('success')
+      setSwapHash(result.hash)
+    } catch (err) {
+      setSwapStatus('error')
+      setSwapError(err.message)
+    }
+  }
+
   return (
     <div className={styles.page}>
       <section className={styles.hero}>
@@ -42,6 +160,10 @@ export default function AryaTokenPage() {
             <article className={styles.metricCard}>
               <span className={styles.metricLabel}>Issuer</span>
               <strong className={styles.metricValue}>{PLATFORM_OWNER || 'Not configured'}</strong>
+            </article>
+            <article className={styles.metricCard}>
+              <span className={styles.metricLabel}>ARYA/XLM Pool ID</span>
+              <strong className={styles.metricValue}>{poolStatus?.poolId || 'Loading...'}</strong>
             </article>
           </div>
           <p className={styles.bodyText}>
@@ -80,18 +202,84 @@ export default function AryaTokenPage() {
           </article>
           <article className={styles.card}>
             <h2 className={styles.sectionTitle}>Swap & Liquidity</h2>
-            <p className={styles.listItem}>
-              The initial liquidity plan seeds the ARYA/XLM pool from the treasury wallet with 500,000 ARYA and 5,000 XLM.
-            </p>
-            <p className={styles.listItem}>
-              That launch ratio establishes the opening AMM price, after which Stellar path payments and pool trades move the market price.
-            </p>
-            <p className={styles.listItem}>
-              A dedicated swap experience can be layered on top of this page later, but the token details and trustline instructions belong here now.
-            </p>
+            <div className={styles.swapMeta}>
+              <article className={styles.metricCard}>
+                <span className={styles.metricLabel}>Pool Status</span>
+                <strong className={styles.metricValue}>{poolStatus?.poolExists ? 'Live' : 'Awaiting liquidity'}</strong>
+              </article>
+              <article className={styles.metricCard}>
+                <span className={styles.metricLabel}>Pool Reserves</span>
+                <strong className={styles.metricValue}>
+                  {poolStatus ? `${poolStatus.aryaReserve.toLocaleString('en-US', { maximumFractionDigits: 2 })} ARYA / ${poolStatus.xlmReserve.toLocaleString('en-US', { maximumFractionDigits: 2 })} XLM` : 'Loading...'}
+                </strong>
+              </article>
+            </div>
+
+            <div className={styles.toggleRow}>
+              {Object.entries(SWAP_DIRECTIONS).map(([key, config]) => (
+                <button
+                  key={key}
+                  type="button"
+                  className={`${styles.toggleButton} ${swapDirection === key ? styles.toggleActive : ''}`}
+                  onClick={() => setSwapDirection(key)}
+                >
+                  {config.label}
+                </button>
+              ))}
+            </div>
+
+            <div className={styles.swapPanel}>
+              <div className={styles.swapField}>
+                <span className={styles.metricLabel}>{SWAP_DIRECTIONS[swapDirection].payLabel}</span>
+                <input
+                  value={swapAmount}
+                  onChange={(event) => setSwapAmount(event.target.value)}
+                  className={styles.swapInput}
+                  placeholder={swapDirection === 'buy' ? '25.0' : '250.0'}
+                />
+              </div>
+
+              <div className={styles.swapField}>
+                <span className={styles.metricLabel}>{SWAP_DIRECTIONS[swapDirection].receiveLabel}</span>
+                <div className={styles.swapQuoteValue}>
+                  {quoteLoading && 'Fetching route...'}
+                  {!quoteLoading && quote?.destinationAmount && `${Number(quote.destinationAmount).toLocaleString('en-US', { maximumFractionDigits: 7 })} ${quote.destinationAssetLabel}`}
+                  {!quoteLoading && !quote?.destinationAmount && 'Enter an amount to fetch a route'}
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.swapDetails}>
+              <p className={styles.listItem}>
+                Connected wallet: {address ? truncateAddress(address, 8, 8) : 'Connect a wallet to swap'}
+              </p>
+              <p className={styles.listItem}>Default slippage protection: 1.00%</p>
+              {quoteError && <p className={styles.inlineError}>{quoteError}</p>}
+            </div>
+
+            <button
+              type="button"
+              className={styles.swapButton}
+              onClick={handleSwap}
+              disabled={!swapAmount || quoteLoading || !quote}
+            >
+              {SWAP_DIRECTIONS[swapDirection].label}
+            </button>
           </article>
         </section>
       </div>
+
+      {swapStatus && (
+        <TxStatus
+          status={swapStatus}
+          hash={swapHash}
+          error={swapError}
+          onClose={() => {
+            setSwapStatus(null)
+            setSwapError(null)
+          }}
+        />
+      )}
     </div>
   )
 }

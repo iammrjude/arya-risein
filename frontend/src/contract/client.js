@@ -201,6 +201,11 @@ function getAryaAsset() {
     return new Asset('ARYA', PLATFORM_OWNER)
 }
 
+function getAryaAssetDescriptor() {
+    requirePlatformOwner()
+    return `credit_alphanum4:ARYA:${PLATFORM_OWNER}`
+}
+
 function getAryaXlmPoolAsset() {
     return new LiquidityPoolAsset(Asset.native(), getAryaAsset(), LIQUIDITY_POOL_FEE)
 }
@@ -324,6 +329,128 @@ async function fetchLiquidityPoolRecord(poolId) {
         throw new Error('Unable to load ARYA/XLM liquidity pool state right now.')
     }
     return response.json()
+}
+
+function parseHorizonAsset(asset) {
+    if (!asset || asset.asset_type === 'native') {
+        return Asset.native()
+    }
+
+    return new Asset(asset.asset_code, asset.asset_issuer)
+}
+
+function applySlippageFloor(amount, slippageBps) {
+    const numericAmount = Number(amount)
+    const safeAmount = numericAmount * (1 - (slippageBps / 10_000))
+    return Math.max(safeAmount, 0.0000001).toFixed(7)
+}
+
+async function fetchStrictSendPath(direction, sourceAmount) {
+    const params = new URLSearchParams()
+    params.set('source_amount', sourceAmount)
+
+    if (direction === 'buy') {
+        params.set('source_asset_type', 'native')
+        params.set('destination_assets', getAryaAssetDescriptor())
+    } else {
+        params.set('source_asset_type', 'credit_alphanum4')
+        params.set('source_asset_code', 'ARYA')
+        params.set('source_asset_issuer', PLATFORM_OWNER)
+        params.set('destination_assets', 'native')
+    }
+
+    const response = await fetch(`${HORIZON_URL}/paths/strict-send?${params.toString()}`)
+    if (!response.ok) {
+        throw new Error('Unable to fetch a swap route right now.')
+    }
+
+    const data = await response.json()
+    return data?._embedded?.records?.[0] ?? null
+}
+
+export async function getAryaXlmPoolStatus() {
+    const poolId = getAryaXlmPoolId()
+    const poolRecord = await fetchLiquidityPoolRecord(poolId)
+
+    return {
+        poolId,
+        poolExists: Boolean(poolRecord),
+        totalShares: Number(poolRecord?.total_shares ?? 0),
+        xlmReserve: getPoolReserveAmount(poolRecord, 'native'),
+        aryaReserve: getPoolReserveAmount(poolRecord, `ARYA:${PLATFORM_OWNER}`),
+    }
+}
+
+export async function getAryaSwapQuote({ direction, amount }) {
+    requirePlatformOwner()
+    const normalizedAmount = normalizeAssetAmount(amount)
+    const route = await fetchStrictSendPath(direction, normalizedAmount)
+
+    if (!route) {
+        return null
+    }
+
+    return {
+        direction,
+        sendAmount: route.source_amount ?? normalizedAmount,
+        destinationAmount: route.destination_amount,
+        sourceAssetLabel: direction === 'buy' ? 'XLM' : 'ARYA',
+        destinationAssetLabel: direction === 'buy' ? 'ARYA' : 'XLM',
+        path: route.path ?? [],
+    }
+}
+
+export async function swapAryaAgainstXlm({
+    walletAddress,
+    direction,
+    amount,
+    signTransaction,
+    slippageBps = 100,
+}) {
+    requirePlatformOwner()
+
+    const normalizedAmount = normalizeAssetAmount(amount)
+    const quote = await getAryaSwapQuote({ direction, amount: normalizedAmount })
+
+    if (!quote) {
+        throw new Error(`No ${direction === 'buy' ? 'XLM to ARYA' : 'ARYA to XLM'} swap route is available right now.`)
+    }
+
+    if (direction === 'buy') {
+        const trustlineStatus = await getAssetTrustlineStatus(walletAddress)
+        if (!trustlineStatus.accountExists) {
+            throw new Error('Wallet was not found on Stellar testnet.')
+        }
+        if (!trustlineStatus.hasTrustline) {
+            throw new Error('Add the ARYA trustline before swapping XLM into ARYA.')
+        }
+    }
+
+    const sourceAccount = await horizonServer.loadAccount(walletAddress)
+    const tx = new TransactionBuilder(sourceAccount, {
+        fee: BASE_FEE,
+        networkPassphrase: NETWORK_PASSPHRASE,
+    })
+        .addOperation(Operation.pathPaymentStrictSend({
+            sendAsset: direction === 'buy' ? Asset.native() : getAryaAsset(),
+            sendAmount: normalizedAmount,
+            destination: walletAddress,
+            destAsset: direction === 'buy' ? getAryaAsset() : Asset.native(),
+            destMin: applySlippageFloor(quote.destinationAmount, slippageBps),
+            path: quote.path.map(parseHorizonAsset),
+        }))
+        .setTimeout(180)
+        .build()
+
+    const signedXdr = await signTransaction(tx.toXDR())
+    const signedTx = TransactionBuilder.fromXDR(signedXdr, NETWORK_PASSPHRASE)
+
+    try {
+        const result = await horizonServer.submitTransaction(signedTx)
+        return { success: true, hash: result.hash, result, quote }
+    } catch (err) {
+        throw new Error(describeHorizonError(err, 'Swap failed. Check the route, trustline, and balances, then retry.'))
+    }
 }
 
 export async function getCampaignCount() {
