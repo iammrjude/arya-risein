@@ -34,7 +34,7 @@ The frontend uses a modular route layout:
 - `/staking/*`
 - `/admin`
 
-It keeps the original dark/purple AryaFund visual identity while expanding discoverability and mobile navigation.
+It keeps the original dark/purple Arya visual identity while expanding discoverability and mobile navigation.
 
 ## Event Sync
 

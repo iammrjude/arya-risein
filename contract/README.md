@@ -69,14 +69,14 @@ stellar --version
 
 Stellar CLI identities are global by default unless you set `--config-dir`.
 
-For this project, the recommended path is to create new global Arya identity names from the old AryaFund ones and then use the Arya names everywhere going forward.
+For this project, the recommended path is to create new global Arya identity names from the old legacy ones and then use the Arya names everywhere going forward.
 
 Check what you already have:
 
 ```bash
 stellar keys ls
-stellar keys public-key arya-fund-deployer
-stellar keys public-key arya-fund-treasury
+stellar keys public-key legacy-deployer
+stellar keys public-key legacy-treasury
 ```
 
 ### Stellar Keys Cheat Sheet
@@ -104,7 +104,7 @@ Meaning:
 - `add --secret-key` imports an existing secret
 - `rm` removes an identity from the current CLI store
 
-### Rename Old AryaFund Identities For Arya
+### Rename Old Legacy Identities For Arya
 
 There is no direct `rename` command, so the safe flow is:
 
@@ -115,11 +115,11 @@ There is no direct `rename` command, so the safe flow is:
 Commands:
 
 ```bash
-stellar keys secret arya-fund-deployer
+stellar keys secret legacy-deployer
 stellar keys add arya-deployer --secret-key
 stellar keys use arya-deployer
 
-stellar keys secret arya-fund-treasury
+stellar keys secret legacy-treasury
 stellar keys add arya-treasury --secret-key
 ```
 
@@ -138,8 +138,8 @@ If those public keys match the old ones, update your commands to use:
 Optionally remove the old names after confirming the new ones work:
 
 ```bash
-stellar keys rm arya-fund-deployer
-stellar keys rm arya-fund-treasury
+stellar keys rm legacy-deployer
+stellar keys rm legacy-treasury
 ```
 
 ### Save Keys Inside This Repo
@@ -495,13 +495,21 @@ Fill these in after deployment:
 
 | Property | Value |
 | ---------- | ------- |
-| Registry Contract | `ADD_REGISTRY_ID_HERE` |
-| Staking Contract | `ADD_STAKING_ID_HERE` |
-| Crowdfunding Contract | `ADD_CROWDFUNDING_ID_HERE` |
-| Launchpad Contract | `ADD_LAUNCHPAD_ID_HERE` |
-| ARYA Token / SAC | `ADD_ARYA_TOKEN_ID_HERE` |
-| XLM SAC | `ADD_XLM_SAC_ID_HERE` |
-| USDC SAC | `ADD_USDC_SAC_ID_HERE` |
+| Registry Contract | `CDTYETLJFF3YXL73VU6HDSM55S3W4WIJISN4GSSNBRE3NRKGVTAIJQSX` |
+| Staking Contract | `CAIGE27WE6FVOAFYHNTG6UQSDQH4RILGPE2DLISDG6TXY5D2QQFDCUUH` |
+| Crowdfunding Contract | `CCXT5UABFQIJAMEFU6JSZUUDE42HTWZZDYKZCXBON47LXKKK3STJIC3I` |
+| Launchpad Contract | `CDSWDFZRA5MIWLFJCIHBTIQ2XTIWUZSH34U6GXBNNCALVRPIBKFL7GGU` |
+| ARYA Token / SAC | `CBC42DVQ5J5KIXLJ2GIOX3PRZOZ5H63GPQKXXIYMPNOR2XXWNBEO332W` |
+| XLM SAC | `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC` |
+| USDC SAC | `CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA` |
+
+Explorer links:
+
+- Registry: <https://lab.stellar.org/r/testnet/contract/CDTYETLJFF3YXL73VU6HDSM55S3W4WIJISN4GSSNBRE3NRKGVTAIJQSX>
+- Staking: <https://lab.stellar.org/r/testnet/contract/CAIGE27WE6FVOAFYHNTG6UQSDQH4RILGPE2DLISDG6TXY5D2QQFDCUUH>
+- Crowdfunding: <https://lab.stellar.org/r/testnet/contract/CCXT5UABFQIJAMEFU6JSZUUDE42HTWZZDYKZCXBON47LXKKK3STJIC3I>
+- Launchpad: <https://lab.stellar.org/r/testnet/contract/CDSWDFZRA5MIWLFJCIHBTIQ2XTIWUZSH34U6GXBNNCALVRPIBKFL7GGU>
+- ARYA Token SAC: <https://lab.stellar.org/r/testnet/contract/CBC42DVQ5J5KIXLJ2GIOX3PRZOZ5H63GPQKXXIYMPNOR2XXWNBEO332W>
 
 ## Related Docs
 

@@ -127,43 +127,53 @@ arya-risein/
 | Property | Value |
 | ---------- | ------- |
 | Network | Stellar Testnet |
-| Registry Contract | `ADD_REGISTRY_ID_HERE` |
-| Staking Contract | `ADD_STAKING_ID_HERE` |
-| Crowdfunding Contract | `ADD_CROWDFUNDING_ID_HERE` |
-| Launchpad Contract | `ADD_LAUNCHPAD_ID_HERE` |
-| ARYA Token / SAC | `ADD_ARYA_TOKEN_ID_HERE` |
-| Native XLM SAC | `ADD_XLM_SAC_ID_HERE` |
-| Testnet USDC SAC | `ADD_USDC_SAC_ID_HERE` |
-| Treasury Wallet | `ADD_TREASURY_ADDRESS_HERE` |
-| Platform Owner | `ADD_OWNER_ADDRESS_HERE` |
+| Registry Contract | `CDTYETLJFF3YXL73VU6HDSM55S3W4WIJISN4GSSNBRE3NRKGVTAIJQSX` |
+| Staking Contract | `CAIGE27WE6FVOAFYHNTG6UQSDQH4RILGPE2DLISDG6TXY5D2QQFDCUUH` |
+| Crowdfunding Contract | `CCXT5UABFQIJAMEFU6JSZUUDE42HTWZZDYKZCXBON47LXKKK3STJIC3I` |
+| Launchpad Contract | `CDSWDFZRA5MIWLFJCIHBTIQ2XTIWUZSH34U6GXBNNCALVRPIBKFL7GGU` |
+| ARYA Token / SAC | `CBC42DVQ5J5KIXLJ2GIOX3PRZOZ5H63GPQKXXIYMPNOR2XXWNBEO332W` |
+| ARYA Token Asset | `ARYA:GBLH7QUEY43J3AJSIYPRUQKKUFX577GSYWRRQJVNFOV7MUON3YMM5IJQ` |
+| Native XLM SAC | `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC` |
+| Testnet USDC SAC | `CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA` |
+| Testnet USDC Asset | `USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5` |
+| Treasury Wallet | `GAZZRHDL3SUTFD2CWWDVVHQXGVXWWQYTJNGMC6IQIQD7OAKQLDBJND7B` |
+| Platform Owner | `GBLH7QUEY43J3AJSIYPRUQKKUFX577GSYWRRQJVNFOV7MUON3YMM5IJQ` |
 
 ### Deployment / Upgrade Transactions
 
 | Action | Transaction Hash |
 | ---------- | ---------------- |
-| Registry Deploy | `ADD_TX_HASH_HERE` |
-| Registry Initialize | `ADD_TX_HASH_HERE` |
-| Staking Deploy | `ADD_TX_HASH_HERE` |
-| Staking Initialize | `ADD_TX_HASH_HERE` |
-| Crowdfunding Deploy | `ADD_TX_HASH_HERE` |
-| Crowdfunding Initialize | `ADD_TX_HASH_HERE` |
-| Launchpad Deploy | `ADD_TX_HASH_HERE` |
-| Launchpad Initialize | `ADD_TX_HASH_HERE` |
-| Latest Upgrade | `ADD_TX_HASH_HERE` |
+| ARYA Token SAC Deploy | [`152344f663bdd5aed18e3d6cc31d7d9638d76b07c469ec19e9f6c9dafcf1a8dd`](https://stellar.expert/explorer/testnet/tx/152344f663bdd5aed18e3d6cc31d7d9638d76b07c469ec19e9f6c9dafcf1a8dd) |
+| Staking Deploy | [`045faea76fad1b4a584fc9792b161bcb3a6d960ede58fe3b235166f517ec2398`](https://stellar.expert/explorer/testnet/tx/045faea76fad1b4a584fc9792b161bcb3a6d960ede58fe3b235166f517ec2398) |
+| Crowdfunding Deploy | [`91044d8321beef3efc4ebe6806511bd919a38f2e21d61dc00d1ea0360513236a`](https://stellar.expert/explorer/testnet/tx/91044d8321beef3efc4ebe6806511bd919a38f2e21d61dc00d1ea0360513236a) |
+| Launchpad Deploy | [`5a6fd1677e3751ae5c8f018a31c20cc448ecf182ebb05d6cef0801b64e14b728`](https://stellar.expert/explorer/testnet/tx/5a6fd1677e3751ae5c8f018a31c20cc448ecf182ebb05d6cef0801b64e14b728) |
+| Registry Initialize | [`5fcfa75fd1001aafc20cdcd716c671d51dca9295cf2d115d7211736497a335b7`](https://stellar.expert/explorer/testnet/tx/5fcfa75fd1001aafc20cdcd716c671d51dca9295cf2d115d7211736497a335b7) |
+| Staking Initialize | `Recorded on-chain during first deploy; explorer tx hash not yet copied into docs` |
+| Crowdfunding Initialize | `Recorded on-chain during first deploy; explorer tx hash not yet copied into docs` |
+| Launchpad Initialize | `Recorded on-chain during first deploy; explorer tx hash not yet copied into docs` |
+| Latest Upgrade | `No upgrade executed yet on this deployment` |
 
 ### Inter-Contract Call Verification
 
 | Action | Transaction |
 | ---------- | ------------ |
-| Crowdfunding fee routed into staking | `ADD_TX_HASH_OR_EXPLORER_LINK` |
-| Launchpad fee routed into staking | `ADD_TX_HASH_OR_EXPLORER_LINK` |
+| Crowdfunding fee routed into staking | `Pending first fee-generating crowdfunding interaction on testnet` |
+| Launchpad fee routed into staking | `Pending first fee-generating launchpad interaction on testnet` |
 
 ### Token / Pool
 
 | Asset | Address |
 | ---------- | ------- |
-| ARYA token / SAC | `ADD_TOKEN_ID_HERE` |
-| ARYA/XLM pool (optional) | `ADD_POOL_ID_HERE` |
+| ARYA token / SAC | `CBC42DVQ5J5KIXLJ2GIOX3PRZOZ5H63GPQKXXIYMPNOR2XXWNBEO332W` |
+| ARYA/XLM pool (optional) | `Not deployed` |
+
+### Explorer Links
+
+- Registry: <https://lab.stellar.org/r/testnet/contract/CDTYETLJFF3YXL73VU6HDSM55S3W4WIJISN4GSSNBRE3NRKGVTAIJQSX>
+- Staking: <https://lab.stellar.org/r/testnet/contract/CAIGE27WE6FVOAFYHNTG6UQSDQH4RILGPE2DLISDG6TXY5D2QQFDCUUH>
+- Crowdfunding: <https://lab.stellar.org/r/testnet/contract/CCXT5UABFQIJAMEFU6JSZUUDE42HTWZZDYKZCXBON47LXKKK3STJIC3I>
+- Launchpad: <https://lab.stellar.org/r/testnet/contract/CDSWDFZRA5MIWLFJCIHBTIQ2XTIWUZSH34U6GXBNNCALVRPIBKFL7GGU>
+- ARYA Token SAC: <https://lab.stellar.org/r/testnet/contract/CBC42DVQ5J5KIXLJ2GIOX3PRZOZ5H63GPQKXXIYMPNOR2XXWNBEO332W>
 
 ## Tech Stack
 
@@ -188,7 +198,7 @@ arya-risein/
 
 ### Key Management
 
-Stellar CLI identities are global by default. That means your old `arya-fund-deployer` and `arya-fund-treasury` keys are not tied to the old repo folder; they live in the Stellar CLI config store for your user account.
+Stellar CLI identities are global by default. That means old legacy deployer and treasury keys are not tied to the old repo folder; they live in the Stellar CLI config store for your user account.
 
 Useful Stellar CLI key commands:
 
@@ -218,26 +228,26 @@ What they mean:
 
 Recommended path for this project:
 
-1. create new global Arya identities from the old AryaFund identities
+1. create new global Arya identities from the old legacy identities
 2. update docs/scripts to use the new Arya names
-3. optionally remove the old AryaFund identities after you confirm the new ones work
+3. optionally remove the old legacy identities after you confirm the new ones work
 
 To inspect the old identities:
 
 ```bash
 stellar keys ls
-stellar keys public-key arya-fund-deployer
-stellar keys public-key arya-fund-treasury
+stellar keys public-key legacy-deployer
+stellar keys public-key legacy-treasury
 ```
 
 To rename them for Arya in the global store, export and re-add them under the new names:
 
 ```bash
-stellar keys secret arya-fund-deployer
+stellar keys secret legacy-deployer
 stellar keys add arya-deployer --secret-key
 stellar keys use arya-deployer
 
-stellar keys secret arya-fund-treasury
+stellar keys secret legacy-treasury
 stellar keys add arya-treasury --secret-key
 ```
 
@@ -258,8 +268,8 @@ If the public keys match the old ones, switch your docs, scripts, and manual com
 Only after that should you optionally remove the old names:
 
 ```bash
-stellar keys rm arya-fund-deployer
-stellar keys rm arya-fund-treasury
+stellar keys rm legacy-deployer
+stellar keys rm legacy-treasury
 ```
 
 If you want the keys to be repo-local for this project, use a repo config dir:

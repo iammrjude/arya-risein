@@ -7,7 +7,7 @@ export default function ConnectPrompt({ onConnect, loading }) {
                 <div className={styles.orb} />
                 <div className={styles.orbOuter} />
                 <div className={styles.icon}>◈</div>
-                <h1 className={styles.title}>AryaFund</h1>
+                <h1 className={styles.title}>Arya</h1>
                 <p className={styles.subtitle}>
                     Decentralized crowdfunding on the Stellar network.
                     <br />

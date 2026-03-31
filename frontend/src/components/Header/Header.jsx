@@ -41,7 +41,7 @@ export default function Header() {
             <div className={styles.left}>
                 <Link to="/" className={styles.logo}>
                     <span className={styles.logoIcon}>◈</span>
-                    <span className={styles.logoText}>AryaFund</span>
+                    <span className={styles.logoText}>Arya</span>
                 </Link>
                 <nav className={styles.nav}>
                     <Link to="/" className={`${styles.navLink} ${isActive('/') ? styles.active : ''}`}>

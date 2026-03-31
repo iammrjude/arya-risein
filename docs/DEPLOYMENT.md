@@ -27,7 +27,7 @@ stellar --version
 
 ## 2. Create or Import a CLI Identity
 
-Stellar CLI identities are global by default. If you already created identities in the old AryaFund work, the recommended path is to create new Arya names from them and then use the Arya names everywhere.
+Stellar CLI identities are global by default. If you already created identities in earlier legacy work, the recommended path is to create new Arya names from them and then use the Arya names everywhere.
 
 Useful commands:
 
@@ -47,18 +47,18 @@ Inspect existing identities:
 
 ```bash
 stellar keys ls
-stellar keys public-key arya-fund-deployer
-stellar keys public-key arya-fund-treasury
+stellar keys public-key legacy-deployer
+stellar keys public-key legacy-treasury
 ```
 
 Create Arya-specific names by copying the old ones:
 
 ```bash
-stellar keys secret arya-fund-deployer
+stellar keys secret legacy-deployer
 stellar keys add arya-deployer --secret-key
 stellar keys use arya-deployer
 
-stellar keys secret arya-fund-treasury
+stellar keys secret legacy-treasury
 stellar keys add arya-treasury --secret-key
 ```
 
@@ -76,8 +76,8 @@ If the new names are correct, use them for deployment commands and docs going fo
 After you confirm everything works, optionally remove the old names:
 
 ```bash
-stellar keys rm arya-fund-deployer
-stellar keys rm arya-fund-treasury
+stellar keys rm legacy-deployer
+stellar keys rm legacy-treasury
 ```
 
 If you want the keys stored only for this repo, use a repo-local config dir:
@@ -282,6 +282,40 @@ After deployment, save:
 - screenshots
 
 Those values belong in the root README and submission materials.
+
+## Current Testnet Deployment
+
+Current deployed addresses:
+
+- Platform owner: `GBLH7QUEY43J3AJSIYPRUQKKUFX577GSYWRRQJVNFOV7MUON3YMM5IJQ`
+- Treasury: `GAZZRHDL3SUTFD2CWWDVVHQXGVXWWQYTJNGMC6IQIQD7OAKQLDBJND7B`
+- Registry: `CDTYETLJFF3YXL73VU6HDSM55S3W4WIJISN4GSSNBRE3NRKGVTAIJQSX`
+- Staking: `CAIGE27WE6FVOAFYHNTG6UQSDQH4RILGPE2DLISDG6TXY5D2QQFDCUUH`
+- Crowdfunding: `CCXT5UABFQIJAMEFU6JSZUUDE42HTWZZDYKZCXBON47LXKKK3STJIC3I`
+- Launchpad: `CDSWDFZRA5MIWLFJCIHBTIQ2XTIWUZSH34U6GXBNNCALVRPIBKFL7GGU`
+- ARYA token asset: `ARYA:GBLH7QUEY43J3AJSIYPRUQKKUFX577GSYWRRQJVNFOV7MUON3YMM5IJQ`
+- ARYA token SAC: `CBC42DVQ5J5KIXLJ2GIOX3PRZOZ5H63GPQKXXIYMPNOR2XXWNBEO332W`
+- XLM SAC: `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC`
+- USDC asset: `USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5`
+- USDC SAC: `CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA`
+
+Known deployment transaction hashes:
+
+- ARYA token SAC deploy: `152344f663bdd5aed18e3d6cc31d7d9638d76b07c469ec19e9f6c9dafcf1a8dd`
+- Staking deploy: `045faea76fad1b4a584fc9792b161bcb3a6d960ede58fe3b235166f517ec2398`
+- Crowdfunding deploy: `91044d8321beef3efc4ebe6806511bd919a38f2e21d61dc00d1ea0360513236a`
+- Launchpad deploy: `5a6fd1677e3751ae5c8f018a31c20cc448ecf182ebb05d6cef0801b64e14b728`
+- Registry initialize: `5fcfa75fd1001aafc20cdcd716c671d51dca9295cf2d115d7211736497a335b7`
+
+Known explorer links:
+
+- ARYA token SAC: <https://lab.stellar.org/r/testnet/contract/CBC42DVQ5J5KIXLJ2GIOX3PRZOZ5H63GPQKXXIYMPNOR2XXWNBEO332W>
+- Registry: <https://lab.stellar.org/r/testnet/contract/CDTYETLJFF3YXL73VU6HDSM55S3W4WIJISN4GSSNBRE3NRKGVTAIJQSX>
+- Staking: <https://lab.stellar.org/r/testnet/contract/CAIGE27WE6FVOAFYHNTG6UQSDQH4RILGPE2DLISDG6TXY5D2QQFDCUUH>
+- Crowdfunding: <https://lab.stellar.org/r/testnet/contract/CCXT5UABFQIJAMEFU6JSZUUDE42HTWZZDYKZCXBON47LXKKK3STJIC3I>
+- Launchpad: <https://lab.stellar.org/r/testnet/contract/CDSWDFZRA5MIWLFJCIHBTIQ2XTIWUZSH34U6GXBNNCALVRPIBKFL7GGU>
+
+The first deploy also initialized staking, crowdfunding, and launchpad successfully, but their exact initialize transaction hashes were not copied into the captured log snippet. Add them here later if you export the full workflow log.
 
 ## GitHub Actions Setup
 

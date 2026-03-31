@@ -27,7 +27,7 @@ export default function LandingPage() {
         <p className={styles.kicker}>Arya on Stellar</p>
         <h1 className={styles.title}>Crowdfunding, launchpad, and ARYA staking in one modular platform.</h1>
         <p className={styles.subtitle}>
-          Arya expands the original AryaFund into an upgradeable multi-product ecosystem with shared treasury logic,
+          Arya expands the original crowdfunding prototype into an upgradeable multi-product ecosystem with shared treasury logic,
           staking rewards, and discoverable mobile-first navigation.
         </p>
         <div className={styles.actions}>

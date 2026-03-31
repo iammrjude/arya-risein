@@ -2,7 +2,7 @@
 
 ## Identity
 
-Stellar CLI identities are global by default, so the recommended path is to create new Arya names from the old AryaFund identities and use the new names going forward.
+Stellar CLI identities are global by default, so the recommended path is to create new Arya names from the old legacy identities and use the new names going forward.
 
 Useful key commands:
 
@@ -22,18 +22,18 @@ Inspect them:
 
 ```bash
 stellar keys ls
-stellar keys public-key arya-fund-deployer
-stellar keys public-key arya-fund-treasury
+stellar keys public-key legacy-deployer
+stellar keys public-key legacy-treasury
 ```
 
 To create Arya names:
 
 ```bash
-stellar keys secret arya-fund-deployer
+stellar keys secret legacy-deployer
 stellar keys add arya-deployer --secret-key
 stellar keys use arya-deployer
 
-stellar keys secret arya-fund-treasury
+stellar keys secret legacy-treasury
 stellar keys add arya-treasury --secret-key
 ```
 
@@ -47,8 +47,8 @@ stellar keys public-key arya-treasury
 After confirming the new identities work, you can optionally remove the old ones:
 
 ```bash
-stellar keys rm arya-fund-deployer
-stellar keys rm arya-fund-treasury
+stellar keys rm legacy-deployer
+stellar keys rm legacy-treasury
 ```
 
 If you want the identities stored only inside this repo:

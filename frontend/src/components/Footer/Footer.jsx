@@ -4,7 +4,7 @@ import styles from './Footer.module.css'
 export default function Footer() {
     return (
         <footer className={styles.footer}>
-            <span>AryaFund</span>
+            <span>Arya</span>
             <span className={styles.dot}>·</span>
             <span>Built on Stellar Testnet</span>
             <span className={styles.dot}>·</span>
