@@ -1,6 +1,6 @@
 # Arya
 
-Arya is a modular Stellar dApp platform built for Level 4 production-readiness work. It expands the original crowdfunding prototype into a broader product suite with upgradeable Soroban smart contracts, a React frontend, real-time event syncing, CI/CD, and mobile-first navigation.
+Arya is a modular Stellar dApp platform built for Level 4 production-readiness work. It expands the original crowdfunding prototype into a broader product suite with upgradeable Soroban smart contracts, a React frontend, near-real-time event syncing via Soroban RPC polling, CI/CD, and mobile-first navigation.
 
 - Network: `Stellar Testnet`
 - Live Demo: `ADD_VERCEL_URL_HERE`
@@ -73,7 +73,7 @@ Add screenshots in the `screenshots/` folder and replace the placeholder filenam
 
 - Upgradeable Soroban contracts
 - Inter-contract reward routing from crowdfunding and launchpad into staking
-- Real-time frontend event syncing through Soroban RPC event polling
+- Near-real-time frontend event syncing through Soroban RPC event polling
 - Mobile-first responsive navigation
 - CI/CD with Rust and frontend validation
 - Frontend smoke tests with Vitest and Testing Library
@@ -538,7 +538,7 @@ So in this project:
 - [x] Upgradeable contracts
 - [x] Inter-contract calls
 - [x] Mobile-responsive frontend
-- [x] Real-time event stream hook
+- [x] Soroban RPC event polling hook for near-real-time frontend sync
 - [x] CI/CD workflows configured
 - [x] Frontend smoke tests configured
 - [ ] Live demo URL filled in
