@@ -21,7 +21,7 @@ export default function StakingOverviewPage() {
 
         {error && <div className={styles.errorBox}>Failed to load staking overview: {error}</div>}
 
-        <div className={styles.grid}>
+        <div className={styles.metricsGrid}>
           <div className={styles.metricCard}>
             <span className={styles.metricLabel}>Total Staked</span>
             <strong className={styles.metricValue}>{loading || totalStaked === null ? '...' : totalStaked.toString()}</strong>
@@ -37,20 +37,24 @@ export default function StakingOverviewPage() {
         </div>
 
         {pools && (
-          <div className={styles.grid}>
+          <div className={styles.poolsGrid}>
             <div className={styles.poolCard}>
               <p className={styles.kicker}>XLM Pool</p>
               <h2 className={styles.cardTitle}>Crowdfunding and launchpad XLM fees</h2>
-              <p className={styles.notice}>Deposited rewards: {formatAmountForFundingAsset(pools.Xlm.deposited_rewards, 'Xlm')}</p>
-              <p className={styles.notice}>Queued rewards: {formatAmountForFundingAsset(pools.Xlm.queued_rewards, 'Xlm')}</p>
+              <div className={styles.poolStats}>
+                <p className={styles.notice}>Deposited rewards: {formatAmountForFundingAsset(pools.Xlm.deposited_rewards, 'Xlm')}</p>
+                <p className={styles.notice}>Queued rewards: {formatAmountForFundingAsset(pools.Xlm.queued_rewards, 'Xlm')}</p>
+              </div>
               <Link to="/staking/xlm" className={styles.primary}>Open XLM rewards</Link>
             </div>
 
             <div className={styles.poolCard}>
               <p className={styles.kicker}>USDC Pool</p>
               <h2 className={styles.cardTitle}>Crowdfunding and launchpad USDC fees</h2>
-              <p className={styles.notice}>Deposited rewards: {formatAmountForFundingAsset(pools.Usdc.deposited_rewards, 'Usdc')}</p>
-              <p className={styles.notice}>Queued rewards: {formatAmountForFundingAsset(pools.Usdc.queued_rewards, 'Usdc')}</p>
+              <div className={styles.poolStats}>
+                <p className={styles.notice}>Deposited rewards: {formatAmountForFundingAsset(pools.Usdc.deposited_rewards, 'Usdc')}</p>
+                <p className={styles.notice}>Queued rewards: {formatAmountForFundingAsset(pools.Usdc.queued_rewards, 'Usdc')}</p>
+              </div>
               <Link to="/staking/usdc" className={styles.primary}>Open USDC rewards</Link>
             </div>
           </div>

@@ -16,6 +16,10 @@
   padding: 24px;
 }
 
+.hero {
+  margin-bottom: 16px;
+}
+
 .kicker,
 .metricLabel,
 .fieldLabel {
@@ -40,6 +44,14 @@
   color: var(--text-secondary);
   font-size: 14px;
   line-height: 1.7;
+}
+
+.cardTitle {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin-bottom: 8px;
 }
 
 .actions {
@@ -88,10 +100,17 @@
   background: rgba(124, 106, 255, 0.15);
 }
 
-.grid {
+.metricsGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
+  margin-top: 16px;
+}
+
+.poolsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
   margin-top: 16px;
 }
 
@@ -110,8 +129,20 @@
   word-break: break-word;
 }
 
+.poolCard {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.poolStats {
+  display: grid;
+  gap: 10px;
+  margin: 8px 0 20px;
+}
+
 .notice {
-  margin-top: 16px;
+  margin: 0;
 }
 
 .formGrid {
@@ -158,13 +189,59 @@
   font-size: 13px;
 }
 
+@media (max-width: 1024px) {
+  .page {
+    padding: 36px 20px 56px;
+  }
+
+  .metricsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 820px) {
-  .grid,
+  .metricsGrid,
+  .poolsGrid,
   .formGrid {
     grid-template-columns: 1fr;
   }
 
+  .page {
+    padding: 28px 16px 48px;
+  }
+
+  .hero,
+  .poolCard {
+    padding: 20px;
+  }
+
   .title {
     font-size: 24px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .primary,
+  .secondary,
+  .primaryAction,
+  .secondaryAction {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .metricCard {
+    padding: 12px;
+  }
+
+  .metricValue {
+    font-size: 12px;
+  }
+
+  .cardTitle {
+    font-size: 16px;
   }
 }
