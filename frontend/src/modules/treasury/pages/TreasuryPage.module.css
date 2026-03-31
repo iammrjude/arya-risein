@@ -1,0 +1,155 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.hero,
+.section,
+.deniedCard,
+.emptyState {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 28px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(260px, 1fr);
+  gap: 20px;
+}
+
+.kicker {
+  display: inline-block;
+  margin-bottom: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--xlm-gold);
+}
+
+.hero h1,
+.section h2,
+.deniedCard h1 {
+  margin: 0 0 12px;
+  color: var(--text-primary);
+}
+
+.hero p,
+.deniedCard p,
+.supporting,
+.warning,
+.infoLine {
+  margin: 0 0 10px;
+  line-height: 1.7;
+}
+
+.heroMeta,
+.metricCard,
+.infoCard {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.metaLabel,
+.metricLabel {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.metaValue,
+.metricValue {
+  display: block;
+  margin-top: 8px;
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.metricGrid,
+.formGrid {
+  display: grid;
+  gap: 14px;
+}
+
+.metricGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 18px;
+}
+
+.formGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 16px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: var(--bg-raised);
+  color: var(--text-primary);
+  font-family: var(--font-display);
+}
+
+.actionButton,
+.secondaryButton {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.actionButton {
+  background: var(--xlm-gold);
+  color: #22163c;
+}
+
+.secondaryButton {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+
+.actionButton:disabled,
+.secondaryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.warning {
+  color: #f4c27a;
+}
+
+.supporting {
+  color: var(--text-muted);
+}
+
+.emptyState,
+.deniedCard {
+  text-align: center;
+}
+
+@media (max-width: 820px) {
+  .hero,
+  .metricGrid,
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -9,9 +9,11 @@ Arya is a modular Stellar dApp platform built for Level 4 production-readiness w
 
 ## Modules
 
+- ARYA Token
 - Crowdfunding
 - Launchpad
 - Staking
+- Treasury
 - Admin
 
 Coming soon:
@@ -68,6 +70,20 @@ Add screenshots in the `screenshots/` folder and replace the placeholder filenam
 5. Staking keeps separate reward pools for `XLM` and `USDC`.
 6. Registry stores the live contract addresses and shared protocol configuration.
 7. All new contracts expose an `upgrade` entrypoint for safe testnet iteration.
+8. The frontend now includes a public ARYA token page and a treasury-only liquidity operations page.
+
+## ARYA Tokenomics
+
+- Total supply: `100,000,000 ARYA`
+- Treasury starting balance: `45,000,000 ARYA`
+- Initial ARYA/XLM liquidity target: `500,000 ARYA + 5,000 XLM`
+- Opening AMM price target: `1 ARYA = 0.01 XLM`
+
+Planned treasury usage:
+
+- seed the initial `ARYA/XLM` pool from the treasury wallet
+- hold the remaining treasury reserve for future liquidity support, operations, and ecosystem distribution
+- use the admin page to fund the treasury from the issuer wallet before treasury operations begin
 
 ## Advanced Production Features
 
@@ -165,7 +181,7 @@ arya-risein/
 | Asset | Address |
 | ---------- | ------- |
 | ARYA token / SAC | `CBC42DVQ5J5KIXLJ2GIOX3PRZOZ5H63GPQKXXIYMPNOR2XXWNBEO332W` |
-| ARYA/XLM pool (optional) | `Not deployed` |
+| ARYA/XLM pool | `Planned treasury-seeded launch: 500,000 ARYA + 5,000 XLM` |
 
 ### Explorer Links
 
@@ -337,7 +353,7 @@ GitHub Actions workflows:
 - [ci.yml](.github/workflows/ci.yml)
   Runs Rust format, clippy, tests, Wasm builds, and frontend lint/test/build.
 - [testnet-deploy.yml](.github/workflows/testnet-deploy.yml)
-  Automatically deploys on the first run and upgrades on later runs when stored contract ID variables are present.
+  Automatically deploys on the first run and upgrades on later runs when stored contract ID variables are present. The workflow is now limited to contract build inputs, prints the files that triggered it, and the upgrade script skips unchanged Wasm artifacts contract-by-contract.
 
 Add a badge or screenshot here after the first passing run.
 

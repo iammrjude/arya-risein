@@ -141,3 +141,15 @@ After the first successful run of `testnet-deploy.yml`, go to `GitHub -> Setting
 - `ARYA_USDC_SAC_ID`
 - `ARYA_XLM_ASSET`
 - `ARYA_XLM_SAC_ID`
+
+## Current ARYA Operating Plan
+
+- Total supply target: `100,000,000 ARYA`
+- Treasury starting reserve: `45,000,000 ARYA`
+- Initial `ARYA/XLM` pool seed from treasury: `500,000 ARYA + 5,000 XLM`
+
+Frontend operations now assume:
+
+- `/admin` is used by the issuer/platform owner to fund the treasury with ARYA
+- `/treasury` is restricted to the treasury wallet for liquidity management
+- `/token` is the public-facing ARYA page for tokenomics and trustline guidance

@@ -6,9 +6,11 @@ import { RxHamburgerMenu } from 'react-icons/rx'
 
 const NAV_ITEMS = [
   { label: 'Home', to: '/' },
+  { label: 'ARYA', to: '/token' },
   { label: 'Crowdfunding', to: '/crowdfunding' },
   { label: 'Launchpad', to: '/launchpad' },
   { label: 'Staking', to: '/staking/xlm' },
+  { label: 'Treasury', to: '/treasury' },
   { label: 'Admin', to: '/admin' },
 ]
 
@@ -43,6 +45,8 @@ export default function Header() {
   }, [])
 
   const activePath = useMemo(() => {
+    if (location.pathname.startsWith('/token')) return '/token'
+    if (location.pathname.startsWith('/treasury')) return '/treasury'
     if (location.pathname.startsWith('/crowdfunding')) return '/crowdfunding'
     if (location.pathname.startsWith('/launchpad')) return '/launchpad'
     if (location.pathname.startsWith('/staking')) return '/staking/xlm'

@@ -4,8 +4,10 @@ import {
     BASE_FEE,
     Contract,
     Horizon,
+    LiquidityPoolAsset,
     Operation,
     TransactionBuilder,
+    getLiquidityPoolId,
     nativeToScVal,
     rpc,
     scValToNative,
@@ -27,6 +29,11 @@ import { normalizeContractEnum } from '../utils/format'
 
 const server = rpcServer
 const horizonServer = new Horizon.Server(HORIZON_URL)
+const ARYA_TOTAL_SUPPLY = 100_000_000
+const TREASURY_STARTING_ARYA = 45_000_000
+const INITIAL_LP_ARYA = 500_000
+const INITIAL_LP_XLM = 5_000
+const LIQUIDITY_POOL_FEE = 30
 
 function getCrowdfundingContract() {
     return new Contract(CROWDFUNDING_CONTRACT_ID)
@@ -194,6 +201,14 @@ function getAryaAsset() {
     return new Asset('ARYA', PLATFORM_OWNER)
 }
 
+function getAryaXlmPoolAsset() {
+    return new LiquidityPoolAsset(Asset.native(), getAryaAsset(), LIQUIDITY_POOL_FEE)
+}
+
+function getAryaXlmPoolId() {
+    return getLiquidityPoolId('constant_product', getAryaXlmPoolAsset().getLiquidityPoolParameters()).toString('hex')
+}
+
 function normalizeAssetAmount(amount) {
     const trimmed = String(amount ?? '').trim()
     if (!trimmed) {
@@ -230,7 +245,85 @@ function describeHorizonError(err, fallback) {
         return 'Insufficient balance to complete this transfer.'
     }
 
+    if (operationCodes.includes('op_line_full')) {
+        return 'The receiving trustline is full. Increase the trustline limit and retry.'
+    }
+
     return fallback
+}
+
+async function buildAndSubmitHorizonTransaction(sourceAddress, operations, signTransaction) {
+    const sourceAccount = await horizonServer.loadAccount(sourceAddress)
+    const tx = new TransactionBuilder(sourceAccount, {
+        fee: BASE_FEE,
+        networkPassphrase: NETWORK_PASSPHRASE,
+    })
+
+    operations.forEach(operation => tx.addOperation(operation))
+    const builtTx = tx.setTimeout(180).build()
+    const signedXdr = await signTransaction(builtTx.toXDR())
+    const signedTx = TransactionBuilder.fromXDR(signedXdr, NETWORK_PASSPHRASE)
+
+    return horizonServer.submitTransaction(signedTx)
+}
+
+function getPoolReserveAmount(poolRecord, assetDescriptor) {
+    const reserve = poolRecord?.reserves?.find(item => item.asset === assetDescriptor)
+    return Number(reserve?.amount ?? 0)
+}
+
+function buildLiquidityPoolDepositConfig(aryaAmount, xlmAmount) {
+    const normalizedArya = normalizeAssetAmount(aryaAmount)
+    const normalizedXlm = normalizeAssetAmount(xlmAmount)
+    const aryaAsset = getAryaAsset()
+    const xlmAsset = Asset.native()
+
+    let assetA = xlmAsset
+    let assetB = aryaAsset
+    let maxAmountA = normalizedXlm
+    let maxAmountB = normalizedArya
+
+    if (Asset.compare(aryaAsset, xlmAsset) < 0) {
+        assetA = aryaAsset
+        assetB = xlmAsset
+        maxAmountA = normalizedArya
+        maxAmountB = normalizedXlm
+    }
+
+    const price = Number(maxAmountA) / Number(maxAmountB)
+    const minPrice = Math.max(price * 0.8, 0.0000001)
+    const maxPrice = price * 1.2
+
+    return {
+        assetA,
+        assetB,
+        maxAmountA,
+        maxAmountB,
+        minPrice: minPrice.toFixed(7),
+        maxPrice: maxPrice.toFixed(7),
+    }
+}
+
+async function loadAccountRecord(address) {
+    try {
+        return await horizonServer.loadAccount(address)
+    } catch (err) {
+        if (err?.response?.status === 404) {
+            return null
+        }
+        throw err
+    }
+}
+
+async function fetchLiquidityPoolRecord(poolId) {
+    const response = await fetch(`${HORIZON_URL}/liquidity_pools/${poolId}`)
+    if (response.status === 404) {
+        return null
+    }
+    if (!response.ok) {
+        throw new Error('Unable to load ARYA/XLM liquidity pool state right now.')
+    }
+    return response.json()
 }
 
 export async function getCampaignCount() {
@@ -643,5 +736,146 @@ export async function fundTreasuryWithArya({
         return { success: true, hash: result.hash, result }
     } catch (err) {
         throw new Error(describeHorizonError(err, 'ARYA transfer failed. Check the trustline, issuer wallet, and network status.'))
+    }
+}
+
+export async function getAryaLiquiditySnapshot(treasuryAddress) {
+    requirePlatformOwner()
+
+    const poolId = getAryaXlmPoolId()
+    const account = await loadAccountRecord(treasuryAddress)
+    const poolRecord = await fetchLiquidityPoolRecord(poolId)
+
+    if (!account) {
+        return {
+            poolId,
+            accountExists: false,
+            hasAryaTrustline: false,
+            hasPoolShareTrustline: false,
+            treasuryXlmBalance: null,
+            treasuryAryaBalance: null,
+            treasuryPoolShareBalance: null,
+            poolExists: Boolean(poolRecord),
+            poolRecord,
+            positionSharePercent: 0,
+            withdrawableXlm: 0,
+            withdrawableArya: 0,
+            estimatedPositionChangeXlm: 0,
+            estimatedPositionChangeArya: 0,
+            initialLiquidityXlm: INITIAL_LP_XLM,
+            initialLiquidityArya: INITIAL_LP_ARYA,
+            totalSupply: ARYA_TOTAL_SUPPLY,
+            treasuryStartingArya: TREASURY_STARTING_ARYA,
+        }
+    }
+
+    const xlmBalance = account.balances.find(balance => balance.asset_type === 'native')
+    const aryaBalance = account.balances.find(balance =>
+        balance.asset_code === 'ARYA' && balance.asset_issuer === PLATFORM_OWNER,
+    )
+    const poolShareBalance = account.balances.find(balance =>
+        balance.asset_type === 'liquidity_pool_shares' && balance.liquidity_pool_id === poolId,
+    )
+
+    const totalShares = Number(poolRecord?.total_shares ?? 0)
+    const treasuryShares = Number(poolShareBalance?.balance ?? 0)
+    const shareRatio = totalShares > 0 ? treasuryShares / totalShares : 0
+    const poolXlmReserve = getPoolReserveAmount(poolRecord, 'native')
+    const poolAryaReserve = getPoolReserveAmount(poolRecord, `ARYA:${PLATFORM_OWNER}`)
+    const withdrawableXlm = poolXlmReserve * shareRatio
+    const withdrawableArya = poolAryaReserve * shareRatio
+
+    return {
+        poolId,
+        accountExists: true,
+        hasAryaTrustline: Boolean(aryaBalance),
+        hasPoolShareTrustline: Boolean(poolShareBalance),
+        treasuryXlmBalance: xlmBalance?.balance ?? null,
+        treasuryAryaBalance: aryaBalance?.balance ?? null,
+        treasuryPoolShareBalance: poolShareBalance?.balance ?? null,
+        poolExists: Boolean(poolRecord),
+        poolRecord,
+        positionSharePercent: shareRatio * 100,
+        withdrawableXlm,
+        withdrawableArya,
+        estimatedPositionChangeXlm: withdrawableXlm - INITIAL_LP_XLM,
+        estimatedPositionChangeArya: withdrawableArya - INITIAL_LP_ARYA,
+        initialLiquidityXlm: INITIAL_LP_XLM,
+        initialLiquidityArya: INITIAL_LP_ARYA,
+        totalSupply: ARYA_TOTAL_SUPPLY,
+        treasuryStartingArya: TREASURY_STARTING_ARYA,
+    }
+}
+
+export async function addAryaXlmLiquidity({
+    treasuryAddress,
+    aryaAmount,
+    xlmAmount,
+    signTransaction,
+}) {
+    requirePlatformOwner()
+
+    const account = await loadAccountRecord(treasuryAddress)
+    if (!account) {
+        throw new Error('Treasury wallet does not exist on Stellar testnet yet.')
+    }
+
+    const snapshot = await getAryaLiquiditySnapshot(treasuryAddress)
+    if (!snapshot.hasAryaTrustline) {
+        throw new Error('Treasury wallet must trust ARYA before it can provide liquidity.')
+    }
+
+    const poolId = getAryaXlmPoolId()
+    const poolShareAsset = getAryaXlmPoolAsset()
+    const depositConfig = buildLiquidityPoolDepositConfig(aryaAmount, xlmAmount)
+    const operations = []
+
+    if (!snapshot.hasPoolShareTrustline) {
+        operations.push(Operation.changeTrust({ asset: poolShareAsset }))
+    }
+
+    operations.push(Operation.liquidityPoolDeposit({
+        liquidityPoolId: poolId,
+        maxAmountA: depositConfig.maxAmountA,
+        maxAmountB: depositConfig.maxAmountB,
+        minPrice: depositConfig.minPrice,
+        maxPrice: depositConfig.maxPrice,
+    }))
+
+    try {
+        const result = await buildAndSubmitHorizonTransaction(treasuryAddress, operations, signTransaction)
+        return { success: true, hash: result.hash, result }
+    } catch (err) {
+        throw new Error(describeHorizonError(err, 'Liquidity deposit failed. Check treasury balances, trustlines, and price bounds.'))
+    }
+}
+
+export async function removeAryaXlmLiquidity({
+    treasuryAddress,
+    poolSharesAmount,
+    signTransaction,
+}) {
+    requirePlatformOwner()
+
+    const snapshot = await getAryaLiquiditySnapshot(treasuryAddress)
+    if (!snapshot.treasuryPoolShareBalance || Number(snapshot.treasuryPoolShareBalance) <= 0) {
+        throw new Error('Treasury wallet does not currently hold ARYA/XLM pool shares.')
+    }
+
+    const normalizedShares = normalizeAssetAmount(poolSharesAmount)
+
+    try {
+        const result = await buildAndSubmitHorizonTransaction(treasuryAddress, [
+            Operation.liquidityPoolWithdraw({
+                liquidityPoolId: snapshot.poolId,
+                amount: normalizedShares,
+                minAmountA: '0.0000000',
+                minAmountB: '0.0000000',
+            }),
+        ], signTransaction)
+
+        return { success: true, hash: result.hash, result }
+    } catch (err) {
+        throw new Error(describeHorizonError(err, 'Liquidity withdrawal failed. Check the treasury pool-share balance and retry.'))
     }
 }

@@ -16,6 +16,8 @@ const StakingOverviewPage = lazy(() => import('../modules/staking/pages/StakingO
 const StakingRewardPoolPage = lazy(() => import('../modules/staking/pages/StakingRewardPoolPage'))
 const StakingDashboardPage = lazy(() => import('../modules/staking/pages/StakingDashboardPage'))
 const AdminPage = lazy(() => import('../modules/admin/pages/AdminPage'))
+const AryaTokenPage = lazy(() => import('../modules/token/pages/AryaTokenPage'))
+const TreasuryPage = lazy(() => import('../modules/treasury/pages/TreasuryPageEntry'))
 
 export default function AppRoutes() {
   return (
@@ -23,6 +25,8 @@ export default function AppRoutes() {
       <Suspense fallback={<div className={styles.loading}>Loading module...</div>}>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/token" element={<AryaTokenPage />} />
+          <Route path="/treasury" element={<TreasuryPage />} />
 
           <Route path="/crowdfunding" element={<CrowdfundingBrowsePage />} />
           <Route path="/crowdfunding/create" element={<CrowdfundingCreatePage />} />

@@ -283,6 +283,27 @@ After deployment, save:
 
 Those values belong in the root README and submission materials.
 
+## Treasury Liquidity Plan
+
+Current operating assumptions for the frontend and treasury UX:
+
+- ARYA total supply: `100,000,000`
+- Treasury starting reserve: `45,000,000 ARYA`
+- Initial `ARYA/XLM` liquidity seed from treasury: `500,000 ARYA + 5,000 XLM`
+- Opening target AMM price: `1 ARYA = 0.01 XLM`
+
+The operational flow is:
+
+1. issuer wallet sends ARYA into the treasury wallet from the admin page
+2. treasury wallet adds the initial `ARYA/XLM` liquidity position
+3. treasury wallet manages future liquidity actions from the treasury page
+
+The CI/CD workflow was also hardened:
+
+- deploys only trigger on contract build-relevant changes
+- push-triggered runs print the changed files
+- upgrades are skipped when the built Wasm matches the deployed Wasm
+
 ## Current Testnet Deployment
 
 Current deployed addresses:

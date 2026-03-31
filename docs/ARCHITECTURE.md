@@ -2,9 +2,11 @@
 
 Arya is a modular Stellar platform with four live surfaces:
 
+- Token
 - Crowdfunding
 - Launchpad
 - Staking
+- Treasury
 - Admin
 
 And one shared system layer:
@@ -29,12 +31,22 @@ ARYA itself is expected to be issued as a Stellar asset and referenced by the co
 The frontend uses a modular route layout:
 
 - `/`
+- `/token`
 - `/crowdfunding/*`
 - `/launchpad/*`
 - `/staking/*`
+- `/treasury`
 - `/admin`
 
 It keeps the original dark/purple Arya visual identity while expanding discoverability and mobile navigation.
+
+## Token & Treasury Model
+
+- ARYA total supply is planned at `100,000,000`.
+- Treasury starts with `45,000,000 ARYA`.
+- Initial treasury-seeded liquidity target is `500,000 ARYA` paired with `5,000 XLM`.
+- `/token` is a public information surface for ARYA tokenomics, utility, and trustline instructions.
+- `/treasury` is restricted to the treasury wallet and is intended for liquidity operations such as adding or removing `ARYA/XLM` liquidity.
 
 ## Event Sync
 
