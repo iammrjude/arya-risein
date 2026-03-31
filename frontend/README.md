@@ -2,6 +2,32 @@
 
 The frontend is a React application for the Arya platform. It keeps the established Arya visual identity while adding modular navigation, responsive layouts, wallet-powered contract interactions, and production-focused configuration.
 
+## What The Frontend Is Responsible For
+
+The frontend is the product layer for the Arya protocol. Its job is not just to call contracts, but to make the protocol understandable and usable.
+
+It does that by giving each type of user a clear entry point:
+
+- public users can learn about ARYA, browse crowdfunding campaigns, browse launchpad sales, and explore staking
+- creators can create campaigns and launchpad sales
+- ARYA holders can manage staking positions and claim rewards
+- the issuer/admin side can fund the treasury with ARYA
+- the treasury wallet can manage ARYA/XLM liquidity
+
+So the frontend is effectively the operating console for the whole ecosystem.
+
+## How It Maps To The Protocol
+
+The frontend sits on top of the contract suite and token infrastructure:
+
+- registry provides shared addresses and configuration
+- crowdfunding and launchpad provide user-facing fundraising and sale flows
+- staking provides reward accounting and claim flows
+- ARYA token pages explain the asset, trustline setup, and swap access
+- treasury pages support operational liquidity actions
+
+Because the underlying system is modular, the frontend is also modular. Each route group corresponds to a real business surface in the protocol instead of being just a visual category.
+
 ## Modules
 
 - Home
