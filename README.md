@@ -29,8 +29,8 @@ Arya is a modular Stellar dApp platform built for Level 4 production-readiness w
 - [x] README with complete documentation
 - [x] Minimum 8+ meaningful commits
 - [x] Live demo link
-- [ ] Screenshot: mobile responsive view
-- [ ] Screenshot or badge: CI/CD pipeline running
+- [x] Screenshot: mobile responsive view
+- [x] Screenshot or badge: CI/CD pipeline running
 - [x] Contract addresses and transaction hash
 - [x] Token or pool address
 
@@ -86,7 +86,7 @@ Add screenshots in the `screenshots/` folder and replace the placeholder filenam
 
 ### CI/CD Pipeline
 
-![GitHub Actions pipeline passing](screenshots/ci-pipeline.png)
+![GitHub Actions pipeline passing](screenshots/ci-cd-all-checks-passed.png)
 *A screenshot or badge proving the CI pipeline passed after the latest push.*
 
 ### Contract Test Output
@@ -637,7 +637,7 @@ So in this project:
 - [x] CI/CD workflows configured
 - [x] Frontend smoke tests configured
 - [x] Live demo URL filled in
-- [ ] Screenshots added
+- [x] Screenshots added
 - [x] Contract addresses added
 - [x] Transaction hashes added
 - [x] Token / pool address added if deployed

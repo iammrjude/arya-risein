@@ -22,7 +22,7 @@ This guide covers the full Arya testnet deployment flow.
 - CI/CD configured: satisfied
 - Mobile responsive frontend: satisfied
 - 8+ meaningful commits: satisfied
-- Remaining reviewer assets still to attach in the repo: mobile screenshot and CI/CD screenshot or badge
+- Reviewer screenshots now present in `screenshots/mobile-responsive.png` and `screenshots/ci-cd-all-checks-passed.png`
 
 ## 1. Prerequisites
 
