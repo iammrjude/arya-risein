@@ -4,8 +4,8 @@
 
 - Arya shell and routing
 - Crowdfunding module
-- Launchpad contract + placeholders
-- Staking contract + pool pages
+- Launchpad browse, create, detail, and dashboard flows
+- Staking overview, pool, and dashboard flows
 - Upgradeable contract suite
 - CI/CD and testnet deployment workflow
 

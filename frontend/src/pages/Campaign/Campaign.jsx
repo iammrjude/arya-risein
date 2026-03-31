@@ -7,7 +7,7 @@ import CountdownTimer from '../../components/CountdownTimer/CountdownTimer'
 import StatusBadge from '../../components/StatusBadge/StatusBadge'
 import TxStatus from '../../components/TxStatus/TxStatus'
 import { donate, claimRefund } from '../../contract/client'
-import { xlmToStroops, stroopsToXlm } from '../../utils/format'
+import { xlmToStroops, formatAmountForFundingAsset, assetCodeFromFundingAsset } from '../../utils/format'
 import { truncateAddress } from '../../utils/stellar'
 import { formatDate, getCountdown } from '../../utils/time'
 import styles from './Campaign.module.css'
@@ -103,9 +103,10 @@ export default function Campaign() {
         </div>
     )
 
-    const statusLabel = campaign.status[0]
+    const statusLabel = campaign.status
     const goalReached = Number(campaign.total_raised) >= Number(campaign.goal_amount)
     const countdown = getCountdown(campaign.deadline)
+    const assetCode = assetCodeFromFundingAsset(campaign.funding_asset)
     const displayStatus = (goalReached && statusLabel === 'Active')
         ? 'Goal Met'
         : statusLabel
@@ -138,15 +139,19 @@ export default function Campaign() {
                             <div className={styles.details}>
                                 <div className={styles.detail}>
                                     <span className={styles.detailLabel}>Goal</span>
-                                    <span className={styles.detailValue}>{stroopsToXlm(campaign.goal_amount)} XLM</span>
+                                    <span className={styles.detailValue}>{formatAmountForFundingAsset(campaign.goal_amount, campaign.funding_asset)}</span>
                                 </div>
                                 <div className={styles.detail}>
                                     <span className={styles.detailLabel}>Raised</span>
-                                    <span className={styles.detailValue}>{stroopsToXlm(campaign.total_raised)} XLM</span>
+                                    <span className={styles.detailValue}>{formatAmountForFundingAsset(campaign.total_raised, campaign.funding_asset)}</span>
                                 </div>
                                 <div className={styles.detail}>
                                     <span className={styles.detailLabel}>Deadline</span>
                                     <span className={styles.detailValue}>{formatDate(campaign.deadline)}</span>
+                                </div>
+                                <div className={styles.detail}>
+                                    <span className={styles.detailLabel}>Funding Asset</span>
+                                    <span className={styles.detailValue}>{assetCode}</span>
                                 </div>
                                 <div className={styles.detail}>
                                     <span className={styles.detailLabel}>Extension Days</span>
@@ -179,7 +184,7 @@ export default function Campaign() {
 
                         {isActive && !goalReached && (
                             <div className={styles.card}>
-                                <h2 className={styles.sectionTitle}>Donate XLM</h2>
+                                <h2 className={styles.sectionTitle}>Donate {assetCode}</h2>
                                 <div className={styles.donateForm}>
                                     <div className={styles.inputWrap}>
                                         <input
@@ -192,7 +197,7 @@ export default function Campaign() {
                                             step="any"
                                             disabled={txStatus === 'pending'}
                                         />
-                                        <span className={styles.inputSuffix}>XLM</span>
+                                        <span className={styles.inputSuffix}>{assetCode}</span>
                                     </div>
                                     <button
                                         className={styles.donateBtn}

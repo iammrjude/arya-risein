@@ -1,25 +1,24 @@
 import { useState, useEffect } from 'react'
-import { usePlatformSettings, useCampaigns } from '../../hooks/useContract'
+import { usePlatformSettings, useCampaigns, useRegistryConfig } from '../../hooks/useContract'
 import { useWallet } from '../../hooks/useWallet'
-import { updateFeePercent, updateTreasuryWallet, updateActionWindow, transferOwnership } from '../../contract/client'
+import { updateFeeSettings, updateTreasuryWallet, updateStakingContract } from '../../contract/client'
 import StatusBadge from '../../components/StatusBadge/StatusBadge'
 import TxStatus from '../../components/TxStatus/TxStatus'
 import { basisPointsToPercent, stroopsToXlm } from '../../utils/format'
 import { truncateAddress } from '../../utils/stellar'
-import { PLATFORM_OWNER } from '../../contract/config'
 import styles from './Admin.module.css'
 
 export default function Admin() {
     const [address, setAddress] = useState(null)
     const { settings, loading: settingsLoading } = usePlatformSettings()
     const { campaigns, loading: campaignsLoading } = useCampaigns()
+    const { config: registryConfig } = useRegistryConfig()
     const { getAddress, signTransaction } = useWallet()
     const [filter, setFilter] = useState('All')
 
     const [feeInput, setFeeInput] = useState('')
     const [treasuryInput, setTreasuryInput] = useState('')
-    const [actionWindowInput, setActionWindowInput] = useState('')
-    const [newOwnerInput, setNewOwnerInput] = useState('')
+    const [stakingContractInput, setStakingContractInput] = useState('')
 
     const [txStatus, setTxStatus] = useState(null)
     const [txHash, setTxHash] = useState(null)
@@ -34,7 +33,7 @@ export default function Admin() {
         return () => clearInterval(interval)
     }, [getAddress])
 
-    const isOwner = address && address === PLATFORM_OWNER
+    const isOwner = address && settings && address === settings.owner
 
     async function handleAdminAction(label, action) {
         setTxStatus('pending')
@@ -52,7 +51,7 @@ export default function Admin() {
 
     const filteredCampaigns = campaigns.filter(c => {
         if (filter === 'All') return true
-        const status = c.status[0]
+        const status = c.status
         return status.toLowerCase() === filter.toLowerCase()
     })
 
@@ -105,12 +104,37 @@ export default function Admin() {
                                 <span className={styles.settingValue}>{basisPointsToPercent(settings.fee_basis_points)}%</span>
                             </div>
                             <div className={styles.settingCard}>
+                                <span className={styles.settingLabel}>Staking Share</span>
+                                <span className={styles.settingValue}>{basisPointsToPercent(settings.staking_share_basis_points)}%</span>
+                            </div>
+                            <div className={styles.settingCard}>
                                 <span className={styles.settingLabel}>Treasury Wallet</span>
                                 <span className={styles.settingValue}>{truncateAddress(settings.treasury_wallet, 8, 8)}</span>
                             </div>
                             <div className={styles.settingCard}>
-                                <span className={styles.settingLabel}>Action Window</span>
-                                <span className={styles.settingValue}>{settings.action_window_days} days</span>
+                                <span className={styles.settingLabel}>Staking Contract</span>
+                                <span className={styles.settingValue}>{truncateAddress(settings.staking_contract, 8, 8)}</span>
+                            </div>
+                        </div>
+                    )}
+
+                    {registryConfig && (
+                        <div className={styles.settingsGrid}>
+                            <div className={styles.settingCard}>
+                                <span className={styles.settingLabel}>Registry Treasury</span>
+                                <span className={styles.settingValue}>{truncateAddress(registryConfig.treasury, 8, 8)}</span>
+                            </div>
+                            <div className={styles.settingCard}>
+                                <span className={styles.settingLabel}>Crowdfunding Contract</span>
+                                <span className={styles.settingValue}>{truncateAddress(registryConfig.crowdfunding_contract, 8, 8)}</span>
+                            </div>
+                            <div className={styles.settingCard}>
+                                <span className={styles.settingLabel}>Launchpad Contract</span>
+                                <span className={styles.settingValue}>{truncateAddress(registryConfig.launchpad_contract, 8, 8)}</span>
+                            </div>
+                            <div className={styles.settingCard}>
+                                <span className={styles.settingLabel}>Staking Contract</span>
+                                <span className={styles.settingValue}>{truncateAddress(registryConfig.staking_contract, 8, 8)}</span>
                             </div>
                         </div>
                     )}
@@ -130,7 +154,12 @@ export default function Admin() {
                             <button
                                 className={styles.actionBtn}
                                 onClick={() => handleAdminAction('Update Fee', () =>
-                                    updateFeePercent({ ownerAddress: address, newFee: parseInt(feeInput), signTransaction })
+                                    updateFeeSettings({
+                                        ownerAddress: address,
+                                        newFee: parseInt(feeInput),
+                                        stakingShareBasisPoints: settings.staking_share_basis_points,
+                                        signTransaction,
+                                    })
                                 )}
                                 disabled={!feeInput || txStatus === 'pending'}
                             >
@@ -162,45 +191,27 @@ export default function Admin() {
 
                         <div className={styles.formRow}>
                             <div className={styles.inputGroup}>
-                                <label className={styles.label}>Update Action Window (days)</label>
+                                <label className={styles.label}>Update Staking Contract</label>
                                 <input
                                     className={styles.input}
-                                    type="number"
-                                    placeholder="e.g. 7"
-                                    value={actionWindowInput}
-                                    onChange={e => setActionWindowInput(e.target.value)}
+                                    type="text"
+                                    placeholder="C..."
+                                    value={stakingContractInput}
+                                    onChange={e => setStakingContractInput(e.target.value)}
                                 />
                             </div>
                             <button
                                 className={styles.actionBtn}
-                                onClick={() => handleAdminAction('Update Action Window', () =>
-                                    updateActionWindow({ ownerAddress: address, newDays: parseInt(actionWindowInput), signTransaction })
+                                onClick={() => handleAdminAction('Update Staking Contract', () =>
+                                    updateStakingContract({
+                                        ownerAddress: address,
+                                        stakingContract: stakingContractInput.trim(),
+                                        signTransaction,
+                                    })
                                 )}
-                                disabled={!actionWindowInput || txStatus === 'pending'}
+                                disabled={!stakingContractInput || txStatus === 'pending'}
                             >
-                                Update Window
-                            </button>
-                        </div>
-
-                        <div className={styles.formRow}>
-                            <div className={styles.inputGroup}>
-                                <label className={styles.label}>Transfer Ownership</label>
-                                <input
-                                    className={styles.input}
-                                    type="text"
-                                    placeholder="New owner address G..."
-                                    value={newOwnerInput}
-                                    onChange={e => setNewOwnerInput(e.target.value)}
-                                />
-                            </div>
-                            <button
-                                className={`${styles.actionBtn} ${styles.dangerBtn}`}
-                                onClick={() => handleAdminAction('Transfer Ownership', () =>
-                                    transferOwnership({ ownerAddress: address, newOwner: newOwnerInput.trim(), signTransaction })
-                                )}
-                                disabled={!newOwnerInput || txStatus === 'pending'}
-                            >
-                                Transfer
+                                Update Staking
                             </button>
                         </div>
                     </div>
@@ -243,7 +254,7 @@ export default function Admin() {
                     ) : (
                         <div className={styles.campaignList}>
                             {filteredCampaigns.map(c => {
-                                const statusLabel = c.status[0]
+                                const statusLabel = c.status
                                 const displayStatus = (Number(c.total_raised) >= Number(c.goal_amount) && statusLabel === 'Active')
                                     ? 'Goal Met'
                                     : statusLabel

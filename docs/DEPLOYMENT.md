@@ -150,7 +150,7 @@ $env:STELLAR_RPC_URL="https://soroban-testnet.stellar.org"
 $env:STELLAR_NETWORK_PASSPHRASE="Test SDF Network ; September 2015"
 $env:ARYA_PLATFORM_OWNER="G..."
 $env:ARYA_TREASURY="G..."
-$env:ARYA_TOKEN_SAC_ID="C..."
+$env:ARYA_TOKEN_ASSET="ARYA:G..."
 $env:ARYA_USDC_SAC_ID="C..."
 ```
 
@@ -162,8 +162,10 @@ Where these values come from:
   Public wallet address `G...`
 - `ARYA_TREASURY`
   Public wallet address `G...`
-- `ARYA_TOKEN_SAC_ID`
-  The ARYA token SAC contract ID after you create/deploy the ARYA asset contract
+- `ARYA_TOKEN_ASSET`
+  The ARYA classic asset string, for example `ARYA:G...`
+- `ARYA_TOKEN_ISSUER`
+  Optional shortcut if you want the script to derive `ARYA_TOKEN_ASSET` as `ARYA:<issuer>`
 - `ARYA_USDC_SAC_ID`
   Derive from testnet USDC:
 
@@ -189,33 +191,56 @@ stellar contract id asset --asset native --network testnet
 
 If `ARYA_XLM_SAC_ID` is omitted, the init script derives the native XLM SAC automatically.
 
-## 6. Deploy Contracts
+If `ARYA_TOKEN_SAC_ID` is omitted, `deploy-or-upgrade-testnet.sh` now deploys the ARYA asset contract for `ARYA_TOKEN_ASSET` and prints the resulting `ARYA_TOKEN_SAC_ID` so you can persist it afterwards.
 
-```powershell
-C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File scripts/deploy-testnet.ps1
+## 6. Deploy Or Upgrade With The Unified Script
+
+The GitHub Actions workflow uses the unified script:
+
+```bash
+bash scripts/deploy-or-upgrade-testnet.sh
 ```
 
-Capture the printed contract IDs and export them:
+That script does all of the following:
+
+- runs `cargo test --workspace`
+- builds the deployable Wasm contracts
+- performs a first deploy if `ARYA_REGISTRY_ID` is not set
+- performs contract upgrades if `ARYA_REGISTRY_ID` and the other deployed contract IDs are already set
+- deploys the ARYA token SAC automatically on first deploy if `ARYA_TOKEN_SAC_ID` is still unset
+
+After a first deploy it prints the values you should persist for future runs:
 
 ```powershell
 $env:ARYA_REGISTRY_ID="C..."
 $env:ARYA_STAKING_ID="C..."
 $env:ARYA_CROWDFUNDING_ID="C..."
 $env:ARYA_LAUNCHPAD_ID="C..."
+$env:ARYA_TOKEN_ASSET="ARYA:G..."
+$env:ARYA_TOKEN_SAC_ID="C..."
+$env:ARYA_USDC_ASSET="USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5"
+$env:ARYA_USDC_SAC_ID="C..."
+$env:ARYA_XLM_ASSET="native"
+$env:ARYA_XLM_SAC_ID="C..."
 ```
 
-## 7. Initialize Contracts
+## 7. What The Unified Script Initializes
 
-```powershell
-C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File scripts/init-testnet.ps1
-```
-
-This initializes:
+On first deploy, `deploy-or-upgrade-testnet.sh` initializes:
 
 - registry
 - staking
 - crowdfunding
 - launchpad
+
+It also wires the contracts together with:
+
+- owner and treasury
+- ARYA staking token
+- native XLM reward token
+- USDC reward token
+- staking contract reference in crowdfunding
+- staking contract reference in launchpad
 
 ## 8. Verify On-Chain State
 
@@ -268,19 +293,52 @@ Before CI/CD can work on GitHub:
 4. go to `Settings -> Secrets and variables -> Actions`
 5. add:
    - secret: `STELLAR_ACCOUNT`
-   - variables: `STELLAR_RPC_URL`, `STELLAR_NETWORK_PASSPHRASE`, `ARYA_PLATFORM_OWNER`, `ARYA_TREASURY`, `ARYA_TOKEN_SAC_ID`, `ARYA_USDC_SAC_ID`
+   - variables: `STELLAR_RPC_URL`, `STELLAR_NETWORK_PASSPHRASE`, `ARYA_PLATFORM_OWNER`, `ARYA_TREASURY`, `ARYA_TOKEN_ASSET`, `ARYA_USDC_SAC_ID`
 6. after first deploy, add:
    - `ARYA_REGISTRY_ID`
    - `ARYA_STAKING_ID`
    - `ARYA_CROWDFUNDING_ID`
    - `ARYA_LAUNCHPAD_ID`
+   - `ARYA_TOKEN_ASSET`
+   - `ARYA_TOKEN_SAC_ID`
+   - `ARYA_USDC_ASSET`
+   - `ARYA_USDC_SAC_ID`
+   - `ARYA_XLM_ASSET`
+   - `ARYA_XLM_SAC_ID`
+
+Where to get each GitHub Actions value:
+
+- `STELLAR_ACCOUNT`
+  Use the deployer secret key `S...`. Get it locally with `stellar keys secret YOUR_IDENTITY`, then save it under `Settings -> Secrets and variables -> Actions -> Secrets`.
+- `ARYA_PLATFORM_OWNER`
+  Use the owner public key `G...`. Get it locally with `stellar keys public-key YOUR_IDENTITY`.
+- `ARYA_TREASURY`
+  Use the treasury public key `G...`. Get it locally with `stellar keys public-key YOUR_TREASURY_IDENTITY`.
+- `ARYA_TOKEN_ASSET`
+  Use the ARYA classic asset string, usually `ARYA:<ARYA_PLATFORM_OWNER>`.
+- `ARYA_USDC_SAC_ID`
+  Derive it with:
+
+  ```bash
+  stellar contract id asset \
+    --network testnet \
+    --asset USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5
+  ```
+
+- `ARYA_XLM_SAC_ID`
+  Optional. Derive it with:
+
+  ```bash
+  stellar contract id asset --asset native --network testnet
+  ```
 
 First deploy vs later upgrade:
 
 - first run:
   - leave `ARYA_REGISTRY_ID`, `ARYA_STAKING_ID`, `ARYA_CROWDFUNDING_ID`, and `ARYA_LAUNCHPAD_ID` unset
   - workflow deploys fresh contracts
+  - if `ARYA_TOKEN_SAC_ID` is unset, it also deploys the ARYA token SAC for `ARYA_TOKEN_ASSET`
 - after success:
-  - copy the printed contract IDs into those GitHub Variables
+  - copy the printed values into `Settings -> Secrets and variables -> Actions -> Variables`
 - later runs:
   - workflow sees the IDs and upgrades the existing contracts

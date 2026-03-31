@@ -7,7 +7,7 @@ import ProgressBar from '../../components/ProgressBar/ProgressBar'
 import CountdownTimer from '../../components/CountdownTimer/CountdownTimer'
 import TxStatus from '../../components/TxStatus/TxStatus'
 import { withdraw, extendDeadline, markAsFailed } from '../../contract/client'
-import { stroopsToXlm } from '../../utils/format'
+import { formatAmountForFundingAsset } from '../../utils/format'
 import { isExpired, getActionWindowExpiry, getCountdown } from '../../utils/time'
 import styles from './Dashboard.module.css'
 
@@ -92,7 +92,7 @@ export default function Dashboard() {
 
                 <div className={styles.list}>
                     {myCampaigns.map(campaign => {
-                        const statusLabel = campaign.status[0]
+                        const statusLabel = campaign.status
                         const raised = Number(campaign.total_raised)
                         const goal = Number(campaign.goal_amount)
                         const goalReached = raised >= goal
@@ -136,7 +136,7 @@ export default function Dashboard() {
                                         )}
                                         <div className={styles.raised}>
                                             <span className={styles.raisedLabel}>Raised</span>
-                                            <span className={styles.raisedValue}>{stroopsToXlm(campaign.total_raised)} XLM</span>
+                                            <span className={styles.raisedValue}>{formatAmountForFundingAsset(campaign.total_raised, campaign.funding_asset)}</span>
                                         </div>
                                     </div>
                                 </div>

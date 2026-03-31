@@ -11,7 +11,7 @@ export default function Home() {
 
     const filtered = campaigns.filter(c => {
         if (filter === 'All') return true
-        const status = (c.status)[0]
+        const status = c.status
         return status.toLowerCase() === filter.toLowerCase()
     })
 
@@ -20,7 +20,7 @@ export default function Home() {
             <div className={styles.hero}>
                 <h1 className={styles.heroTitle}>Decentralized Crowdfunding</h1>
                 <p className={styles.heroSubtitle}>
-                    Fund projects trustlessly on the Stellar network. Your XLM is protected by smart contracts.
+                    Fund projects trustlessly on the Stellar network with XLM or USDC, protected by smart contracts.
                 </p>
             </div>
 
