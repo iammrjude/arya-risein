@@ -203,7 +203,7 @@ function getAryaAsset() {
 
 function getAryaAssetDescriptor() {
     requirePlatformOwner()
-    return `credit_alphanum4:ARYA:${PLATFORM_OWNER}`
+    return `ARYA:${PLATFORM_OWNER}`
 }
 
 function getAryaXlmPoolAsset() {
