@@ -112,7 +112,7 @@ The frontend includes a Soroban RPC event hook:
 - [useEventStream.js](./src/hooks/useEventStream.js)
 - [events.js](./src/contract/events.js)
 
-This keeps the UI ready for real-time updates as new contract events arrive.
+This keeps the UI ready for near-real-time updates as new contract events arrive through Soroban RPC polling.
 
 ## Error Tracking
 

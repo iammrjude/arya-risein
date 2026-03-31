@@ -36,6 +36,6 @@ The frontend uses a modular route layout:
 
 It keeps the original dark/purple AryaFund visual identity while expanding discoverability and mobile navigation.
 
-## Real-time sync
+## Event Sync
 
-The frontend includes an event stream abstraction using Stellar RPC `getEvents` and is designed to refresh module state when the new upgradeable contracts emit events.
+The frontend includes an event polling abstraction using Stellar RPC `getEvents` and is designed to refresh module state in near-real-time when the upgradeable contracts emit events. This is RPC polling, not a dedicated WebSocket stream.
