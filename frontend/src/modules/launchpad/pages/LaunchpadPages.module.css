@@ -60,6 +60,10 @@
   gap: 20px;
 }
 
+.emptyCard {
+  margin-top: 8px;
+}
+
 .card,
 .formCard {
   background: var(--bg-card);
@@ -255,6 +259,15 @@
   .card,
   .formCard {
     padding: 20px;
+  }
+
+  .rowBetween {
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .emptyCard {
+    margin-top: 4px;
   }
 
   .primaryCta,

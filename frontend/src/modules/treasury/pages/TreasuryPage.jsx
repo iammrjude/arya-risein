@@ -107,7 +107,12 @@ export default function TreasuryPage() {
   if (!address) {
     return (
       <div className={styles.page}>
-        <div className={styles.emptyState}>Connect the treasury wallet to manage ARYA/XLM liquidity.</div>
+        <div className={styles.stateShell}>
+          <div className={styles.emptyState}>
+            <h1 className={styles.stateTitle}>Treasury Wallet Required</h1>
+            <p className={styles.stateText}>Connect the treasury wallet to manage ARYA/XLM liquidity.</p>
+          </div>
+        </div>
       </div>
     )
   }
@@ -115,11 +120,21 @@ export default function TreasuryPage() {
   if (!isTreasury) {
     return (
       <div className={styles.page}>
-        <div className={styles.deniedCard}>
-          <h1>Treasury Access Only</h1>
-          <p>This page is restricted to the configured treasury wallet.</p>
-          <p>Connected wallet: {truncateAddress(address, 8, 8)}</p>
-          <p>Treasury wallet: {treasuryWallet ? truncateAddress(treasuryWallet, 8, 8) : 'Not configured'}</p>
+        <div className={styles.stateShell}>
+          <div className={styles.deniedCard}>
+            <h1 className={styles.stateTitle}>Treasury Access Only</h1>
+            <p className={styles.stateText}>This page is restricted to the configured treasury wallet.</p>
+            <div className={styles.stateMeta}>
+              <div className={styles.stateMetaRow}>
+                <span className={styles.stateMetaLabel}>Connected Wallet</span>
+                <strong className={styles.stateMetaValue}>{truncateAddress(address, 8, 8)}</strong>
+              </div>
+              <div className={styles.stateMetaRow}>
+                <span className={styles.stateMetaLabel}>Treasury Wallet</span>
+                <strong className={styles.stateMetaValue}>{treasuryWallet ? truncateAddress(treasuryWallet, 8, 8) : 'Not configured'}</strong>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     )

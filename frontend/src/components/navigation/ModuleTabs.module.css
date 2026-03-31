@@ -1,6 +1,7 @@
 .wrapper {
   border-bottom: 1px solid var(--border);
   background: rgba(17, 17, 24, 0.7);
+  overflow: hidden;
 }
 
 .inner {
@@ -10,6 +11,11 @@
   display: flex;
   gap: 8px;
   overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(124, 106, 255, 0.45) transparent;
+  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
 }
 
 .tab {
@@ -22,6 +28,7 @@
   padding: 8px 12px;
   border-radius: 999px;
   border: 1px solid transparent;
+  scroll-snap-align: start;
 }
 
 .tab:hover {
@@ -35,14 +42,47 @@
   background: rgba(124, 106, 255, 0.1);
 }
 
+.inner::-webkit-scrollbar {
+  height: 4px;
+}
+
+.inner::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.inner::-webkit-scrollbar-thumb {
+  background: rgba(124, 106, 255, 0.45);
+  border-radius: 999px;
+}
+
+.inner::-webkit-scrollbar-thumb:hover {
+  background: rgba(124, 106, 255, 0.6);
+}
+
 @media (max-width: 720px) {
   .inner {
-    padding: 10px 16px;
+    padding: 8px 16px 6px;
     gap: 6px;
   }
 
   .tab {
-    padding: 8px 10px;
+    padding: 7px 10px;
     font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .inner {
+    padding: 8px 14px 4px;
+    gap: 5px;
+  }
+
+  .tab {
+    padding: 6px 10px;
+    font-size: 10px;
+  }
+
+  .inner::-webkit-scrollbar {
+    height: 3px;
   }
 }

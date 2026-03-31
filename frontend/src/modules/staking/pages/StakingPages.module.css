@@ -114,7 +114,8 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
-  margin-top: 16px;
+  margin-top: 20px;
+  margin-bottom: 18px;
 }
 
 .poolsGrid {
@@ -144,6 +145,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100%;
+  gap: 0;
 }
 
 .poolStats {
@@ -153,7 +155,13 @@
 }
 
 .notice {
-  margin: 0;
+  margin: 4px 0 0;
+  padding-top: 4px;
+  max-width: 760px;
+}
+
+.poolCard > .actions {
+  margin-top: 30px;
 }
 
 .formGrid {
@@ -206,6 +214,10 @@
     padding: 36px 20px 56px;
   }
 
+  .poolCard {
+    padding: 26px;
+  }
+
   .metricsGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -232,8 +244,13 @@
     font-size: 24px;
   }
 
+  .subtitle {
+    margin-bottom: 2px;
+  }
+
   .actions {
     flex-direction: column;
+    margin-top: 24px;
   }
 
   .primary,
@@ -246,6 +263,15 @@
 }
 
 @media (max-width: 480px) {
+  .page {
+    padding: 24px 14px 40px;
+  }
+
+  .hero,
+  .poolCard {
+    padding: 18px 16px;
+  }
+
   .metricCard {
     padding: 12px;
   }
@@ -260,5 +286,15 @@
 
   .poolStats {
     gap: 12px;
+  }
+
+  .grid {
+    margin-top: 18px;
+    margin-bottom: 16px;
+  }
+
+  .notice {
+    margin-top: 6px;
+    line-height: 1.75;
   }
 }

@@ -44,8 +44,8 @@ export default function LaunchpadDashboardPage() {
           <Link to="/launchpad/create" className={styles.primaryCta}>Create Sale</Link>
         </div>
 
-        {!address && <div className={styles.card}>Connect your wallet to see your launchpad sales.</div>}
-        {address && !loading && mySales.length === 0 && <div className={styles.card}>You have not created any launchpad sales yet.</div>}
+        {!address && <div className={`${styles.card} ${styles.emptyCard}`}>Connect your wallet to see your launchpad sales.</div>}
+        {address && !loading && mySales.length === 0 && <div className={`${styles.card} ${styles.emptyCard}`}>You have not created any launchpad sales yet.</div>}
 
         <div className={styles.grid}>
           {mySales.map(sale => (

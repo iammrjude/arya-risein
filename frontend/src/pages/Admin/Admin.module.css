@@ -6,6 +6,7 @@
 .container {
   max-width: 900px;
   margin: 0 auto;
+  min-width: 0;
 }
 
 .header {
@@ -30,6 +31,8 @@
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 8px 14px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .ownerDot {
@@ -44,6 +47,8 @@
   font-family: var(--font-mono);
   font-size: 13px;
   color: var(--text-secondary);
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .section {
@@ -52,6 +57,7 @@
   border-radius: 16px;
   padding: 28px;
   margin-bottom: 24px;
+  min-width: 0;
 }
 
 .sectionHeader {
@@ -97,6 +103,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 0;
 }
 
 .settingLabel {
@@ -111,12 +118,18 @@
   font-size: 14px;
   font-weight: 700;
   color: var(--text-primary);
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .formGrid {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.fundingForm {
+  margin-bottom: 18px;
 }
 
 .formRow {
@@ -130,6 +143,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 0;
 }
 
 .label {
@@ -197,6 +211,7 @@
   border-radius: 12px;
   padding: 16px 18px;
   margin-bottom: 18px;
+  min-width: 0;
 }
 
 .trustlineHeader {
@@ -206,6 +221,7 @@
   gap: 12px;
   margin-bottom: 10px;
   color: var(--text-primary);
+  flex-wrap: wrap;
 }
 
 .trustlineMeta,
@@ -215,6 +231,7 @@
   font-size: 13px;
   line-height: 1.6;
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .trustlineMeta,
@@ -243,11 +260,13 @@
   color: var(--text-secondary);
   font-size: 13px;
   line-height: 1.7;
+  overflow-wrap: anywhere;
 }
 
 .filters {
   display: flex;
   gap: 6px;
+  flex-wrap: wrap;
 }
 
 .filterBtn {
@@ -291,6 +310,8 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
+  flex: 1 1 280px;
 }
 
 .campaignId {
@@ -304,24 +325,30 @@
   font-size: 14px;
   font-weight: 600;
   color: var(--text-primary);
+  overflow-wrap: anywhere;
 }
 
 .campaignMeta {
   display: flex;
   align-items: center;
   gap: 16px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  min-width: 0;
 }
 
 .campaignOrganizer {
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--text-muted);
+  overflow-wrap: anywhere;
 }
 
 .campaignRaised {
   font-family: var(--font-mono);
   font-size: 12px;
   color: var(--xlm-gold);
+  overflow-wrap: anywhere;
 }
 
 .skeleton {
@@ -378,6 +405,69 @@
 }
 
 @media (max-width: 680px) {
+  .page {
+    padding: 32px 16px 48px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .ownerBadge {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .section {
+    padding: 22px 20px;
+  }
+
   .settingsGrid { grid-template-columns: 1fr; }
   .formRow { flex-direction: column; align-items: stretch; }
+
+  .actionBtn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .campaignMeta {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page {
+    padding: 28px 14px 42px;
+  }
+
+  .section {
+    padding: 18px 16px;
+  }
+
+  .trustlinePanel,
+  .infoPanel {
+    padding: 14px 14px;
+  }
+
+  .infoList {
+    padding-left: 16px;
+  }
+
+  .campaignRow {
+    gap: 10px;
+  }
+
+  .campaignInfo,
+  .campaignMeta {
+    flex-basis: 100%;
+  }
 }

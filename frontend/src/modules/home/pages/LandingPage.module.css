@@ -198,6 +198,10 @@
     padding: 0 16px;
   }
 
+  .roadmap {
+    padding-bottom: 76px;
+  }
+
   .card,
   .roadmapCard {
     padding: 20px;

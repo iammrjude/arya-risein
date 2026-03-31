@@ -363,7 +363,7 @@ export default function Admin() {
                         )}
                     </div>
 
-                    <div className={styles.formGrid}>
+                    <div className={`${styles.formGrid} ${styles.fundingForm}`}>
                         <div className={styles.formRow}>
                             <div className={styles.inputGroup}>
                                 <label className={styles.label}>Amount of ARYA to send</label>
