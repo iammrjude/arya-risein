@@ -1,63 +1,93 @@
 .page {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.hero,
-.section,
-.deniedCard,
-.emptyState {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 28px;
+  min-height: 100%;
 }
 
 .hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1.8fr) minmax(260px, 1fr);
-  gap: 20px;
+  text-align: center;
+  padding: 60px 24px 40px;
+  position: relative;
+}
+
+.hero {
+  position: relative;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 200px;
+  background: radial-gradient(ellipse, rgba(124, 106, 255, 0.1) 0%, transparent 70%);
+  pointer-events: none;
 }
 
 .kicker {
   display: inline-block;
   margin-bottom: 10px;
+  color: var(--accent-bright);
+  font-family: var(--font-mono);
   font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--xlm-gold);
+  letter-spacing: 0.12em;
+  position: relative;
 }
 
-.hero h1,
-.section h2,
-.deniedCard h1 {
-  margin: 0 0 12px;
+.hero h1 {
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
   color: var(--text-primary);
+  margin-bottom: 12px;
+  position: relative;
 }
 
-.hero p,
-.deniedCard p,
-.supporting,
-.warning,
-.infoLine {
-  margin: 0 0 10px;
-  line-height: 1.7;
+.hero p {
+  font-size: 16px;
+  color: var(--text-secondary);
+  max-width: 620px;
+  margin: 0 auto;
+  line-height: 1.6;
+  position: relative;
 }
 
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.section,
+.deniedCard,
+.emptyState,
 .heroMeta,
 .metricCard,
 .infoCard {
-  background: var(--bg-raised);
+  background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 18px;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.section h2,
+.deniedCard h1 {
+  margin: 0 0 16px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.01em;
 }
 
 .metaLabel,
-.metricLabel {
-  font-size: 11px;
+.metricLabel,
+.inputGroup span {
+  font-family: var(--font-mono);
+  font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -68,20 +98,20 @@
   display: block;
   margin-top: 8px;
   color: var(--text-primary);
-  font-size: 16px;
-  font-weight: 700;
-  overflow-wrap: anywhere;
+  font-size: 13px;
+  font-weight: 600;
+  word-break: break-word;
 }
 
 .metricGrid,
 .formGrid {
   display: grid;
-  gap: 14px;
+  gap: 12px;
 }
 
 .metricGrid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin-bottom: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin-bottom: 16px;
 }
 
 .formGrid {
@@ -93,38 +123,60 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  color: var(--text-secondary);
-  font-size: 13px;
 }
 
 .input {
   width: 100%;
+  background: var(--bg-raised);
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 12px 14px;
-  background: var(--bg-raised);
+  font-family: var(--font-mono);
+  font-size: 14px;
   color: var(--text-primary);
-  font-family: var(--font-display);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.input:focus {
+  border-color: var(--accent-dim);
 }
 
 .actionButton,
 .secondaryButton {
+  width: fit-content;
   border: 1px solid transparent;
   border-radius: 10px;
-  padding: 12px 18px;
+  padding: 13px 16px;
+  font-family: var(--font-display);
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
+  transition: all 0.2s;
 }
 
 .actionButton {
-  background: var(--xlm-gold);
-  color: #22163c;
+  background: var(--accent);
+  color: white;
 }
 
 .secondaryButton {
-  background: transparent;
+  background: rgba(124, 106, 255, 0.1);
+  color: var(--accent-bright);
+  border-color: rgba(124, 106, 255, 0.25);
+}
+
+.actionButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(124, 106, 255, 0.4);
+}
+
+.secondaryButton:hover:not(:disabled) {
+  background: rgba(124, 106, 255, 0.15);
+}
+
+.secondaryButton {
   border-color: var(--border);
-  color: var(--text-primary);
 }
 
 .actionButton:disabled,
@@ -133,8 +185,21 @@
   cursor: not-allowed;
 }
 
+.deniedCard p,
+.supporting,
+.warning,
+.infoLine,
+.emptyState {
+  font-size: 14px;
+  line-height: 1.7;
+}
+
 .warning {
-  color: #f4c27a;
+  color: var(--error);
+  background: rgba(255, 77, 109, 0.08);
+  border: 1px solid rgba(255, 77, 109, 0.2);
+  border-radius: 10px;
+  padding: 16px;
 }
 
 .supporting {
@@ -147,9 +212,17 @@
 }
 
 @media (max-width: 820px) {
-  .hero,
   .metricGrid,
   .formGrid {
     grid-template-columns: 1fr;
+  }
+
+  .hero h1 {
+    font-size: 28px;
+  }
+
+  .actionButton,
+  .secondaryButton {
+    width: 100%;
   }
 }
