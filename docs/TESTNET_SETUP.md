@@ -117,7 +117,7 @@ $env:STELLAR_RPC_URL="https://soroban-testnet.stellar.org"
 $env:STELLAR_NETWORK_PASSPHRASE="Test SDF Network ; September 2015"
 $env:ARYA_PLATFORM_OWNER="G..."
 $env:ARYA_TREASURY="G..."
-$env:ARYA_TOKEN_SAC_ID="C..."
+$env:ARYA_TOKEN_ASSET="ARYA:G..."
 $env:ARYA_USDC_SAC_ID="C..."
 ```
 
@@ -125,4 +125,19 @@ For GitHub Actions:
 
 - `STELLAR_ACCOUNT` should be the secret signing key in repository Secrets
 - `ARYA_PLATFORM_OWNER` and `ARYA_TREASURY` should be public `G...` addresses in repository Variables
+- `ARYA_TOKEN_ASSET` should be the ARYA classic asset string, usually `ARYA:<ARYA_PLATFORM_OWNER>`
+- `ARYA_USDC_SAC_ID` should be derived from the testnet USDC asset
 - leave `ARYA_REGISTRY_ID`, `ARYA_STAKING_ID`, `ARYA_CROWDFUNDING_ID`, and `ARYA_LAUNCHPAD_ID` empty on the first deploy
+
+After the first successful run of `testnet-deploy.yml`, go to `GitHub -> Settings -> Secrets and variables -> Actions -> Variables` and add the values printed by the workflow:
+
+- `ARYA_REGISTRY_ID`
+- `ARYA_STAKING_ID`
+- `ARYA_CROWDFUNDING_ID`
+- `ARYA_LAUNCHPAD_ID`
+- `ARYA_TOKEN_ASSET`
+- `ARYA_TOKEN_SAC_ID`
+- `ARYA_USDC_ASSET`
+- `ARYA_USDC_SAC_ID`
+- `ARYA_XLM_ASSET`
+- `ARYA_XLM_SAC_ID`

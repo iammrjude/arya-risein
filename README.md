@@ -86,7 +86,6 @@ Add screenshots in the `screenshots/` folder and replace the placeholder filenam
 arya-risein/
 |-- contract/
 |   |-- contracts/
-|   |   |-- arya_fund/           # legacy baseline contract kept for migration context
 |   |   |-- arya_registry/       # shared address registry and config
 |   |   |-- arya_staking/        # ARYA staking with XLM and USDC reward pools
 |   |   |-- arya_crowdfunding/   # single-asset campaigns + staking fee split
@@ -388,7 +387,7 @@ Public addresses still go in variables:
 - `ARYA_PLATFORM_OWNER` = public address `G...`
 - `ARYA_TREASURY` = public address `G...`
 
-GitHub Actions Variables:
+GitHub Actions Variables To Add Before The First Deploy:
 
 - `STELLAR_RPC_URL`
   Set to `https://soroban-testnet.stellar.org`
@@ -398,8 +397,10 @@ GitHub Actions Variables:
   The public Stellar address `G...` that should own the Arya contracts.
 - `ARYA_TREASURY`
   The treasury public Stellar address `G...`.
-- `ARYA_TOKEN_SAC_ID`
-  The ARYA token Stellar Asset Contract ID `C...`. You get this after creating/deploying the ARYA asset contract.
+- `ARYA_TOKEN_ASSET`
+  The classic Stellar asset string for the ARYA token. For the default flow this is `ARYA:<issuer>`, usually `ARYA:<ARYA_PLATFORM_OWNER>`.
+- `ARYA_TOKEN_ISSUER`
+  Optional helper variable if you want the workflow to derive `ARYA_TOKEN_ASSET` as `ARYA:<issuer>`. This is only needed when you are not explicitly setting `ARYA_TOKEN_ASSET`.
 - `ARYA_USDC_SAC_ID`
   The USDC Stellar Asset Contract ID `C...` used on your testnet setup. Derive it from the testnet USDC asset with:
 
@@ -418,18 +419,89 @@ GitHub Actions Variables:
 
 Used to detect that the suite has already been deployed and should now upgrade:
 
+Leave these empty before the first run:
+
 - `ARYA_REGISTRY_ID`
 - `ARYA_STAKING_ID`
 - `ARYA_CROWDFUNDING_ID`
 - `ARYA_LAUNCHPAD_ID`
+
+The workflow behavior is now:
+
+1. if `ARYA_REGISTRY_ID` is empty, it runs the first deploy flow
+2. if `ARYA_REGISTRY_ID` is set, it expects all four deployed contract IDs and runs upgrades
+
+### Where Each GitHub Variable Comes From
+
+- `STELLAR_ACCOUNT`
+  GitHub `Settings -> Secrets and variables -> Actions -> Secrets`.
+  Value source: the deployer wallet secret key `S...`. Get it with `stellar keys secret YOUR_IDENTITY` on a trusted local machine.
+- `STELLAR_RPC_URL`
+  GitHub `Settings -> Secrets and variables -> Actions -> Variables`.
+  Value source: use `https://soroban-testnet.stellar.org`.
+- `STELLAR_NETWORK_PASSPHRASE`
+  GitHub `Settings -> Secrets and variables -> Actions -> Variables`.
+  Value source: use `Test SDF Network ; September 2015`.
+- `ARYA_PLATFORM_OWNER`
+  GitHub `Settings -> Secrets and variables -> Actions -> Variables`.
+  Value source: the public `G...` address that should own the deployed contracts. Get it with `stellar keys public-key YOUR_IDENTITY`.
+- `ARYA_TREASURY`
+  GitHub `Settings -> Secrets and variables -> Actions -> Variables`.
+  Value source: the public `G...` treasury address. Get it with `stellar keys public-key YOUR_TREASURY_IDENTITY`.
+- `ARYA_TOKEN_ASSET`
+  GitHub `Settings -> Secrets and variables -> Actions -> Variables`.
+  Value source: the classic Stellar asset string for ARYA, for example `ARYA:G...`. If you use the default issuer, this can match `ARYA:<ARYA_PLATFORM_OWNER>`.
+- `ARYA_TOKEN_ISSUER`
+  GitHub `Settings -> Secrets and variables -> Actions -> Variables`.
+  Value source: optional convenience issuer `G...` used to derive `ARYA_TOKEN_ASSET` when the asset string itself is not set.
+- `ARYA_USDC_SAC_ID`
+  GitHub `Settings -> Secrets and variables -> Actions -> Variables`.
+  Value source: derive it with:
+
+  ```bash
+  stellar contract id asset \
+    --network testnet \
+    --asset USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5
+  ```
+
+- `ARYA_XLM_SAC_ID`
+  GitHub `Settings -> Secrets and variables -> Actions -> Variables`.
+  Value source: optional explicit native XLM SAC ID derived with:
+
+  ```bash
+  stellar contract id asset --asset native --network testnet
+  ```
+
+- `ARYA_USDC_ASSET`
+  GitHub `Settings -> Secrets and variables -> Actions -> Variables`.
+  Value source: optional convenience asset string. Use `USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5`.
+- `ARYA_XLM_ASSET`
+  GitHub `Settings -> Secrets and variables -> Actions -> Variables`.
+  Value source: optional convenience asset string. Use `native`.
+
+### Variables Printed By The First Deploy That You Must Add Afterwards
+
+After the first successful run of `testnet-deploy.yml`, the script prints the exact values to persist for future runs:
+
+- `ARYA_REGISTRY_ID`
+- `ARYA_STAKING_ID`
+- `ARYA_CROWDFUNDING_ID`
+- `ARYA_LAUNCHPAD_ID`
+- `ARYA_TOKEN_ASSET`
+- `ARYA_TOKEN_SAC_ID`
+- `ARYA_USDC_ASSET`
+- `ARYA_USDC_SAC_ID`
+- `ARYA_XLM_ASSET`
+- `ARYA_XLM_SAC_ID`
 
 Important notes:
 
 - never put secret keys in normal repository variables or commit them to the repo
 - only store signing material in GitHub Actions `Secrets`
 - use GitHub Actions `Variables` for public addresses, contract IDs, RPC URLs, and passphrases
-- on the first workflow run, leave the contract ID variables empty so the workflow performs a fresh deploy
-- after the first deploy succeeds, copy the printed contract IDs into the four GitHub repository variables above so future runs automatically use the upgrade path
+- on the first workflow run, leave the four deployed contract ID variables empty so the workflow performs a fresh deploy
+- if you do not predefine `ARYA_TOKEN_SAC_ID`, the workflow creates the ARYA token SAC for `ARYA_TOKEN_ASSET` and prints the resulting value
+- after the first deploy succeeds, copy all printed values into GitHub repository variables so future runs automatically use the upgrade path and preserve the exact asset metadata
 
 That means:
 
@@ -439,7 +511,8 @@ That means:
    - do not set `ARYA_CROWDFUNDING_ID`
    - do not set `ARYA_LAUNCHPAD_ID`
 2. workflow deploys fresh contracts
-3. copy the printed contract IDs into GitHub Variables
+3. open `GitHub -> Settings -> Secrets and variables -> Actions -> Variables`
+4. copy the printed values into GitHub Variables
 4. later runs automatically switch to upgrade mode
 
 ### Frontend Deployment And CI/CD
@@ -473,6 +546,10 @@ So in this project:
 - [ ] Contract addresses added
 - [ ] Transaction hashes added
 - [ ] Token / pool address added if deployed
+
+## TODO
+
+- Fix the connect wallet button.
 
 ## Contributing
 

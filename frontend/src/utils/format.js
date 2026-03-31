@@ -28,3 +28,20 @@ export function calcSuggestedGoal(desiredAmountXlm, basisPoints) {
     const suggested = desired + feeAmount
     return suggested.toFixed(2)
 }
+
+export function normalizeContractEnum(value) {
+    if (Array.isArray(value)) {
+        return value[0] ?? ''
+    }
+    return value ?? ''
+}
+
+export function assetCodeFromFundingAsset(value) {
+    const normalized = normalizeContractEnum(value)
+    if (normalized === 'Usdc') return 'USDC'
+    return 'XLM'
+}
+
+export function formatAmountForFundingAsset(amount, fundingAsset) {
+    return `${stroopsToXlm(amount)} ${assetCodeFromFundingAsset(fundingAsset)}`
+}

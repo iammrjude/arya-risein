@@ -12,8 +12,6 @@ This workspace contains the Arya Soroban smart contracts for Stellar Testnet.
   Single-asset campaigns with automatic fee split to treasury and staking.
 - `arya_launchpad`
   Single-asset token sales with automatic fee split to treasury and staking.
-- `arya_fund`
-  Legacy baseline contract kept only for migration/reference context.
 
 ## Upgradeability
 

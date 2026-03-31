@@ -2,11 +2,13 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TxStatus from '../../components/TxStatus/TxStatus'
 import { createCampaign } from '../../contract/client'
-import { xlmToStroops, basisPointsToPercent, calcSuggestedGoal } from '../../utils/format'
+import { xlmToStroops, basisPointsToPercent, calcSuggestedGoal, assetCodeFromFundingAsset } from '../../utils/format'
 import { toUnixTimestamp } from '../../utils/time'
 import { usePlatformSettings } from '../../hooks/useContract'
 import { useWallet } from '../../hooks/useWallet'
 import styles from './Create.module.css'
+
+const FUNDING_ASSETS = ['Xlm', 'Usdc']
 
 const INITIAL_FORM = {
     title: '',
@@ -14,6 +16,7 @@ const INITIAL_FORM = {
     goalAmount: '',
     deadline: '',
     extensionDays: '30',
+    fundingAsset: 'Xlm',
 }
 
 export default function Create() {
@@ -28,6 +31,7 @@ export default function Create() {
 
     const fee = settings?.fee_basis_points ?? 250
     const suggestedGoal = calcSuggestedGoal(form.goalAmount, fee)
+    const assetCode = assetCodeFromFundingAsset(form.fundingAsset)
 
     function handleChange(e) {
         const { name, value } = e.target
@@ -76,6 +80,7 @@ export default function Create() {
                 goalAmount: xlmToStroops(form.goalAmount),
                 deadline: toUnixTimestamp(form.deadline),
                 extensionDays: parseInt(form.extensionDays),
+                fundingAsset: form.fundingAsset,
                 signTransaction,
             })
             setTxStatus('success')
@@ -99,7 +104,7 @@ export default function Create() {
                 <div className={styles.header}>
                     <h1 className={styles.title}>Create a Campaign</h1>
                     <p className={styles.subtitle}>
-                        Launch a trustless crowdfunding campaign on the Stellar network.
+                        Launch a trustless crowdfunding campaign on the Stellar network with XLM or USDC funding.
                     </p>
                 </div>
 
@@ -109,8 +114,8 @@ export default function Create() {
                         Platform fee is <strong>{basisPointsToPercent(fee)}%</strong> of total raised, deducted on successful withdrawal.
                         {form.goalAmount && (
                             <span className={styles.feeSuggestion}>
-                                {' '}To receive ~{parseFloat(form.goalAmount).toLocaleString()} XLM, consider setting your goal to{' '}
-                                <strong>{parseFloat(suggestedGoal).toLocaleString()} XLM</strong>.
+                                {' '}To receive ~{parseFloat(form.goalAmount).toLocaleString()} {assetCode}, consider setting your goal to{' '}
+                                <strong>{parseFloat(suggestedGoal).toLocaleString()} {assetCode}</strong>.
                             </span>
                         )}
                     </div>
@@ -147,6 +152,25 @@ export default function Create() {
 
                     <div className={styles.row}>
                         <div className={styles.field}>
+                            <label className={styles.label}>Funding Asset</label>
+                            <div className={styles.inputWrap}>
+                                <select
+                                    name="fundingAsset"
+                                    className={styles.input}
+                                    value={form.fundingAsset}
+                                    onChange={handleChange}
+                                    disabled={txStatus === 'pending'}
+                                >
+                                    {FUNDING_ASSETS.map(asset => (
+                                        <option key={asset} value={asset}>
+                                            {assetCodeFromFundingAsset(asset)}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className={styles.field}>
                             <label className={styles.label}>Goal Amount</label>
                             <div className={styles.inputWrap}>
                                 <input
@@ -160,7 +184,7 @@ export default function Create() {
                                     min="0"
                                     step="any"
                                 />
-                                <span className={styles.inputSuffix}>XLM</span>
+                                <span className={styles.inputSuffix}>{assetCode}</span>
                             </div>
                             {errors.goalAmount && <span className={styles.fieldError}>{errors.goalAmount}</span>}
                         </div>

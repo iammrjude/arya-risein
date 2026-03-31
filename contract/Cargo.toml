@@ -1,7 +1,6 @@
 [workspace]
 resolver = "2"
 members = [
-  "contracts/arya_fund",
   "contracts/arya_registry",
   "contracts/arya_staking",
   "contracts/arya_crowdfunding",

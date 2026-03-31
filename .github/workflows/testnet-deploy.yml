@@ -27,10 +27,31 @@ jobs:
           STELLAR_ACCOUNT: ${{ secrets.STELLAR_ACCOUNT }}
           STELLAR_RPC_URL: ${{ vars.STELLAR_RPC_URL }}
           STELLAR_NETWORK_PASSPHRASE: ${{ vars.STELLAR_NETWORK_PASSPHRASE }}
+          ARYA_PLATFORM_OWNER: ${{ vars.ARYA_PLATFORM_OWNER }}
+          ARYA_TREASURY: ${{ vars.ARYA_TREASURY }}
+          ARYA_TOKEN_SAC_ID: ${{ vars.ARYA_TOKEN_SAC_ID }}
+          ARYA_TOKEN_ASSET: ${{ vars.ARYA_TOKEN_ASSET }}
+          ARYA_TOKEN_ISSUER: ${{ vars.ARYA_TOKEN_ISSUER }}
+          ARYA_USDC_ASSET: ${{ vars.ARYA_USDC_ASSET }}
+          ARYA_USDC_SAC_ID: ${{ vars.ARYA_USDC_SAC_ID }}
+          ARYA_XLM_ASSET: ${{ vars.ARYA_XLM_ASSET }}
+          ARYA_REGISTRY_ID: ${{ vars.ARYA_REGISTRY_ID }}
+          ARYA_CROWDFUNDING_ID: ${{ vars.ARYA_CROWDFUNDING_ID }}
+          ARYA_STAKING_ID: ${{ vars.ARYA_STAKING_ID }}
+          ARYA_LAUNCHPAD_ID: ${{ vars.ARYA_LAUNCHPAD_ID }}
         run: |
           test -n "$STELLAR_ACCOUNT" || { echo "Missing STELLAR_ACCOUNT secret"; exit 1; }
           test -n "$STELLAR_RPC_URL" || { echo "Missing STELLAR_RPC_URL variable"; exit 1; }
           test -n "$STELLAR_NETWORK_PASSPHRASE" || { echo "Missing STELLAR_NETWORK_PASSPHRASE variable"; exit 1; }
+          if [[ -n "$ARYA_REGISTRY_ID" ]]; then
+            test -n "$ARYA_CROWDFUNDING_ID" || { echo "Missing ARYA_CROWDFUNDING_ID variable for upgrade flow"; exit 1; }
+            test -n "$ARYA_STAKING_ID" || { echo "Missing ARYA_STAKING_ID variable for upgrade flow"; exit 1; }
+            test -n "$ARYA_LAUNCHPAD_ID" || { echo "Missing ARYA_LAUNCHPAD_ID variable for upgrade flow"; exit 1; }
+          else
+            test -n "$ARYA_PLATFORM_OWNER" || { echo "Missing ARYA_PLATFORM_OWNER variable for first deploy"; exit 1; }
+            test -n "$ARYA_TREASURY" || { echo "Missing ARYA_TREASURY variable for first deploy"; exit 1; }
+            test -n "$ARYA_USDC_SAC_ID" || { echo "Missing ARYA_USDC_SAC_ID variable for first deploy"; exit 1; }
+          fi
       - name: Check formatting
         run: cargo fmt --all -- --check
       - name: Lint contracts
@@ -48,7 +69,11 @@ jobs:
           ARYA_TREASURY: ${{ vars.ARYA_TREASURY }}
           ARYA_PLATFORM_OWNER: ${{ vars.ARYA_PLATFORM_OWNER }}
           ARYA_TOKEN_SAC_ID: ${{ vars.ARYA_TOKEN_SAC_ID }}
+          ARYA_TOKEN_ASSET: ${{ vars.ARYA_TOKEN_ASSET }}
+          ARYA_TOKEN_ISSUER: ${{ vars.ARYA_TOKEN_ISSUER }}
+          ARYA_USDC_ASSET: ${{ vars.ARYA_USDC_ASSET }}
           ARYA_XLM_SAC_ID: ${{ vars.ARYA_XLM_SAC_ID }}
+          ARYA_XLM_ASSET: ${{ vars.ARYA_XLM_ASSET }}
           ARYA_USDC_SAC_ID: ${{ vars.ARYA_USDC_SAC_ID }}
           ARYA_REGISTRY_ID: ${{ vars.ARYA_REGISTRY_ID }}
           ARYA_CROWDFUNDING_ID: ${{ vars.ARYA_CROWDFUNDING_ID }}

@@ -1,6 +1,6 @@
 # Arya Frontend
 
-The frontend is a React application for the Arya platform. It keeps the dark purple visual identity from the original prototype while adding modular navigation, responsive layouts, event-based syncing, and production-focused configuration.
+The frontend is a React application for the Arya platform. It keeps the established Arya visual identity while adding modular navigation, responsive layouts, wallet-powered contract interactions, and production-focused configuration.
 
 ## Modules
 
@@ -32,12 +32,12 @@ Add screenshots after deployment.
 ### Launchpad Page
 
 ![Launchpad page](../screenshots/launchpad-page.png)
-*Show a launchpad screen with project cards or sale details.*
+*Show a launchpad screen with live sale metrics or the project detail flow.*
 
 ### Staking Page
 
 ![Staking reward pool page](../screenshots/staking-page.png)
-*Show the XLM and USDC staking pool UI.*
+*Show the staking overview, reward pool metrics, or position dashboard.*
 
 ## Frontend Routes
 
@@ -53,6 +53,7 @@ Add screenshots after deployment.
 - `/staking/xlm`
 - `/staking/usdc`
 - `/staking/dashboard`
+- `/staking/overview`
 - `/admin`
 
 ## Local Setup
@@ -95,7 +96,14 @@ Then configure:
 
 ## Wallet Integration
 
-The frontend uses Stellar Wallets Kit. Depending on the user’s environment, they can connect with supported wallets such as Freighter, Albedo, xBull, Rabet, and LOBSTR-compatible flows supported by the package.
+The frontend uses Stellar Wallets Kit. Supported wallet flows depend on the user's environment and the installed wallet extensions or apps.
+
+## Contract Coverage
+
+- Crowdfunding: browse, create, donate, withdraw, extend, mark failed, claim refund, admin settings
+- Launchpad: browse sales, create sale, contribute, claim tokens, claim refund, withdraw funds, reclaim unsold tokens
+- Staking: overview metrics, reward pool metrics, stake, unstake, claim rewards, position tracking
+- Registry: admin visibility into the canonical on-chain contract addresses and treasury configuration
 
 ## Real-Time Sync
 
@@ -129,11 +137,11 @@ The app is designed to remain discoverable on small screens:
 - frontend lint, tests, and production build pass locally
 - bundle splitting is configured in `vite.config.js`
 
-Large SDK chunks may still produce a warning because Stellar SDK is sizeable in browser builds, but the build completes successfully.
+Large SDK chunks may still produce a warning because Stellar SDK is sizable in browser builds, but the build completes successfully.
 
 ## Deployment
 
-You said you will deploy on Vercel. Recommended flow:
+Recommended flow:
 
 1. set all `VITE_*` variables in Vercel project settings
 2. connect the GitHub repo
@@ -141,11 +149,9 @@ You said you will deploy on Vercel. Recommended flow:
 4. copy the live URL into the root README
 5. capture screenshots for the submission checklist
 
-You do not need GitHub Actions to deploy the frontend to Vercel.
-
 Recommended split of responsibilities:
 
 - GitHub Actions: lint, test, build, contract validation, contract deployment workflow
-- Vercel: frontend hosting and frontend preview/production deploys
+- Vercel: frontend hosting and frontend preview and production deploys
 
 See [../docs/FRONTEND_CONFIGURATION.md](../docs/FRONTEND_CONFIGURATION.md) for contract env details.
