@@ -27,6 +27,74 @@ stellar --version
 
 ## 2. Create or Import a CLI Identity
 
+Stellar CLI identities are global by default. If you already created identities in the old AryaFund work, the recommended path is to create new Arya names from them and then use the Arya names everywhere.
+
+Useful commands:
+
+```bash
+stellar keys ls
+stellar keys public-key NAME
+stellar keys secret NAME
+stellar keys use NAME
+stellar keys unset
+stellar keys generate NAME
+stellar keys fund NAME --network testnet
+stellar keys add NAME --secret-key
+stellar keys rm NAME
+```
+
+Inspect existing identities:
+
+```bash
+stellar keys ls
+stellar keys public-key arya-fund-deployer
+stellar keys public-key arya-fund-treasury
+```
+
+Create Arya-specific names by copying the old ones:
+
+```bash
+stellar keys secret arya-fund-deployer
+stellar keys add arya-deployer --secret-key
+stellar keys use arya-deployer
+
+stellar keys secret arya-fund-treasury
+stellar keys add arya-treasury --secret-key
+```
+
+The add command prompts you to paste the secret key.
+
+Verify:
+
+```bash
+stellar keys public-key arya-deployer
+stellar keys public-key arya-treasury
+```
+
+If the new names are correct, use them for deployment commands and docs going forward.
+
+After you confirm everything works, optionally remove the old names:
+
+```bash
+stellar keys rm arya-fund-deployer
+stellar keys rm arya-fund-treasury
+```
+
+If you want the keys stored only for this repo, use a repo-local config dir:
+
+```bash
+mkdir -p .stellar
+stellar --config-dir ./.stellar keys add arya-deployer --secret-key
+stellar --config-dir ./.stellar keys add arya-treasury --secret-key
+stellar --config-dir ./.stellar keys use arya-deployer
+```
+
+Then keep using:
+
+```bash
+stellar --config-dir ./.stellar ...
+```
+
 Generate a new one:
 
 ```bash
@@ -86,10 +154,37 @@ $env:ARYA_TOKEN_SAC_ID="C..."
 $env:ARYA_USDC_SAC_ID="C..."
 ```
 
+Where these values come from:
+
+- `STELLAR_ACCOUNT`
+  The local Stellar CLI identity name for manual local runs. In GitHub Actions, this is instead the secret signing key stored in repository Secrets.
+- `ARYA_PLATFORM_OWNER`
+  Public wallet address `G...`
+- `ARYA_TREASURY`
+  Public wallet address `G...`
+- `ARYA_TOKEN_SAC_ID`
+  The ARYA token SAC contract ID after you create/deploy the ARYA asset contract
+- `ARYA_USDC_SAC_ID`
+  Derive from testnet USDC:
+
+  ```bash
+  stellar contract id asset \
+    --network testnet \
+    --asset USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5
+  ```
+
+If you are using repo-local keys, the `STELLAR_ACCOUNT` value is still just the identity name like `arya-deployer`; the difference is that your manual `stellar` commands should include `--config-dir ./.stellar`.
+
 Optional:
 
 ```powershell
 $env:ARYA_XLM_SAC_ID="C..."
+```
+
+Derive native XLM SAC:
+
+```bash
+stellar contract id asset --asset native --network testnet
 ```
 
 If `ARYA_XLM_SAC_ID` is omitted, the init script derives the native XLM SAC automatically.
@@ -179,3 +274,13 @@ Before CI/CD can work on GitHub:
    - `ARYA_STAKING_ID`
    - `ARYA_CROWDFUNDING_ID`
    - `ARYA_LAUNCHPAD_ID`
+
+First deploy vs later upgrade:
+
+- first run:
+  - leave `ARYA_REGISTRY_ID`, `ARYA_STAKING_ID`, `ARYA_CROWDFUNDING_ID`, and `ARYA_LAUNCHPAD_ID` unset
+  - workflow deploys fresh contracts
+- after success:
+  - copy the printed contract IDs into those GitHub Variables
+- later runs:
+  - workflow sees the IDs and upgrades the existing contracts
