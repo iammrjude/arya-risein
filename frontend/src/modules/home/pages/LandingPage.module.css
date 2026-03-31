@@ -170,11 +170,46 @@
 }
 
 @media (max-width: 900px) {
+  .hero {
+    padding: 44px 20px 32px;
+  }
+
+  .grid,
+  .roadmap {
+    padding: 0 20px;
+  }
+
   .grid {
     grid-template-columns: 1fr;
   }
 
   .title {
     font-size: 28px;
+  }
+}
+
+@media (max-width: 520px) {
+  .hero {
+    padding: 36px 16px 28px;
+  }
+
+  .grid,
+  .roadmap {
+    padding: 0 16px;
+  }
+
+  .card,
+  .roadmapCard {
+    padding: 20px;
+  }
+
+  .actions {
+    gap: 10px;
+  }
+
+  .primaryCta,
+  .secondaryCta {
+    width: 100%;
+    text-align: center;
   }
 }

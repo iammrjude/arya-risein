@@ -3,7 +3,7 @@
 Arya is a modular Stellar dApp platform built for Level 4 production-readiness work. It expands the original crowdfunding prototype into a broader product suite with upgradeable Soroban smart contracts, a React frontend, near-real-time event syncing via Soroban RPC polling, CI/CD, and mobile-first navigation.
 
 - Network: `Stellar Testnet`
-- Live Demo: `ADD_VERCEL_URL_HERE`
+- Live Demo: <https://arya-on-stellar.vercel.app>
 - Demo Video: `ADD_VIDEO_URL_HERE`
 - Repository: <https://github.com/iammrjude/arya-risein>
 
@@ -140,6 +140,8 @@ arya-risein/
 
 ## Contracts
 
+Machine-readable reference: [docs/testnet-reference.json](docs/testnet-reference.json)
+
 | Property | Value |
 | ---------- | ------- |
 | Network | Stellar Testnet |
@@ -154,6 +156,23 @@ arya-risein/
 | Testnet USDC Asset | `USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5` |
 | Treasury Wallet | `GAZZRHDL3SUTFD2CWWDVVHQXGVXWWQYTJNGMC6IQIQD7OAKQLDBJND7B` |
 | Platform Owner | `GBLH7QUEY43J3AJSIYPRUQKKUFX577GSYWRRQJVNFOV7MUON3YMM5IJQ` |
+
+### Product / Explorer Transactions
+
+| Action | Transaction |
+| ---------- | ------------ |
+| Create crowdfunding campaign | [`95498616376b8b4f084f44eb3acd1b187023dbb80a5960379e1cbb5f4f1f2c4b`](https://stellar.expert/explorer/testnet/tx/95498616376b8b4f084f44eb3acd1b187023dbb80a5960379e1cbb5f4f1f2c4b) |
+| Issue `2,000 ARYA` to treasury wallet | [`0b32b31f396b721efd7e485b0a5b621986dd7bc6d8c75fd514cd323687bc7320`](https://stellar.expert/explorer/testnet/tx/0b32b31f396b721efd7e485b0a5b621986dd7bc6d8c75fd514cd323687bc7320) |
+| Add liquidity `500,000 ARYA + 5,000 XLM` | [`e7ef4150aebc016f878daa0adc898a0f2274bd5ff708b5499397cf945367745c`](https://stellar.expert/explorer/testnet/tx/e7ef4150aebc016f878daa0adc898a0f2274bd5ff708b5499397cf945367745c) |
+| Buy ARYA with `25 XLM` | [`758ef9c0d8da64d3fb7da9bb1baacdab2671d2d3737531d7b9998c3b61bf8163`](https://stellar.expert/explorer/testnet/tx/758ef9c0d8da64d3fb7da9bb1baacdab2671d2d3737531d7b9998c3b61bf8163) |
+| Sell `100 ARYA` for XLM | [`0ea99fe10d5ed73ab0ea9377a83ad4df44b43d6002ea768ec963c7b88a3d0bbf`](https://stellar.expert/explorer/testnet/tx/0ea99fe10d5ed73ab0ea9377a83ad4df44b43d6002ea768ec963c7b88a3d0bbf) |
+| Donate `5,200 XLM` to crowdfunding | [`6a1d75772c7f34b904b93a6addf77cebd47710c7858d9d8ecc1fbd670443bf55`](https://stellar.expert/explorer/testnet/tx/6a1d75772c7f34b904b93a6addf77cebd47710c7858d9d8ecc1fbd670443bf55) |
+| Campaign withdraw triggering fee routing | [`fbe49b8bb39d83887ba9a330999c9872233b110c5eb846b461e080d9582fe05f`](https://stellar.expert/explorer/testnet/tx/fbe49b8bb39d83887ba9a330999c9872233b110c5eb846b461e080d9582fe05f) |
+
+Notes:
+
+- The `25 XLM` buy produced `2,480.1365194 ARYA` with a minimum receive guard of `2,455.3351542 ARYA`.
+- The liquidity add above seeded the live `ARYA/XLM` pool at the planned opening ratio of `500,000 ARYA : 5,000 XLM`.
 
 ### Deployment / Upgrade Transactions
 
@@ -173,7 +192,7 @@ arya-risein/
 
 | Action | Transaction |
 | ---------- | ------------ |
-| Crowdfunding fee routed into staking | `Pending first fee-generating crowdfunding withdraw on testnet` |
+| Crowdfunding fee routed into staking | [`fbe49b8bb39d83887ba9a330999c9872233b110c5eb846b461e080d9582fe05f`](https://stellar.expert/explorer/testnet/tx/fbe49b8bb39d83887ba9a330999c9872233b110c5eb846b461e080d9582fe05f) |
 | Launchpad fee routed into staking | `Pending first fee-generating launchpad withdraw_funds on testnet` |
 
 These inter-contract calls are implemented on-chain today:
@@ -181,7 +200,7 @@ These inter-contract calls are implemented on-chain today:
 - `arya_crowdfunding -> arya_staking` via `deposit_xlm_rewards` / `deposit_usdc_rewards`
 - `arya_launchpad -> arya_staking` via `deposit_xlm_rewards` / `deposit_usdc_rewards`
 
-The missing piece for submission is the explorer transaction hash from a real testnet interaction that exercised each path.
+The crowdfunding path is now proven on testnet. The remaining stretch goal is a matching explorer transaction hash for a real launchpad `withdraw_funds` execution that routes rewards into staking.
 
 ### Token / Pool
 
@@ -582,11 +601,11 @@ So in this project:
 - [x] Soroban RPC event polling hook for near-real-time frontend sync
 - [x] CI/CD workflows configured
 - [x] Frontend smoke tests configured
-- [ ] Live demo URL filled in
+- [x] Live demo URL filled in
 - [ ] Screenshots added
-- [ ] Contract addresses added
-- [ ] Transaction hashes added
-- [ ] Token / pool address added if deployed
+- [x] Contract addresses added
+- [x] Transaction hashes added
+- [x] Token / pool address added if deployed
 
 ## TODO
 

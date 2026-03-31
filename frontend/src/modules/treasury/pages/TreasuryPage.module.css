@@ -60,6 +60,7 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  min-width: 0;
 }
 
 .section,
@@ -72,6 +73,7 @@
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 24px;
+  min-width: 0;
 }
 
 .section h2,
@@ -101,6 +103,7 @@
   font-size: 13px;
   font-weight: 600;
   word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .metricGrid,
@@ -223,6 +226,7 @@
 .emptyState {
   font-size: 14px;
   line-height: 1.7;
+  overflow-wrap: anywhere;
 }
 
 .warning {
@@ -269,7 +273,24 @@
 }
 
 @media (max-width: 520px) {
+  .hero {
+    padding: 40px 16px 28px;
+  }
+
+  .container {
+    padding: 0 16px 48px;
+  }
+
   .presetRow {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .section,
+  .deniedCard,
+  .emptyState,
+  .heroMeta,
+  .metricCard,
+  .infoCard {
+    padding: 20px;
   }
 }

@@ -291,6 +291,8 @@ Use these current testnet identifiers in the README and delivery notes:
 - ARYA issuer: `GBLH7QUEY43J3AJSIYPRUQKKUFX577GSYWRRQJVNFOV7MUON3YMM5IJQ`
 - ARYA token SAC: `CBC42DVQ5J5KIXLJ2GIOX3PRZOZ5H63GPQKXXIYMPNOR2XXWNBEO332W`
 - ARYA/XLM liquidity pool ID: `37c5defa969c8015fed5003f304aeb91c69da39440e15640663db8ea906fadc5`
+- live demo URL: <https://arya-on-stellar.vercel.app>
+- machine-readable reference file: `docs/testnet-reference.json`
 
 Notes:
 
@@ -299,6 +301,21 @@ Notes:
 - for the inter-contract call submission requirement, capture a real testnet transaction hash from:
   - crowdfunding `withdraw` calling staking `deposit_xlm_rewards` or `deposit_usdc_rewards`
   - launchpad `withdraw_funds` calling staking `deposit_xlm_rewards` or `deposit_usdc_rewards`
+
+Known testnet product transactions:
+
+- create crowdfunding campaign: `95498616376b8b4f084f44eb3acd1b187023dbb80a5960379e1cbb5f4f1f2c4b`
+- issue `2,000 ARYA` to treasury: `0b32b31f396b721efd7e485b0a5b621986dd7bc6d8c75fd514cd323687bc7320`
+- add liquidity `500,000 ARYA + 5,000 XLM`: `e7ef4150aebc016f878daa0adc898a0f2274bd5ff708b5499397cf945367745c`
+- buy ARYA with `25 XLM`: `758ef9c0d8da64d3fb7da9bb1baacdab2671d2d3737531d7b9998c3b61bf8163`
+- sell `100 ARYA` for XLM: `0ea99fe10d5ed73ab0ea9377a83ad4df44b43d6002ea768ec963c7b88a3d0bbf`
+- donate `5,200 XLM`: `6a1d75772c7f34b904b93a6addf77cebd47710c7858d9d8ecc1fbd670443bf55`
+- crowdfunding withdraw with inter-contract fee routing: `fbe49b8bb39d83887ba9a330999c9872233b110c5eb846b461e080d9582fe05f`
+
+Current submission status:
+
+- crowdfunding inter-contract call evidence: captured
+- launchpad inter-contract call evidence: still pending a live `withdraw_funds` transaction hash
 
 ## Treasury Liquidity Plan
 

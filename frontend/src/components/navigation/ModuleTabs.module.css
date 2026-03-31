@@ -34,3 +34,15 @@
   border-color: rgba(124, 106, 255, 0.3);
   background: rgba(124, 106, 255, 0.1);
 }
+
+@media (max-width: 720px) {
+  .inner {
+    padding: 10px 16px;
+    gap: 6px;
+  }
+
+  .tab {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+}

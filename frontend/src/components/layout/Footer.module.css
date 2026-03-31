@@ -36,3 +36,20 @@
 .link:hover {
   opacity: 0.75;
 }
+
+@media (max-width: 720px) {
+  .footer {
+    padding: 18px 16px 22px;
+  }
+
+  .inner {
+    justify-content: center;
+    text-align: center;
+    gap: 14px;
+  }
+
+  .brand,
+  .links {
+    justify-content: center;
+  }
+}

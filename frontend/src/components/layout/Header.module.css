@@ -148,6 +148,7 @@
     padding: 0 24px 18px;
     max-width: 1200px;
     margin: 0 auto;
+    width: 100%;
   }
 }
 
@@ -158,5 +159,23 @@
 
   .walletInfo {
     display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .inner {
+    padding: 14px 16px;
+  }
+
+  .left {
+    gap: 16px;
+  }
+
+  .mobileMenu {
+    padding: 0 16px 16px;
+  }
+
+  .mobileLink {
+    padding: 10px 12px;
   }
 }
