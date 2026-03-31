@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { StellarWalletsKit } from '@creit-tech/stellar-wallets-kit/sdk'
-import { useWallet } from '../../hooks/useWallet'
-import { truncateAddress } from '../../utils/stellar'
 import styles from './Header.module.css'
+import { RxHamburgerMenu } from 'react-icons/rx'
 
 const NAV_ITEMS = [
   { label: 'Home', to: '/' },
@@ -15,28 +14,33 @@ const NAV_ITEMS = [
 
 export default function Header() {
   const location = useLocation()
-  const { getAddress } = useWallet()
-  const [address, setAddress] = useState(null)
+  const buttonMounted = useRef(false)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const walletWrapper = useRef(null)
 
   useEffect(() => {
-    async function syncAddress() {
-      const next = await getAddress()
-      setAddress(next)
-    }
-
-    syncAddress()
-    const interval = setInterval(syncAddress, 2000)
-    return () => clearInterval(interval)
-  }, [getAddress])
-
-  useEffect(() => {
-    const wrapper = walletWrapper.current
+    if (buttonMounted.current) return
+    const wrapper = document.querySelector('#swk-button-wrapper')
     if (!wrapper) return
-    wrapper.innerHTML = ''
+
     StellarWalletsKit.createButton(wrapper)
-  }, [location.pathname])
+    buttonMounted.current = true
+
+    // Poll for address after user connects via SWK modal
+    const interval = setInterval(async () => {
+      try {
+        const { address } = await StellarWalletsKit.getAddress()
+        if (address) {
+          // Address found, stop polling
+          clearInterval(interval)
+          buttonMounted.current = false // allow re-mounting the button on disconnect
+        }
+      } catch {
+        // not connected yet, keep polling
+      }
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [])
 
   const activePath = useMemo(() => {
     if (location.pathname.startsWith('/crowdfunding')) return '/crowdfunding'
@@ -70,13 +74,8 @@ export default function Header() {
         </div>
 
         <div className={styles.right}>
-          {address && (
-            <div className={styles.walletInfo}>
-              <span className={styles.connectedDot} />
-              <span className={styles.address}>{truncateAddress(address, 8, 8)}</span>
-            </div>
-          )}
-          <div ref={walletWrapper} className={styles.walletButton} />
+          <div id="swk-button-wrapper" />
+
           <button
             type="button"
             className={styles.menuButton}
@@ -84,9 +83,7 @@ export default function Header() {
             aria-expanded={mobileOpen}
             aria-label="Toggle menu"
           >
-            <span />
-            <span />
-            <span />
+            <RxHamburgerMenu size={22} color="#A78BFA" />
           </button>
         </div>
       </div>
