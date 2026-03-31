@@ -7,6 +7,41 @@ Arya is a modular Stellar dApp platform built for Level 4 production-readiness w
 - Demo Video: `ADD_VIDEO_URL_HERE`
 - Repository: <https://github.com/iammrjude/arya-risein>
 
+## Reviewer Quick Check
+
+### Requirements Snapshot
+
+- Inter-contract call working: yes
+  - proof tx: [`fbe49b8bb39d83887ba9a330999c9872233b110c5eb846b461e080d9582fe05f`](https://stellar.expert/explorer/testnet/tx/fbe49b8bb39d83887ba9a330999c9872233b110c5eb846b461e080d9582fe05f)
+- Custom token or pool deployed: yes, via Stellar Asset Contract and standard Stellar liquidity pool
+  - ARYA token SAC: `CBC42DVQ5J5KIXLJ2GIOX3PRZOZ5H63GPQKXXIYMPNOR2XXWNBEO332W`
+  - ARYA/XLM pool ID: `37c5defa969c8015fed5003f304aeb91c69da39440e15640663db8ea906fadc5`
+- CI/CD running: yes
+  - workflows: [ci.yml](.github/workflows/ci.yml), [testnet-deploy.yml](.github/workflows/testnet-deploy.yml)
+- Mobile responsive: yes
+  - responsive React frontend with dedicated mobile screenshot section below
+- Minimum 8+ meaningful commits: yes
+- Deliverable: production-ready advanced contract implementation
+
+### Submission Checklist
+
+- [x] Public GitHub repository
+- [x] README with complete documentation
+- [x] Minimum 8+ meaningful commits
+- [x] Live demo link
+- [ ] Screenshot: mobile responsive view
+- [ ] Screenshot or badge: CI/CD pipeline running
+- [x] Contract addresses and transaction hash
+- [x] Token or pool address
+
+### Fast Links For Review
+
+- Live demo: <https://arya-on-stellar.vercel.app>
+- Contract addresses and token/pool IDs: [Contracts](#contracts)
+- Inter-contract proof and transaction hashes: [Product / Explorer Transactions](#product--explorer-transactions)
+- Token / pool address section: [Token / Pool](#token--pool)
+- Machine-readable deployment reference: [docs/testnet-reference.json](docs/testnet-reference.json)
+
 ## Modules
 
 - ARYA Token

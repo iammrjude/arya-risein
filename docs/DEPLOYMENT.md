@@ -2,6 +2,28 @@
 
 This guide covers the full Arya testnet deployment flow.
 
+## Reviewer Quick Check
+
+- Live demo: <https://arya-on-stellar.vercel.app>
+- Machine-readable reference: [docs/testnet-reference.json](testnet-reference.json)
+- Inter-contract proof tx: [`fbe49b8bb39d83887ba9a330999c9872233b110c5eb846b461e080d9582fe05f`](https://stellar.expert/explorer/testnet/tx/fbe49b8bb39d83887ba9a330999c9872233b110c5eb846b461e080d9582fe05f)
+- Registry contract: `CDTYETLJFF3YXL73VU6HDSM55S3W4WIJISN4GSSNBRE3NRKGVTAIJQSX`
+- Staking contract: `CAIGE27WE6FVOAFYHNTG6UQSDQH4RILGPE2DLISDG6TXY5D2QQFDCUUH`
+- Crowdfunding contract: `CCXT5UABFQIJAMEFU6JSZUUDE42HTWZZDYKZCXBON47LXKKK3STJIC3I`
+- Launchpad contract: `CDSWDFZRA5MIWLFJCIHBTIQ2XTIWUZSH34U6GXBNNCALVRPIBKFL7GGU`
+- ARYA token SAC: `CBC42DVQ5J5KIXLJ2GIOX3PRZOZ5H63GPQKXXIYMPNOR2XXWNBEO332W`
+- ARYA/XLM pool ID: `37c5defa969c8015fed5003f304aeb91c69da39440e15640663db8ea906fadc5`
+- CI/CD workflows: [ci.yml](../.github/workflows/ci.yml), [testnet-deploy.yml](../.github/workflows/testnet-deploy.yml)
+
+### Reviewer Status
+
+- Inter-contract call working: satisfied
+- Token / pool address documented: satisfied
+- CI/CD configured: satisfied
+- Mobile responsive frontend: satisfied
+- 8+ meaningful commits: satisfied
+- Remaining reviewer assets still to attach in the repo: mobile screenshot and CI/CD screenshot or badge
+
 ## 1. Prerequisites
 
 - Rust stable installed
