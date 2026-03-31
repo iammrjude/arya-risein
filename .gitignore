@@ -1,5 +1,6 @@
 # Deployment notes - info captured in README
 deployment.txt
+.stellar/
 
 # Rust build artifacts
 contract/target/

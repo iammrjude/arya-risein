@@ -80,7 +80,7 @@ export default function Create() {
             })
             setTxStatus('success')
             setTxHash(result.hash)
-            setTimeout(() => navigate('/'), 25000) // Redirect after 25 seconds to allow users to see the success message and Tx hash
+            setTimeout(() => navigate('/crowdfunding'), 25000) // Redirect after 25 seconds to allow users to see the success message and Tx hash
         } catch (err) {
             setTxStatus('error')
             if (err.message?.includes('balance') || err.message?.includes('underfunded')) {

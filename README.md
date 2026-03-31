@@ -1,236 +1,479 @@
-# AryaFund
+# Arya
 
-A decentralized crowdfunding dApp built on the Stellar network. Anyone can create campaigns, collect XLM donations, and receive automatic refunds if goals are not met — all enforced by smart contracts with no middleman.
+Arya is a modular Stellar dApp platform built for Level 4 production-readiness work. It expands the original crowdfunding prototype into a broader product suite with upgradeable Soroban smart contracts, a React frontend, real-time event syncing, CI/CD, and mobile-first navigation.
 
-- **Network:** Stellar Testnet
-- **Live Demo:** <https://arya-crowdfund.vercel.app>
-- **Demo Video Link:** <https://youtu.be/tANK_cpHt6E>
+- Network: `Stellar Testnet`
+- Live Demo: `ADD_VERCEL_URL_HERE`
+- Demo Video: `ADD_VIDEO_URL_HERE`
+- Repository: <https://github.com/iammrjude/arya-risein>
 
----
+## Modules
+
+- Crowdfunding
+- Launchpad
+- Staking
+- Admin
+
+Coming soon:
+
+- Leveraged staking
 
 ## Screenshots
 
-### Test Output — 25 Tests Passing
+Add screenshots in the `screenshots/` folder and replace the placeholder filenames below.
 
-![Test output showing 25 tests passing](screenshots/test-output.png)
-*All 25 unit tests passing covering all 17 exported contract functions*
+### Mobile Responsive View
 
-### Home Page — Wallet Not Connected
+![Mobile responsive Arya layout](screenshots/mobile-responsive.png)
+*Show the mobile navigation, module tabs, and a complete page rendered on a narrow screen.*
 
-![Home page with no wallet connected](screenshots/home-disconnected.png)
-*The home page as seen by a first-time visitor with no wallet connected. Campaign cards are visible and browsable without needing to connect a wallet.*
+### Home Page
 
-### Home Page — Wallet Connection Modal
+![Arya landing page](screenshots/home-page.png)
+*The Arya landing page introducing crowdfunding, launchpad, staking, and platform status.*
 
-![Wallet selection modal showing available wallet options](screenshots/home-wallet-modal.png)
-*Clicking the Connect Wallet button opens the Stellar Wallets Kit modal, showing all supported wallets — Freighter, Albedo, xBull, Rabet, and LOBSTR.*
+### Crowdfunding Explore
 
-### Home Page — Wallet Connected
+![Crowdfunding explore page](screenshots/crowdfunding-explore.png)
+*The crowdfunding browse page showing campaigns, progress cards, and responsive layout.*
 
-![Home page with wallet connected](screenshots/home-connected.png)
-*The home page after successfully connecting a wallet. The connected address is displayed in the top right corner.*
+### Launchpad Explore
 
-### Create Campaign Page
+![Launchpad explore page](screenshots/launchpad-explore.png)
+*The launchpad browse page showing sales, project metadata, and status information.*
 
-![Empty campaign creation form](screenshots/create-empty.png)
-*The campaign creation form where organizers can set a title, description, funding goal, deadline, and extension days.*
+### Staking Dashboard
 
-### Campaign Page — Active
+![Staking dashboard page](screenshots/staking-dashboard.png)
+*The staking area showing reward pools, balances, and user-facing staking actions.*
 
-![Campaign page showing active state](screenshots/campaign-active-donate-form.png)
-*A campaign that is active, goal has not been met and the deadline has not passed. The donate form is available and users can donate by typing the amount they want to donate.*
+### CI/CD Pipeline
 
-### Campaign Page — Goal Reached
+![GitHub Actions pipeline passing](screenshots/ci-pipeline.png)
+*A screenshot or badge proving the CI pipeline passed after the latest push.*
 
-![Campaign page showing goal reached state](screenshots/campaign-goal-reached.png)
-*A campaign that has reached 100% of its funding goal. The donate form is replaced with a Goal Reached message, and the organizer can now withdraw funds from their dashboard.*
+### Contract Test Output
 
-### Campaign Page — Successful
-
-![Campaign page showing successful state](screenshots/campaign-successful.png)
-*A campaign that has reached 100% of its funding goal. The donate form is replaced with a Campaign Successful message, which means that funds have been withdrawn by the organizer.*
-
-### Dashboard — No Campaigns
-
-![Dashboard page with no campaigns yet](screenshots/dashboard-no-campaigns.png)
-*The organizer dashboard when the connected wallet has not yet created any campaigns.*
-
-### Dashboard — With Campaigns
-
-![Dashboard page with one or more campaigns](screenshots/dashboard-with-campaigns.png)
-*The organizer dashboard when the connected wallet has created one or more campaigns.*
-
-### Admin Page — Wallet Disconnected
-
-![Admin page prompting the user to connect their wallet to access the admin panel](screenshots/admin-disconnected.png)
-*The admin page when the user has not yet connected their wallet. It prompts the user to connect their wallet to access the admin panel.*
-
-### Admin Page — Access Denied
-
-![Admin page showing access denied for non-owner wallet](screenshots/admin-access-denied.png)
-*The admin page when accessed by a wallet that is not the platform owner. Access is restricted to protect platform settings.*
-
-### Admin Page — Admin Panel
-
-![Admin page showing the admin panel for owner wallet](screenshots/admin-panel.png)
-*The admin page when accessed by the platform owner's wallet. It shows the Platform Settings card - which shows the settings that the platform owner can update. It also shows the All Campaigns card - which shows all the campaigns on the platform.*
-
----
+![Contract tests passing](screenshots/contract-tests.png)
+*Rust test output showing the contract workspace tests passing.*
 
 ## How It Works
 
-1. **Create** a campaign with a goal, deadline, and optional extension days
-2. **Donate** XLM to any active campaign
-3. **Goal met** → organizer withdraws funds (2.5% platform fee deducted)
-4. **Goal not met** → campaign fails, donors claim full refunds automatically
+1. Crowdfunding campaigns accept exactly one asset: `XLM` or `USDC`.
+2. Launchpad sales also accept exactly one asset: `XLM` or `USDC`.
+3. ARYA is the staking asset. Users stake ARYA to earn platform rewards.
+4. When crowdfunding or launchpad collects protocol fees, the fee is split automatically:
+   - part to treasury
+   - part to staking rewards
+5. Staking keeps separate reward pools for `XLM` and `USDC`.
+6. Registry stores the live contract addresses and shared protocol configuration.
+7. All new contracts expose an `upgrade` entrypoint for safe testnet iteration.
 
-### The 70% Rule
+## Advanced Production Features
 
-If a campaign raises 70%+ but misses its deadline, the organizer gets a 7-day action window to either extend the deadline (one time) or mark the campaign as failed. If they do nothing, it auto-fails and donors can claim refunds.
-
----
+- Upgradeable Soroban contracts
+- Inter-contract reward routing from crowdfunding and launchpad into staking
+- Real-time frontend event syncing through Soroban RPC event polling
+- Mobile-first responsive navigation
+- CI/CD with Rust and frontend validation
+- Frontend smoke tests with Vitest and Testing Library
+- Error reporting hook in the frontend
+- Wasm build verification for deployable contracts
 
 ## Repository Structure
 
 ```text
-arya-fund/
-├── contract/     # Soroban smart contract (Rust)
-│   ├── contracts/
-│   │   └── arya_fund/
-│   │       ├── src/
-│   │       │   ├── lib.rs      # 17 exported functions
-│   │       │   └── test.rs     # 25 unit tests
-│   │       └── Cargo.toml
-│   ├── Cargo.toml
-│   └── README.md
-│
-└── frontend/     # React frontend
-    ├── src/
-    │   ├── contract/       # Contract client and config
-    │   ├── hooks/          # useWallet, useContract
-    │   ├── utils/          # Formatting, time, stellar helpers
-    │   ├── components/     # Reusable UI components
-    │   └── pages/          # Home, Campaign, Create, Dashboard, Admin
-    ├── package.json
-    └── README.md
+arya-risein/
+|-- contract/
+|   |-- contracts/
+|   |   |-- arya_fund/           # legacy baseline contract kept for migration context
+|   |   |-- arya_registry/       # shared address registry and config
+|   |   |-- arya_staking/        # ARYA staking with XLM and USDC reward pools
+|   |   |-- arya_crowdfunding/   # single-asset campaigns + staking fee split
+|   |   `-- arya_launchpad/      # single-asset sales + staking fee split
+|   |-- scripts/
+|   |   |-- build-all.ps1
+|   |   |-- build-all.sh
+|   |   |-- deploy-testnet.ps1
+|   |   |-- deploy-or-upgrade-testnet.sh
+|   |   |-- init-testnet.ps1
+|   |   `-- upgrade-testnet.ps1
+|   `-- README.md
+|-- docs/
+|   |-- ARCHITECTURE.md
+|   |-- DEPLOYMENT.md
+|   |-- UPGRADES.md
+|   |-- MIGRATIONS.md
+|   |-- TESTNET_SETUP.md
+|   |-- FRONTEND_CONFIGURATION.md
+|   |-- FEE_FLOW.md
+|   |-- STAKING_DESIGN.md
+|   |-- LAUNCHPAD_DESIGN.md
+|   `-- SECURITY_MODEL.md
+|-- frontend/
+|   |-- src/
+|   |   |-- app/
+|   |   |-- components/
+|   |   |-- contract/
+|   |   |-- hooks/
+|   |   |-- modules/
+|   |   `-- lib/
+|   `-- README.md
+|-- screenshots/
+`-- CONTRIBUTING.md
 ```
 
----
-
-## Contract
+## Contracts
 
 | Property | Value |
 | ---------- | ------- |
-| **Contract Address** | `CD5LOATI5SDME7GQXRBVSZIG3DZL4NRYD4663GM7PLPY252L2RGPOFTL` |
-| **Network** | Stellar Testnet |
-| **Platform Fee** | 2.5% on successful withdrawals |
-| **Action Window** | 7 days |
-| **Deploy TX** | `95478ead278154ae67b279cdce1492715f2e37079d5ed41253710dbc017e2ab6` |
-| **Init TX** | `8e29274c189a60e436da4d2c8aa807a3472ecc7584ad69a6891286312b69e64b` |
+| Network | Stellar Testnet |
+| Registry Contract | `ADD_REGISTRY_ID_HERE` |
+| Staking Contract | `ADD_STAKING_ID_HERE` |
+| Crowdfunding Contract | `ADD_CROWDFUNDING_ID_HERE` |
+| Launchpad Contract | `ADD_LAUNCHPAD_ID_HERE` |
+| ARYA Token / SAC | `ADD_ARYA_TOKEN_ID_HERE` |
+| Native XLM SAC | `ADD_XLM_SAC_ID_HERE` |
+| Testnet USDC SAC | `ADD_USDC_SAC_ID_HERE` |
+| Treasury Wallet | `ADD_TREASURY_ADDRESS_HERE` |
+| Platform Owner | `ADD_OWNER_ADDRESS_HERE` |
 
-### Verified Contract Calls
+### Deployment / Upgrade Transactions
+
+| Action | Transaction Hash |
+| ---------- | ---------------- |
+| Registry Deploy | `ADD_TX_HASH_HERE` |
+| Registry Initialize | `ADD_TX_HASH_HERE` |
+| Staking Deploy | `ADD_TX_HASH_HERE` |
+| Staking Initialize | `ADD_TX_HASH_HERE` |
+| Crowdfunding Deploy | `ADD_TX_HASH_HERE` |
+| Crowdfunding Initialize | `ADD_TX_HASH_HERE` |
+| Launchpad Deploy | `ADD_TX_HASH_HERE` |
+| Launchpad Initialize | `ADD_TX_HASH_HERE` |
+| Latest Upgrade | `ADD_TX_HASH_HERE` |
+
+### Inter-Contract Call Verification
 
 | Action | Transaction |
-| -------- | ------------- |
-| Create Campaign (1000 XLM goal) | [`aed99ba9...`](https://stellar.expert/explorer/testnet/tx/aed99ba9f25edd405b96baf142e1fb77dd6c3f388b53f0a3c66188ca7457bd47) |
-| Donate 120 XLM | [`ca0e0fd7...`](https://stellar.expert/explorer/testnet/tx/ca0e0fd7ebc7b446ac4d0b7de8e6164490cb343bb5a59c6d8c5c3e3262c78599) |
-| Donate 500 XLM | [`970d73e8...`](https://stellar.expert/explorer/testnet/tx/970d73e8cf8c5aba408e1da4b1a2cb9c2141c123d69bff8b11a0bb7ca607208a) |
-| Donate 80 XLM | [`98020ff7...`](https://stellar.expert/explorer/testnet/tx/98020ff70c1d55eb0855efed99fe0511f85a5c50d0e1a8b051bf699b890b4ea0) |
-| Donate 300 XLM | [`27c954cd...`](https://stellar.expert/explorer/testnet/tx/27c954cde49216022b05caa7bf4ebb802f570ee1b8fe55b9d27dec0580a5f853) |
-| Update Fee to 2% | [`4586967e...`](https://stellar.expert/explorer/testnet/tx/4586967eff85adcf713a2441a1d122030343eac5f2a5c2b6d5edb69e8940ebd5) |
-| Update Action Window to 5 days | [`4f4691ed...`](https://stellar.expert/explorer/testnet/tx/4f4691ed1ed72b78977348c6ffc023888bc1820dce30c0a8408f4f5b1f0c4f0e) |
+| ---------- | ------------ |
+| Crowdfunding fee routed into staking | `ADD_TX_HASH_OR_EXPLORER_LINK` |
+| Launchpad fee routed into staking | `ADD_TX_HASH_OR_EXPLORER_LINK` |
 
----
+### Token / Pool
+
+| Asset | Address |
+| ---------- | ------- |
+| ARYA token / SAC | `ADD_TOKEN_ID_HERE` |
+| ARYA/XLM pool (optional) | `ADD_POOL_ID_HERE` |
 
 ## Tech Stack
 
-### Smart Contract
+### Smart Contract Stack
 
-- **Rust** + Soroban SDK
-- Stellar CLI v25.1.0
-- `wasm32v1-none` target
+- Rust 2024 edition
+- Soroban SDK `25.3.0`
+- Stellar CLI GitHub Action `stellar/stellar-cli@v23.3.0`
+- `wasm32v1-none`
 
 ### Frontend
 
-- React 19 + Vite
-- React Router v7
-- `@stellar/stellar-sdk` v14
-- `@creit-tech/stellar-wallets-kit` v2 (Freighter, Albedo, xBull, Rabet, LOBSTR)
+- React `19`
+- React Router `7`
+- Vite `7`
+- Vitest + Testing Library
+- `@stellar/stellar-sdk`
+- `@creit-tech/stellar-wallets-kit`
 - CSS Modules
 
----
+## Local Development
 
-## Getting Started
+### Key Management
 
-### Run the Smart Contract
+Stellar CLI identities are global by default. That means your old `arya-fund-deployer` and `arya-fund-treasury` keys are not tied to the old repo folder; they live in the Stellar CLI config store for your user account.
+
+Useful Stellar CLI key commands:
+
+```bash
+stellar keys ls
+stellar keys public-key NAME
+stellar keys secret NAME
+stellar keys use NAME
+stellar keys unset
+stellar keys generate NAME
+stellar keys fund NAME --network testnet
+stellar keys add NAME --secret-key
+stellar keys rm NAME
+```
+
+What they mean:
+
+- `stellar keys ls` lists saved identities
+- `stellar keys public-key NAME` prints the wallet address `G...`
+- `stellar keys secret NAME` prints the signing secret, which must be protected
+- `stellar keys use NAME` sets the default identity
+- `stellar keys unset` clears the default identity
+- `stellar keys generate NAME` creates a new identity
+- `stellar keys fund NAME --network testnet` funds a testnet identity
+- `stellar keys add NAME --secret-key` imports an existing secret under a name
+- `stellar keys rm NAME` removes an identity from the CLI store
+
+Recommended path for this project:
+
+1. create new global Arya identities from the old AryaFund identities
+2. update docs/scripts to use the new Arya names
+3. optionally remove the old AryaFund identities after you confirm the new ones work
+
+To inspect the old identities:
+
+```bash
+stellar keys ls
+stellar keys public-key arya-fund-deployer
+stellar keys public-key arya-fund-treasury
+```
+
+To rename them for Arya in the global store, export and re-add them under the new names:
+
+```bash
+stellar keys secret arya-fund-deployer
+stellar keys add arya-deployer --secret-key
+stellar keys use arya-deployer
+
+stellar keys secret arya-fund-treasury
+stellar keys add arya-treasury --secret-key
+```
+
+The `stellar keys add ... --secret-key` command will prompt you to paste the secret key.
+
+Then verify the new names:
+
+```bash
+stellar keys public-key arya-deployer
+stellar keys public-key arya-treasury
+```
+
+If the public keys match the old ones, switch your docs, scripts, and manual commands to:
+
+- `arya-deployer`
+- `arya-treasury`
+
+Only after that should you optionally remove the old names:
+
+```bash
+stellar keys rm arya-fund-deployer
+stellar keys rm arya-fund-treasury
+```
+
+If you want the keys to be repo-local for this project, use a repo config dir:
+
+```bash
+mkdir -p .stellar
+stellar --config-dir ./.stellar keys add arya-deployer --secret-key
+stellar --config-dir ./.stellar keys add arya-treasury --secret-key
+stellar --config-dir ./.stellar keys use arya-deployer
+stellar --config-dir ./.stellar keys ls
+```
+
+Important:
+
+- `.stellar/` is gitignored in this repo
+- repo-local keys are safer for project separation
+- if you use repo-local keys, add `--config-dir ./.stellar` to your Stellar CLI commands in this repo
+
+### Contract Commands
 
 ```bash
 cd contract
-
-# Build
-stellar contract build
-
-# Test
-cargo test --manifest-path=contracts/arya_fund/Cargo.toml
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets --all-features -- -D warnings
+cargo test --workspace
+bash scripts/build-all.sh
 ```
 
-See [contract/README.md](contract/README.md) for full deployment instructions.
+Build deployable Wasm with the Windows helper:
 
-### Run the Frontend
+```powershell
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File scripts/build-all.ps1
+```
+
+### Frontend App
 
 ```bash
 cd frontend
-
-# Install
-npm install
-
-# Run locally
+npm ci
+npm run lint
+npm run test
+npm run build
 npm run dev
 ```
 
-Opens at `http://localhost:5173`
+## Documentation
 
-See [frontend/README.md](frontend/README.md) for full setup details.
+- [contract/README.md](contract/README.md)
+- [frontend/README.md](frontend/README.md)
+- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
+- [docs/UPGRADES.md](docs/UPGRADES.md)
+- [docs/MIGRATIONS.md](docs/MIGRATIONS.md)
+- [docs/TESTNET_SETUP.md](docs/TESTNET_SETUP.md)
+- [docs/FRONTEND_CONFIGURATION.md](docs/FRONTEND_CONFIGURATION.md)
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
----
+## CI/CD
 
-## Features
+CI means `Continuous Integration`: every push or pull request runs automated checks so broken code is caught early.
 
-- [x] Create trustless crowdfunding campaigns on Stellar
-- [x] Donate XLM to any active campaign
-- [x] Smart contract enforced refunds on failed campaigns
-- [x] Organizer dashboard — withdraw, extend deadline, mark failed
-- [x] Platform admin panel — fee, treasury, action window management
-- [x] Multi-wallet support via Stellar Wallets Kit
-- [x] Real-time countdown timers and progress bars
-- [x] Transaction status feedback with Stellar Explorer links
+CD means `Continuous Deployment` or `Continuous Delivery`: after validation passes, the deployment workflow can publish or upgrade the contracts on testnet.
 
----
+GitHub Actions workflows:
 
-## Security Design
+- [ci.yml](.github/workflows/ci.yml)
+  Runs Rust format, clippy, tests, Wasm builds, and frontend lint/test/build.
+- [testnet-deploy.yml](.github/workflows/testnet-deploy.yml)
+  Automatically deploys on the first run and upgrades on later runs when stored contract ID variables are present.
 
-- Funds held by contract, never by the organizer
-- Pull refunds — donors claim themselves, no double claiming possible
-- Platform owner and treasury are separate wallets
-- Every write function requires `.require_auth()` from the appropriate party
-- All funding rules enforced on-chain
+Add a badge or screenshot here after the first passing run.
 
----
+### Can I Use Git Bash Instead of PowerShell?
+
+Yes. For day-to-day development, Git Bash is a good default shell and matches the Linux-based GitHub Actions runners more closely.
+
+Recommended Git Bash contract commands:
+
+```bash
+cd contract
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets --all-features -- -D warnings
+cargo test --workspace
+bash scripts/build-all.sh
+```
+
+PowerShell helper scripts are still kept in the repo as a Windows-friendly fallback for local deployment flows.
+
+### What You Need To Configure On GitHub
+
+Yes, you do need some repository setup on GitHub before CI/CD can work properly.
+
+Required repository setup:
+
+1. push this repo to GitHub
+2. open `Settings -> Actions -> General`
+3. make sure GitHub Actions is enabled for the repository
+4. open `Settings -> Secrets and variables -> Actions`
+5. add the required secret and variables listed below
+
+Recommended but optional:
+
+- protect `main` and require the `CI` workflow before merge
+- keep deployment only on `main`
+- leave testnet deploy variables empty until the first deployment run
+
+### GitHub Actions Variables
+
+`ci.yml` does not require custom secrets for normal validation. It only needs the repository code.
+
+`testnet-deploy.yml` does require GitHub Actions secrets. In GitHub:
+
+1. open your repository
+2. go to `Settings`
+3. go to `Secrets and variables` -> `Actions`
+4. add the signing key as a repository secret
+5. add the public configuration values as repository variables
+
+GitHub Actions Secret:
+
+- `STELLAR_ACCOUNT`
+  Set this to a signing key the CLI can use on the runner. In GitHub Actions, this should be the secret signing key, not the public wallet address and not a local alias like `arya-admin`.
+
+Public addresses still go in variables:
+
+- `ARYA_PLATFORM_OWNER` = public address `G...`
+- `ARYA_TREASURY` = public address `G...`
+
+GitHub Actions Variables:
+
+- `STELLAR_RPC_URL`
+  Set to `https://soroban-testnet.stellar.org`
+- `STELLAR_NETWORK_PASSPHRASE`
+  Set to `Test SDF Network ; September 2015`
+- `ARYA_PLATFORM_OWNER`
+  The public Stellar address `G...` that should own the Arya contracts.
+- `ARYA_TREASURY`
+  The treasury public Stellar address `G...`.
+- `ARYA_TOKEN_SAC_ID`
+  The ARYA token Stellar Asset Contract ID `C...`. You get this after creating/deploying the ARYA asset contract.
+- `ARYA_USDC_SAC_ID`
+  The USDC Stellar Asset Contract ID `C...` used on your testnet setup. Derive it from the testnet USDC asset with:
+
+  ```bash
+  stellar contract id asset \
+    --network testnet \
+    --asset USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5
+  ```
+  
+- `ARYA_XLM_SAC_ID`
+  Optional explicit native XLM SAC override if you want to provide it instead of letting the scripts derive it:
+
+  ```bash
+  stellar contract id asset --asset native --network testnet
+  ```
+
+Used to detect that the suite has already been deployed and should now upgrade:
+
+- `ARYA_REGISTRY_ID`
+- `ARYA_STAKING_ID`
+- `ARYA_CROWDFUNDING_ID`
+- `ARYA_LAUNCHPAD_ID`
+
+Important notes:
+
+- never put secret keys in normal repository variables or commit them to the repo
+- only store signing material in GitHub Actions `Secrets`
+- use GitHub Actions `Variables` for public addresses, contract IDs, RPC URLs, and passphrases
+- on the first workflow run, leave the contract ID variables empty so the workflow performs a fresh deploy
+- after the first deploy succeeds, copy the printed contract IDs into the four GitHub repository variables above so future runs automatically use the upgrade path
+
+That means:
+
+1. first run:
+   - do not set `ARYA_REGISTRY_ID`
+   - do not set `ARYA_STAKING_ID`
+   - do not set `ARYA_CROWDFUNDING_ID`
+   - do not set `ARYA_LAUNCHPAD_ID`
+2. workflow deploys fresh contracts
+3. copy the printed contract IDs into GitHub Variables
+4. later runs automatically switch to upgrade mode
+
+### Frontend Deployment And CI/CD
+
+You do not need GitHub Actions to deploy the frontend to Vercel.
+
+Recommended setup:
+
+1. import the GitHub repo into Vercel
+2. point Vercel at the `frontend/` app
+3. add the `VITE_*` environment variables in Vercel
+4. let Vercel handle frontend deployments on push
+
+So in this project:
+
+- GitHub Actions handles validation and testnet contract deployment
+- Vercel can handle frontend deployment independently
+
+## Submission Checklist
+
+- [x] Public GitHub repository
+- [x] 8+ meaningful commits
+- [x] Upgradeable contracts
+- [x] Inter-contract calls
+- [x] Mobile-responsive frontend
+- [x] Real-time event stream hook
+- [x] CI/CD workflows configured
+- [x] Frontend smoke tests configured
+- [ ] Live demo URL filled in
+- [ ] Screenshots added
+- [ ] Contract addresses added
+- [ ] Transaction hashes added
+- [ ] Token / pool address added if deployed
 
 ## Contributing
 
-Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
-
-To report a bug or request a feature, [open an issue](../../issues/new/choose).
-
----
-
-## Links
-
-- [Stellar Expert — Contract](https://stellar.expert/explorer/testnet/contract/CD5LOATI5SDME7GQXRBVSZIG3DZL4NRYD4663GM7PLPY252L2RGPOFTL)
-- [Contract Explorer — Contract info, Invoke contract](https://lab.stellar.org/r/testnet/contract/CD5LOATI5SDME7GQXRBVSZIG3DZL4NRYD4663GM7PLPY252L2RGPOFTL)
-- [Stellar Expert — Deploy TX](https://stellar.expert/explorer/testnet/tx/95478ead278154ae67b279cdce1492715f2e37079d5ed41253710dbc017e2ab6)
-- [Stellar Expert — Init TX](https://stellar.expert/explorer/testnet/tx/8e29274c189a60e436da4d2c8aa807a3472ecc7584ad69a6891286312b69e64b)
-- [Soroban Docs](https://soroban.stellar.org)
-- [Stellar Wallets Kit](https://github.com/Creit-Tech/Stellar-Wallets-Kit)
-- [Attestation Verification Flow](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0055.md#attestation-verification-flow)
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.

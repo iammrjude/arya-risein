@@ -28,7 +28,7 @@ export default function Dashboard() {
         getAddr()
         const interval = setInterval(getAddr, 2000)
         return () => clearInterval(interval)
-    }, [])
+    }, [getAddress])
 
     const myCampaigns = campaigns.filter(c =>
         address && c.organizer === address
@@ -73,7 +73,7 @@ export default function Dashboard() {
             <div className={styles.container}>
                 <div className={styles.header}>
                     <h1 className={styles.title}>My Campaigns</h1>
-                    <Link to="/create" className={styles.createBtn}>+ New Campaign</Link>
+                    <Link to="/crowdfunding/create" className={styles.createBtn}>+ New Campaign</Link>
                 </div>
 
                 {loading && (
@@ -86,7 +86,7 @@ export default function Dashboard() {
                     <div className={styles.empty}>
                         <span className={styles.emptyIcon}>◈</span>
                         <p>You have not created any campaigns yet.</p>
-                        <Link to="/create" className={styles.createLink}>Create your first campaign →</Link>
+                        <Link to="/crowdfunding/create" className={styles.createLink}>Create your first campaign →</Link>
                     </div>
                 )}
 
@@ -117,7 +117,7 @@ export default function Dashboard() {
                             <div key={campaign.id} className={styles.card}>
                                 <div className={styles.cardHeader}>
                                     <div className={styles.cardTitleRow}>
-                                        <Link to={`/campaign/${campaign.id}`} className={styles.cardTitle}>
+                                        <Link to={`/crowdfunding/campaign/${campaign.id}`} className={styles.cardTitle}>
                                             {campaign.title}
                                         </Link>
                                         <StatusBadge status={displayStatus} />

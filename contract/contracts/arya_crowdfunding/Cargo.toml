@@ -1,0 +1,19 @@
+[package]
+name = "arya_crowdfunding"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[lib]
+crate-type = ["lib", "cdylib"]
+doctest = false
+
+[dependencies]
+soroban-sdk = { workspace = true }
+
+[dev-dependencies]
+soroban-sdk = { workspace = true, features = ["testutils"] }
+arya_staking = { path = "../arya_staking", features = ["testutils"] }
+
+[features]
+testutils = ["soroban-sdk/testutils"]

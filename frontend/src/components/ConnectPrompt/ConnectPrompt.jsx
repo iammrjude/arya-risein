@@ -1,4 +1,3 @@
-import { useRef } from 'react'
 import styles from './ConnectPrompt.module.css'
 
 export default function ConnectPrompt({ onConnect, loading }) {

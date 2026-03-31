@@ -2,10 +2,14 @@
 resolver = "2"
 members = [
   "contracts/arya_fund",
+  "contracts/arya_registry",
+  "contracts/arya_staking",
+  "contracts/arya_crowdfunding",
+  "contracts/arya_launchpad",
 ]
 
 [workspace.dependencies]
-soroban-sdk = "25"
+soroban-sdk = "25.3.0"
 
 [profile.release]
 opt-level = "z"

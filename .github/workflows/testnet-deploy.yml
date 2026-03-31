@@ -1,0 +1,57 @@
+name: Testnet Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "contract/**"
+      - ".github/workflows/testnet-deploy.yml"
+
+jobs:
+  deploy-testnet:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: contract
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32v1-none
+      - uses: stellar/stellar-cli@v23.3.0
+      - name: Check required secrets
+        env:
+          STELLAR_ACCOUNT: ${{ secrets.STELLAR_ACCOUNT }}
+          STELLAR_RPC_URL: ${{ vars.STELLAR_RPC_URL }}
+          STELLAR_NETWORK_PASSPHRASE: ${{ vars.STELLAR_NETWORK_PASSPHRASE }}
+        run: |
+          test -n "$STELLAR_ACCOUNT" || { echo "Missing STELLAR_ACCOUNT secret"; exit 1; }
+          test -n "$STELLAR_RPC_URL" || { echo "Missing STELLAR_RPC_URL variable"; exit 1; }
+          test -n "$STELLAR_NETWORK_PASSPHRASE" || { echo "Missing STELLAR_NETWORK_PASSPHRASE variable"; exit 1; }
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+      - name: Lint contracts
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+      - name: Test contracts
+        run: cargo test --workspace
+      - name: Build Wasm contracts
+        run: bash scripts/build-all.sh
+      - name: Deploy or upgrade on testnet
+        env:
+          STELLAR_ACCOUNT: ${{ secrets.STELLAR_ACCOUNT }}
+          STELLAR_RPC_URL: ${{ vars.STELLAR_RPC_URL }}
+          STELLAR_NETWORK_PASSPHRASE: ${{ vars.STELLAR_NETWORK_PASSPHRASE }}
+          STELLAR_NETWORK: testnet
+          ARYA_TREASURY: ${{ vars.ARYA_TREASURY }}
+          ARYA_PLATFORM_OWNER: ${{ vars.ARYA_PLATFORM_OWNER }}
+          ARYA_TOKEN_SAC_ID: ${{ vars.ARYA_TOKEN_SAC_ID }}
+          ARYA_XLM_SAC_ID: ${{ vars.ARYA_XLM_SAC_ID }}
+          ARYA_USDC_SAC_ID: ${{ vars.ARYA_USDC_SAC_ID }}
+          ARYA_REGISTRY_ID: ${{ vars.ARYA_REGISTRY_ID }}
+          ARYA_CROWDFUNDING_ID: ${{ vars.ARYA_CROWDFUNDING_ID }}
+          ARYA_STAKING_ID: ${{ vars.ARYA_STAKING_ID }}
+          ARYA_LAUNCHPAD_ID: ${{ vars.ARYA_LAUNCHPAD_ID }}
+        run: bash scripts/deploy-or-upgrade-testnet.sh

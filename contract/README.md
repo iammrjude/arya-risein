@@ -1,238 +1,516 @@
-# AryaFund — Decentralized Crowdfunding on Stellar
+# Arya Contracts
 
-A trustless crowdfunding smart contract built on the Stellar network using Soroban. Anyone can create campaigns, collect XLM donations, and receive automatic refunds if goals are not met — all enforced by on-chain rules with no middleman.
+This workspace contains the Arya Soroban smart contracts for Stellar Testnet.
 
----
+## Contracts In Scope
 
-## Live Demo
+- `arya_registry`
+  Stores the live contract addresses and shared protocol configuration.
+- `arya_staking`
+  ARYA staking with separate XLM and USDC reward pools.
+- `arya_crowdfunding`
+  Single-asset campaigns with automatic fee split to treasury and staking.
+- `arya_launchpad`
+  Single-asset token sales with automatic fee split to treasury and staking.
+- `arya_fund`
+  Legacy baseline contract kept only for migration/reference context.
 
-> Frontend: <https://arya-crowdfund.vercel.app>
+## Upgradeability
 
----
+Every new Arya contract exposes:
 
-## Contract Details
-
-| Property | Value |
-| ---------- | ------- |
-| **Network** | Stellar Testnet |
-| **Contract Address** | `CD5LOATI5SDME7GQXRBVSZIG3DZL4NRYD4663GM7PLPY252L2RGPOFTL` |
-| **Wasm Hash** | `486ee96c78bac0ba19b698d8a808caf59fd36c19b05d0f71ab2b363596afef8d` |
-| **Native XLM SAC** | `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC` |
-| **Platform Owner** | `GBLH7QUEY43J3AJSIYPRUQKKUFX577GSYWRRQJVNFOV7MUON3YMM5IJQ` |
-| **Treasury Wallet** | `GAZZRHDL3SUTFD2CWWDVVHQXGVXWWQYTJNGMC6IQIQD7OAKQLDBJND7B` |
-| **Platform Fee** | 2.5% (250 basis points) |
-| **Action Window** | 7 days |
-
-### Key Transactions
-
-| Event | Transaction Hash |
-| ------- | ----------------- |
-| Deploy | `95478ead278154ae67b279cdce1492715f2e37079d5ed41253710dbc017e2ab6` |
-| Initialize | `8e29274c189a60e436da4d2c8aa807a3472ecc7584ad69a6891286312b69e64b` |
-
-### Verified Contract Calls
-
-| Action | Transaction |
-| -------- | ------------- |
-| Create Campaign (1000 XLM goal) | [`aed99ba9...`](https://stellar.expert/explorer/testnet/tx/aed99ba9f25edd405b96baf142e1fb77dd6c3f388b53f0a3c66188ca7457bd47) |
-| Donate 120 XLM | [`ca0e0fd7...`](https://stellar.expert/explorer/testnet/tx/ca0e0fd7ebc7b446ac4d0b7de8e6164490cb343bb5a59c6d8c5c3e3262c78599) |
-| Donate 500 XLM | [`970d73e8...`](https://stellar.expert/explorer/testnet/tx/970d73e8cf8c5aba408e1da4b1a2cb9c2141c123d69bff8b11a0bb7ca607208a) |
-| Donate 80 XLM | [`98020ff7...`](https://stellar.expert/explorer/testnet/tx/98020ff70c1d55eb0855efed99fe0511f85a5c50d0e1a8b051bf699b890b4ea0) |
-| Donate 300 XLM | [`27c954cd...`](https://stellar.expert/explorer/testnet/tx/27c954cde49216022b05caa7bf4ebb802f570ee1b8fe55b9d27dec0580a5f853) |
-| Update Fee to 2% | [`4586967e...`](https://stellar.expert/explorer/testnet/tx/4586967eff85adcf713a2441a1d122030343eac5f2a5c2b6d5edb69e8940ebd5) |
-| Update Action Window to 5 days | [`4f4691ed...`](https://stellar.expert/explorer/testnet/tx/4f4691ed1ed72b78977348c6ffc023888bc1820dce30c0a8408f4f5b1f0c4f0e) |
-
----
-
-## Project Structure
-
-```text
-contract/
-├── contracts/
-│   └── arya_fund/
-│       ├── src/
-│       │   ├── lib.rs        # Main contract logic (17 exported functions)
-│       │   └── test.rs       # 25 unit tests
-│       └── Cargo.toml
-├── Cargo.toml
-└── README.md
+```rust
+upgrade(new_wasm_hash: BytesN<32>)
 ```
 
----
+That means the new suite is designed for testnet upgrades instead of forced redeploys for every bug fix.
 
-## How It Works
+## Screenshots
 
-### Funding Rules
+Add screenshots after running the flows below.
 
-**Rule 1 — Goal Met:**
+### Contract Tests Passing
 
-Organizer calls `withdraw()`. Contract deducts 2.5% platform fee to treasury, remainder goes to organizer.
+![Contract workspace tests passing](../screenshots/contract-tests.png)
+*Show the full `cargo test --workspace` output after the new Arya contracts are added.*
 
-**Rule 2 — 70%+ Raised, Deadline Passed:**
+### Wasm Builds Passing
 
-A 7-day action window opens. Organizer can:
+![Wasm contract builds passing](../screenshots/contract-builds.png)
+*Show the `stellar contract build` output for registry, staking, crowdfunding, and launchpad.*
 
-- `extend_deadline()` — one-time extension by `extension_days` set at campaign creation
-- `mark_as_failed()` — voluntarily end the campaign
+### Explorer Verification
 
-If no action is taken within the window, the campaign auto-fails.
+![Explorer view for deployed contracts](../screenshots/contract-explorer.png)
+*Add a screenshot from Stellar Expert or the Stellar Lab contract explorer after deployment.*
 
-**Rule 3 — Campaign Fails:**
+## Toolchain Requirements
 
-Triggered when:
-
-- Less than 70% raised at deadline
-- Extended deadline passes with goal not met
-- Action window expires with no action taken
-- Organizer manually marks it failed
-
-Donors can then call `claim_refund()` to receive their exact contribution back.
-
----
-
-## Exported Functions (17)
-
-### Public
-
-| Function | Description |
-| ---------- | ------------- |
-| `create_campaign` | Create a new campaign |
-| `donate` | Donate XLM to a campaign |
-| `claim_refund` | Claim refund on a failed campaign |
-
-### Organizer
-
-| Function | Description |
-| ---------- | ------------- |
-| `withdraw` | Withdraw funds from a successful campaign |
-| `extend_deadline` | Extend deadline (one-time, 70%+ raised only) |
-| `mark_as_failed` | Voluntarily mark campaign as failed |
-
-### Platform Owner
-
-| Function | Description |
-| ---------- | ------------- |
-| `initialize` | One-time contract setup |
-| `update_fee_percent` | Update platform fee in basis points |
-| `update_treasury_wallet` | Update treasury wallet address |
-| `update_action_window` | Update action window duration |
-| `transfer_ownership` | Transfer platform ownership |
-
-### Read Only
-
-| Function | Description |
-| ---------- | ------------- |
-| `get_campaign` | Get campaign by ID |
-| `get_campaign_count` | Get total number of campaigns |
-| `get_donor_amount` | Get donor's contribution to a campaign |
-| `get_platform_settings` | Get platform configuration |
-| `is_campaign_failed` | Check if a campaign has failed |
-| `is_refund_claimed` | Check if a donor has claimed their refund |
-
----
-
-## Development Setup
-
-### Prerequisites
-
-- Rust `1.84.0+`
-- Stellar CLI `v25.1.0`
+- Rust stable
 - `wasm32v1-none` target
+- Soroban SDK `25.3.0`
+- Stellar CLI GitHub Action `stellar/stellar-cli@v23.3.0`
+- PowerShell for the helper scripts
+- Bash for the GitHub Actions deploy/build scripts
+
+Git Bash is a good default shell for local work too, especially for the bash scripts in `contract/scripts/`.
+
+Install the Wasm target:
 
 ```bash
 rustup target add wasm32v1-none
 ```
 
-### Build
+Check the CLI version:
 
 ```bash
-stellar contract build
+stellar --version
 ```
 
-Output: `target/wasm32v1-none/release/arya_fund.wasm`
+## Generate or Import a Testnet Identity
 
-### Test
+Stellar CLI identities are global by default unless you set `--config-dir`.
+
+For this project, the recommended path is to create new global Arya identity names from the old AryaFund ones and then use the Arya names everywhere going forward.
+
+Check what you already have:
 
 ```bash
-cargo test --manifest-path=contracts/arya_fund/Cargo.toml
+stellar keys ls
+stellar keys public-key arya-fund-deployer
+stellar keys public-key arya-fund-treasury
 ```
 
-#### Test Output
-
-![Test output showing 25 tests passing](../screenshots/test-output.png)
-*All 25 unit tests passing covering all 17 exported contract functions*
-
-All 25 tests should pass:
+### Stellar Keys Cheat Sheet
 
 ```bash
-test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.46s
+stellar keys ls
+stellar keys public-key NAME
+stellar keys secret NAME
+stellar keys use NAME
+stellar keys unset
+stellar keys generate NAME
+stellar keys fund NAME --network testnet
+stellar keys add NAME --secret-key
+stellar keys rm NAME
 ```
 
-### Deploy
+Meaning:
+
+- `public-key` returns the wallet address `G...`
+- `secret` returns the private signing key and should be kept secret
+- `use` sets the default identity for CLI commands
+- `unset` clears the default identity
+- `generate` creates a new identity
+- `fund` funds an identity on testnet
+- `add --secret-key` imports an existing secret
+- `rm` removes an identity from the current CLI store
+
+### Rename Old AryaFund Identities For Arya
+
+There is no direct `rename` command, so the safe flow is:
+
+1. print the secret from the old identity
+2. add a new identity with the new name
+3. paste the same secret when prompted
+
+Commands:
 
 ```bash
-stellar contract deploy \
-  --wasm target/wasm32v1-none/release/arya_fund.wasm \
-  --source YOUR_KEY_NAME \
-  --network testnet
+stellar keys secret arya-fund-deployer
+stellar keys add arya-deployer --secret-key
+stellar keys use arya-deployer
+
+stellar keys secret arya-fund-treasury
+stellar keys add arya-treasury --secret-key
 ```
 
-### Initialize
+Verify the new names:
+
+```bash
+stellar keys public-key arya-deployer
+stellar keys public-key arya-treasury
+```
+
+If those public keys match the old ones, update your commands to use:
+
+- `arya-deployer`
+- `arya-treasury`
+
+Optionally remove the old names after confirming the new ones work:
+
+```bash
+stellar keys rm arya-fund-deployer
+stellar keys rm arya-fund-treasury
+```
+
+### Save Keys Inside This Repo
+
+If you want keys to be stored specifically for this repo instead of your global Stellar CLI config, use a repo-local config dir:
+
+```bash
+mkdir -p .stellar
+stellar --config-dir ./.stellar keys add arya-deployer --secret-key
+stellar --config-dir ./.stellar keys add arya-treasury --secret-key
+stellar --config-dir ./.stellar keys use arya-deployer
+stellar --config-dir ./.stellar keys ls
+```
+
+Use the repo-local key store in later commands by adding `--config-dir ./.stellar`.
+
+`.stellar/` is gitignored so secrets are not committed.
+
+### Option 1: Generate a new local identity
+
+```bash
+stellar keys generate arya-admin -q
+```
+
+Set it as the active identity:
+
+```bash
+stellar keys use arya-admin
+```
+
+Get the public key:
+
+```bash
+stellar keys public-key arya-admin
+```
+
+### Option 2: Import an existing secret
+
+```bash
+stellar keys add arya-admin --secret-key SXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+```
+
+Then select it:
+
+```bash
+stellar keys use arya-admin
+```
+
+## Fund the Testnet Account
+
+```bash
+stellar keys fund arya-admin --network testnet
+```
+
+If needed, verify the account balance in the Stellar Lab or Stellar Expert testnet explorer.
+
+## Configure Testnet Network
+
+```bash
+stellar network add testnet \
+  --rpc-url https://soroban-testnet.stellar.org \
+  --network-passphrase "Test SDF Network ; September 2015"
+
+stellar network use testnet
+```
+
+## Build, Lint, and Test
+
+Run the full Rust quality gate:
+
+```bash
+cd contract
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets --all-features -- -D warnings
+cargo test --workspace
+bash scripts/build-all.sh
+```
+
+Build deployable Wasm files locally:
+
+```powershell
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File scripts/build-all.ps1
+```
+
+Equivalent Git Bash command:
+
+```bash
+bash scripts/build-all.sh
+```
+
+This builds:
+
+- `arya_registry.wasm`
+- `arya_staking.wasm`
+- `arya_crowdfunding.wasm`
+- `arya_launchpad.wasm`
+
+## Deploy Flow
+
+Deployment is split into three steps:
+
+1. deploy Wasm contracts
+2. initialize the deployed contracts
+3. update frontend environment values
+
+### Required Environment Variables
+
+Before deployment, set:
+
+```powershell
+$env:STELLAR_ACCOUNT="arya-admin"
+$env:STELLAR_RPC_URL="https://soroban-testnet.stellar.org"
+$env:STELLAR_NETWORK_PASSPHRASE="Test SDF Network ; September 2015"
+$env:ARYA_PLATFORM_OWNER="G..."
+$env:ARYA_TREASURY="G..."
+$env:ARYA_TOKEN_SAC_ID="C..."
+$env:ARYA_USDC_SAC_ID="C..."
+```
+
+Notes:
+
+- `STELLAR_ACCOUNT` is the local Stellar CLI identity name, not the raw public key.
+- if you use repo-local identities, keep using `--config-dir ./.stellar` with your manual `stellar` commands
+- `ARYA_TOKEN_SAC_ID` is the ARYA Stellar Asset Contract ID.
+- `ARYA_USDC_SAC_ID` is the USDC Stellar Asset Contract ID for your test setup. Derive it with:
+
+  ```bash
+  stellar contract id asset \
+    --network testnet \
+    --asset USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5
+  ```
+- If you already know the native XLM SAC, you can also set `ARYA_XLM_SAC_ID`. Otherwise the scripts derive it automatically.
+
+Native XLM SAC:
+
+```bash
+stellar contract id asset --asset native --network testnet
+```
+
+### Step 1: Deploy the Contracts Locally
+
+```powershell
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File scripts/deploy-testnet.ps1
+```
+
+This script:
+
+- runs `cargo test --workspace`
+- builds each deployable contract
+- deploys:
+  - `arya_registry`
+  - `arya_staking`
+  - `arya_crowdfunding`
+  - `arya_launchpad`
+- prints the deployed contract IDs
+
+Capture those contract IDs and set:
+
+```powershell
+$env:ARYA_REGISTRY_ID="C..."
+$env:ARYA_STAKING_ID="C..."
+$env:ARYA_CROWDFUNDING_ID="C..."
+$env:ARYA_LAUNCHPAD_ID="C..."
+```
+
+### Step 2: Initialize the Contracts
+
+```powershell
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File scripts/init-testnet.ps1
+```
+
+This script initializes:
+
+- registry
+- staking
+- crowdfunding
+- launchpad
+
+Default initialization values in the script:
+
+- staking min lockup: `7 days`
+- crowdfunding fee: `250` basis points
+- crowdfunding staking share: `5000` basis points
+- crowdfunding action window: `7 days`
+- launchpad fee: `300` basis points
+- launchpad staking share: `5000` basis points
+
+### Step 3: Verify the Deployment
+
+Recommended checks:
+
+```bash
+stellar contract invoke --id YOUR_REGISTRY_ID -- get_config
+stellar contract invoke --id YOUR_STAKING_ID -- get_settings
+stellar contract invoke --id YOUR_CROWDFUNDING_ID -- get_platform_settings
+stellar contract invoke --id YOUR_LAUNCHPAD_ID -- get_platform_settings
+```
+
+Then record:
+
+- contract IDs
+- Wasm hashes
+- deploy transaction hashes
+- initialize transaction hashes
+- explorer links
+
+Put those values in the root README after deployment.
+
+## CI/CD Secrets
+
+The GitHub Actions workflow files live in:
+
+- [../.github/workflows/ci.yml](../.github/workflows/ci.yml)
+- [../.github/workflows/testnet-deploy.yml](../.github/workflows/testnet-deploy.yml)
+
+### `ci.yml`
+
+This workflow runs:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --workspace --all-targets --all-features -- -D warnings`
+- `cargo test --workspace`
+- Wasm builds
+- frontend lint/build
+
+It does not need custom GitHub secrets.
+
+### `testnet-deploy.yml`
+
+This workflow needs repository secrets in GitHub Actions.
+
+Go to:
+
+`Settings -> Secrets and variables -> Actions`
+
+Also make sure Actions is enabled in:
+
+`Settings -> Actions -> General`
+
+Create this GitHub Actions secret:
+
+- `STELLAR_ACCOUNT`
+  Use a signing secret that the Stellar CLI can sign with on the GitHub runner. For Actions, set this to the secret signing key, not a public address and not a local alias like `arya-admin`.
+
+Create these GitHub Actions variables:
+
+- `STELLAR_RPC_URL`
+  `https://soroban-testnet.stellar.org`
+- `STELLAR_NETWORK_PASSPHRASE`
+  `Test SDF Network ; September 2015`
+- `ARYA_PLATFORM_OWNER`
+  Owner public address `G...`
+- `ARYA_TREASURY`
+  Treasury public address `G...`
+- `ARYA_USDC_SAC_ID`
+  Testnet USDC SAC contract ID `C...`
+- `ARYA_TOKEN_SAC_ID`
+  ARYA token Stellar Asset Contract ID `C...`
+- `ARYA_XLM_SAC_ID`
+  Optional native XLM SAC override `C...`
+
+Leave these empty on the very first deploy. After the first deploy succeeds, set them so future runs auto-upgrade:
+
+- `ARYA_REGISTRY_ID`
+- `ARYA_STAKING_ID`
+- `ARYA_CROWDFUNDING_ID`
+- `ARYA_LAUNCHPAD_ID`
+
+Notes:
+
+- do not store secret keys in plain repo variables
+- only store them in GitHub Actions secrets
+- use GitHub Actions variables for non-sensitive config values
+- the workflow now uses bash on GitHub Actions for build/deploy reliability
+- if `ARYA_REGISTRY_ID` is empty, the workflow performs a first-time deploy and prints the new contract IDs
+- once you copy those IDs into the repository variables, later runs automatically take the upgrade path
+
+That means the first deploy flow is:
+
+1. set the secret signing key and the asset/public-address variables
+2. leave the four `ARYA_*_ID` contract variables empty
+3. run the deploy workflow
+4. copy the printed contract IDs back into GitHub Variables
+5. later workflow runs upgrade the existing contracts
+
+In plain English:
+
+- `CI` means every push is validated automatically
+- `CD` means the deploy workflow can publish or upgrade contracts after validation passes
+
+## Upgrade Flow
+
+When you make a contract change:
+
+1. rebuild Wasm
+2. upload the new Wasm
+3. call `upgrade(new_wasm_hash)` on the deployed contract
+4. verify read functions still work
+5. update frontend config if addresses change
+
+Automated local upgrade:
+
+```powershell
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File scripts/upgrade-testnet.ps1
+```
+
+Required environment variables for the local PowerShell upgrade script:
+
+- `ARYA_REGISTRY_ID`
+- `ARYA_STAKING_ID`
+- `ARYA_CROWDFUNDING_ID`
+- `ARYA_LAUNCHPAD_ID`
+
+## Contract Build Commands
+
+If you prefer manual build commands:
+
+```bash
+stellar contract build --package arya_registry
+stellar contract build --package arya_staking
+stellar contract build --package arya_crowdfunding
+stellar contract build --package arya_launchpad
+```
+
+## Manual Upgrade Commands
+
+Example:
+
+```bash
+stellar contract upload \
+  --source-account arya-admin \
+  --rpc-url https://soroban-testnet.stellar.org \
+  --network-passphrase "Test SDF Network ; September 2015" \
+  --wasm target/wasm32v1-none/release/arya_staking.wasm
+```
+
+Then:
 
 ```bash
 stellar contract invoke \
-  --id CONTRACT_ADDRESS \
-  --source YOUR_KEY_NAME \
-  --network testnet \
-  -- initialize \
-  --platform_owner YOUR_OWNER_ADDRESS \
-  --treasury_wallet YOUR_TREASURY_ADDRESS \
-  --fee_basis_points 250 \
-  --action_window_days 7 \
-  --native_token CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC
+  --source-account arya-admin \
+  --rpc-url https://soroban-testnet.stellar.org \
+  --network-passphrase "Test SDF Network ; September 2015" \
+  --id YOUR_STAKING_ID \
+  -- \
+  upgrade \
+  --new-wasm-hash WASM_HASH
 ```
 
----
+## Explorer / Submission Template
 
-## Data Structures
+Fill these in after deployment:
 
-```rust
-Campaign {
-    id: u32,
-    title: String,
-    description: String,
-    goal_amount: i128,       // in stroops (1 XLM = 10,000,000 stroops)
-    deadline: u64,           // Unix timestamp
-    extension_days: u32,
-    extension_used: bool,
-    total_raised: i128,
-    organizer: Address,
-    status: CampaignStatus,  // Active | Successful | Failed
-}
+| Property | Value |
+| ---------- | ------- |
+| Registry Contract | `ADD_REGISTRY_ID_HERE` |
+| Staking Contract | `ADD_STAKING_ID_HERE` |
+| Crowdfunding Contract | `ADD_CROWDFUNDING_ID_HERE` |
+| Launchpad Contract | `ADD_LAUNCHPAD_ID_HERE` |
+| ARYA Token / SAC | `ADD_ARYA_TOKEN_ID_HERE` |
+| XLM SAC | `ADD_XLM_SAC_ID_HERE` |
+| USDC SAC | `ADD_USDC_SAC_ID_HERE` |
 
-PlatformSettings {
-    platform_owner: Address,
-    treasury_wallet: Address,
-    fee_basis_points: u32,   // 250 = 2.5%
-    action_window_days: u32,
-    native_token: Address,
-}
-```
+## Related Docs
 
----
-
-## Security Design
-
-- **No custodian risk** — funds held by contract, not organizer
-- **Pull refunds** — donors claim refunds themselves, no double claiming
-- **Separated wallets** — platform owner and treasury are separate addresses
-- **On-chain rules** — all funding logic enforced by smart contract
-- **Authorization** — every write function requires `.require_auth()` from the appropriate party
-
----
-
-## Built With
-
-- [Soroban SDK](https://soroban.stellar.org) — Stellar smart contract framework
-- [Stellar CLI](https://github.com/stellar/stellar-cli) — Contract build and deployment
-- [Rust](https://www.rust-lang.org) — Smart contract language
+- [../docs/DEPLOYMENT.md](../docs/DEPLOYMENT.md)
+- [../docs/UPGRADES.md](../docs/UPGRADES.md)
+- [../docs/MIGRATIONS.md](../docs/MIGRATIONS.md)
+- [../docs/TESTNET_SETUP.md](../docs/TESTNET_SETUP.md)
+- [../docs/FEE_FLOW.md](../docs/FEE_FLOW.md)
+- [../docs/STAKING_DESIGN.md](../docs/STAKING_DESIGN.md)
+- [../docs/LAUNCHPAD_DESIGN.md](../docs/LAUNCHPAD_DESIGN.md)
