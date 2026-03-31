@@ -1,7 +1,10 @@
 import {
     Address,
+    Asset,
     BASE_FEE,
     Contract,
+    Horizon,
+    Operation,
     TransactionBuilder,
     nativeToScVal,
     rpc,
@@ -11,8 +14,10 @@ import {
 import {
     ARYA_TOKEN_ID,
     CROWDFUNDING_CONTRACT_ID,
+    HORIZON_URL,
     LAUNCHPAD_CONTRACT_ID,
     NETWORK_PASSPHRASE,
+    PLATFORM_OWNER,
     READ_ACCOUNT,
     REGISTRY_CONTRACT_ID,
     STAKING_CONTRACT_ID,
@@ -21,6 +26,7 @@ import { rpcServer } from './server'
 import { normalizeContractEnum } from '../utils/format'
 
 const server = rpcServer
+const horizonServer = new Horizon.Server(HORIZON_URL)
 
 function getCrowdfundingContract() {
     return new Contract(CROWDFUNDING_CONTRACT_ID)
@@ -175,6 +181,56 @@ function requireTokenId(tokenId, name) {
     if (!tokenId) {
         throw new Error(`${name} token ID is not configured`)
     }
+}
+
+function requirePlatformOwner() {
+    if (!PLATFORM_OWNER) {
+        throw new Error('Platform owner address is not configured')
+    }
+}
+
+function getAryaAsset() {
+    requirePlatformOwner()
+    return new Asset('ARYA', PLATFORM_OWNER)
+}
+
+function normalizeAssetAmount(amount) {
+    const trimmed = String(amount ?? '').trim()
+    if (!trimmed) {
+        throw new Error('Enter an ARYA amount')
+    }
+
+    if (!/^\d+(\.\d{1,7})?$/.test(trimmed)) {
+        throw new Error('Use a valid ARYA amount with up to 7 decimals')
+    }
+
+    const [whole, fraction = ''] = trimmed.split('.')
+    const normalized = `${whole}.${fraction.padEnd(7, '0')}`
+
+    if (Number(normalized) <= 0) {
+        throw new Error('Amount must be greater than zero')
+    }
+
+    return normalized
+}
+
+function describeHorizonError(err, fallback) {
+    const resultCodes = err?.response?.data?.extras?.result_codes
+    const operationCodes = resultCodes?.operations ?? []
+
+    if (operationCodes.includes('op_no_trust')) {
+        return 'Recipient has no ARYA trustline. Add the ARYA asset in the wallet before retrying.'
+    }
+
+    if (operationCodes.includes('op_no_destination')) {
+        return 'Recipient wallet was not found on Stellar testnet.'
+    }
+
+    if (resultCodes?.transaction === 'tx_insufficient_balance' || operationCodes.includes('op_underfunded')) {
+        return 'Insufficient balance to complete this transfer.'
+    }
+
+    return fallback
 }
 
 export async function getCampaignCount() {
@@ -510,4 +566,82 @@ export async function reclaimUnsoldTokens({ ownerAddress, saleId, signTransactio
     const xdrBlob = await simulateAndPrepare(ownerAddress, op)
     const signedXdr = await signTransaction(xdrBlob)
     return submitSigned(signedXdr)
+}
+
+export async function getAssetTrustlineStatus(walletAddress) {
+    requirePlatformOwner()
+    const aryaAsset = getAryaAsset()
+
+    try {
+        const account = await horizonServer.loadAccount(walletAddress)
+        const trustline = account.balances.find(balance =>
+            balance.asset_code === aryaAsset.code && balance.asset_issuer === aryaAsset.issuer,
+        )
+
+        return {
+            accountExists: true,
+            hasTrustline: Boolean(trustline),
+            balance: trustline?.balance ?? null,
+            limit: trustline?.limit ?? null,
+        }
+    } catch (err) {
+        if (err?.response?.status === 404) {
+            return {
+                accountExists: false,
+                hasTrustline: false,
+                balance: null,
+                limit: null,
+            }
+        }
+
+        throw new Error(describeHorizonError(err, 'Unable to verify ARYA trustline status right now.'))
+    }
+}
+
+export async function fundTreasuryWithArya({
+    issuerAddress,
+    treasuryAddress,
+    amount,
+    signTransaction,
+}) {
+    requirePlatformOwner()
+
+    if (issuerAddress !== PLATFORM_OWNER) {
+        throw new Error('Connect the issuer wallet to fund the treasury with ARYA.')
+    }
+
+    if (!treasuryAddress) {
+        throw new Error('Treasury wallet is not configured')
+    }
+
+    const trustlineStatus = await getAssetTrustlineStatus(treasuryAddress)
+    if (!trustlineStatus.accountExists) {
+        throw new Error('Treasury wallet does not exist on Stellar testnet yet.')
+    }
+    if (!trustlineStatus.hasTrustline) {
+        throw new Error('Treasury wallet has no ARYA trustline. Add ARYA to the wallet before funding it.')
+    }
+
+    const issuerAccount = await horizonServer.loadAccount(issuerAddress)
+    const tx = new TransactionBuilder(issuerAccount, {
+        fee: BASE_FEE,
+        networkPassphrase: NETWORK_PASSPHRASE,
+    })
+        .addOperation(Operation.payment({
+            destination: treasuryAddress,
+            asset: getAryaAsset(),
+            amount: normalizeAssetAmount(amount),
+        }))
+        .setTimeout(180)
+        .build()
+
+    const signedXdr = await signTransaction(tx.toXDR())
+    const signedTx = TransactionBuilder.fromXDR(signedXdr, NETWORK_PASSPHRASE)
+
+    try {
+        const result = await horizonServer.submitTransaction(signedTx)
+        return { success: true, hash: result.hash, result }
+    } catch (err) {
+        throw new Error(describeHorizonError(err, 'ARYA transfer failed. Check the trustline, issuer wallet, and network status.'))
+    }
 }
