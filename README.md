@@ -173,15 +173,30 @@ arya-risein/
 
 | Action | Transaction |
 | ---------- | ------------ |
-| Crowdfunding fee routed into staking | `Pending first fee-generating crowdfunding interaction on testnet` |
-| Launchpad fee routed into staking | `Pending first fee-generating launchpad interaction on testnet` |
+| Crowdfunding fee routed into staking | `Pending first fee-generating crowdfunding withdraw on testnet` |
+| Launchpad fee routed into staking | `Pending first fee-generating launchpad withdraw_funds on testnet` |
+
+These inter-contract calls are implemented on-chain today:
+
+- `arya_crowdfunding -> arya_staking` via `deposit_xlm_rewards` / `deposit_usdc_rewards`
+- `arya_launchpad -> arya_staking` via `deposit_xlm_rewards` / `deposit_usdc_rewards`
+
+The missing piece for submission is the explorer transaction hash from a real testnet interaction that exercised each path.
 
 ### Token / Pool
 
-| Asset | Address |
+| Item | Value |
 | ---------- | ------- |
+| ARYA token asset | `ARYA:GBLH7QUEY43J3AJSIYPRUQKKUFX577GSYWRRQJVNFOV7MUON3YMM5IJQ` |
+| ARYA issuer | `GBLH7QUEY43J3AJSIYPRUQKKUFX577GSYWRRQJVNFOV7MUON3YMM5IJQ` |
 | ARYA token / SAC | `CBC42DVQ5J5KIXLJ2GIOX3PRZOZ5H63GPQKXXIYMPNOR2XXWNBEO332W` |
-| ARYA/XLM pool | `Planned treasury-seeded launch: 500,000 ARYA + 5,000 XLM` |
+| ARYA/XLM liquidity pool ID | `37c5defa969c8015fed5003f304aeb91c69da39440e15640663db8ea906fadc5` |
+| Initial treasury seed plan | `500,000 ARYA + 5,000 XLM` |
+
+This project does not use a custom Rust token contract or a custom Rust pool contract. Instead:
+
+- ARYA is a Stellar-issued asset mirrored by a Stellar Asset Contract
+- the ARYA/XLM pool is a standard Stellar liquidity pool identified by the pool ID above
 
 ### Explorer Links
 

@@ -283,6 +283,23 @@ After deployment, save:
 
 Those values belong in the root README and submission materials.
 
+## Submission Address Reference
+
+Use these current testnet identifiers in the README and delivery notes:
+
+- ARYA token asset: `ARYA:GBLH7QUEY43J3AJSIYPRUQKKUFX577GSYWRRQJVNFOV7MUON3YMM5IJQ`
+- ARYA issuer: `GBLH7QUEY43J3AJSIYPRUQKKUFX577GSYWRRQJVNFOV7MUON3YMM5IJQ`
+- ARYA token SAC: `CBC42DVQ5J5KIXLJ2GIOX3PRZOZ5H63GPQKXXIYMPNOR2XXWNBEO332W`
+- ARYA/XLM liquidity pool ID: `37c5defa969c8015fed5003f304aeb91c69da39440e15640663db8ea906fadc5`
+
+Notes:
+
+- the ARYA token is not a custom Rust token contract in this repo; it is a Stellar-issued asset mirrored by a Stellar Asset Contract
+- the ARYA/XLM pool is not a custom Rust AMM contract; it is a standard Stellar liquidity pool identified by the pool ID above
+- for the inter-contract call submission requirement, capture a real testnet transaction hash from:
+  - crowdfunding `withdraw` calling staking `deposit_xlm_rewards` or `deposit_usdc_rewards`
+  - launchpad `withdraw_funds` calling staking `deposit_xlm_rewards` or `deposit_usdc_rewards`
+
 ## Treasury Liquidity Plan
 
 Current operating assumptions for the frontend and treasury UX:
@@ -316,6 +333,7 @@ Current deployed addresses:
 - Launchpad: `CDSWDFZRA5MIWLFJCIHBTIQ2XTIWUZSH34U6GXBNNCALVRPIBKFL7GGU`
 - ARYA token asset: `ARYA:GBLH7QUEY43J3AJSIYPRUQKKUFX577GSYWRRQJVNFOV7MUON3YMM5IJQ`
 - ARYA token SAC: `CBC42DVQ5J5KIXLJ2GIOX3PRZOZ5H63GPQKXXIYMPNOR2XXWNBEO332W`
+- ARYA/XLM liquidity pool ID: `37c5defa969c8015fed5003f304aeb91c69da39440e15640663db8ea906fadc5`
 - XLM SAC: `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC`
 - USDC asset: `USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5`
 - USDC SAC: `CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA`
