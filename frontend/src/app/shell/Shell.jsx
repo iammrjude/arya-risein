@@ -17,6 +17,7 @@ const MODULE_TABS = {
     { label: 'Dashboard', to: '/launchpad/dashboard' },
   ],
   staking: [
+    { label: 'Overview', to: '/staking/overview' },
     { label: 'XLM Rewards', to: '/staking/xlm' },
     { label: 'USDC Rewards', to: '/staking/usdc' },
     { label: 'My Positions', to: '/staking/dashboard' },

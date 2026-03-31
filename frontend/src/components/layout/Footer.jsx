@@ -14,7 +14,7 @@ export default function Footer() {
           <Link to="/token" className={styles.link}>ARYA</Link>
           <Link to="/crowdfunding" className={styles.link}>Crowdfunding</Link>
           <Link to="/launchpad" className={styles.link}>Launchpad</Link>
-          <Link to="/staking/xlm" className={styles.link}>Staking</Link>
+          <Link to="/staking/overview" className={styles.link}>Staking</Link>
           <Link to="/treasury" className={styles.link}>Treasury</Link>
           <Link to="/admin" className={styles.link}>Admin</Link>
         </div>

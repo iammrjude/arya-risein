@@ -9,7 +9,7 @@ const NAV_ITEMS = [
   { label: 'ARYA', to: '/token' },
   { label: 'Crowdfunding', to: '/crowdfunding' },
   { label: 'Launchpad', to: '/launchpad' },
-  { label: 'Staking', to: '/staking/xlm' },
+  { label: 'Staking', to: '/staking/overview' },
   { label: 'Treasury', to: '/treasury' },
   { label: 'Admin', to: '/admin' },
 ]
@@ -49,7 +49,7 @@ export default function Header() {
     if (location.pathname.startsWith('/treasury')) return '/treasury'
     if (location.pathname.startsWith('/crowdfunding')) return '/crowdfunding'
     if (location.pathname.startsWith('/launchpad')) return '/launchpad'
-    if (location.pathname.startsWith('/staking')) return '/staking/xlm'
+    if (location.pathname.startsWith('/staking')) return '/staking/overview'
     if (location.pathname.startsWith('/admin')) return '/admin'
     return '/'
   }, [location.pathname])

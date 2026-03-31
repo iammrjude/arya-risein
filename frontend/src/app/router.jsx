@@ -38,7 +38,7 @@ export default function AppRoutes() {
           <Route path="/launchpad/project/:id" element={<LaunchpadProjectPage />} />
           <Route path="/launchpad/dashboard" element={<LaunchpadDashboardPage />} />
 
-          <Route path="/staking" element={<Navigate to="/staking/xlm" replace />} />
+          <Route path="/staking" element={<Navigate to="/staking/overview" replace />} />
           <Route path="/staking/xlm" element={<StakingRewardPoolPage rewardAsset="xlm" />} />
           <Route path="/staking/usdc" element={<StakingRewardPoolPage rewardAsset="usdc" />} />
           <Route path="/staking/dashboard" element={<StakingDashboardPage />} />
