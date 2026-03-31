@@ -51,6 +51,79 @@ build_packages() {
   bash scripts/build-all.sh
 }
 
+hash_file() {
+  local file_path="$1"
+
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$file_path" | awk '{print $1}'
+  else
+    shasum -a 256 "$file_path" | awk '{print $1}'
+  fi
+}
+
+upgrade_if_wasm_changed() {
+  local contract_name="$1"
+  local contract_id="$2"
+  local wasm_path="$3"
+  local deployed_wasm
+  local local_hash
+  local deployed_hash
+  local wasm_hash
+
+  deployed_wasm="$(mktemp)"
+
+  stellar contract fetch --id "$contract_id" "${NETWORK_ARGS[@]}" --out-file "$deployed_wasm"
+
+  local_hash="$(hash_file "$wasm_path")"
+  deployed_hash="$(hash_file "$deployed_wasm")"
+
+  if [[ "$local_hash" == "$deployed_hash" ]]; then
+    echo "INFO: Skipping $contract_name upgrade because deployed Wasm matches local build ($local_hash)."
+    rm -f "$deployed_wasm"
+    return 1
+  fi
+
+  echo "INFO: $contract_name Wasm changed: deployed=$deployed_hash local=$local_hash"
+  wasm_hash="$(stellar contract upload "${SOURCE_ARGS[@]}" "${NETWORK_ARGS[@]}" --wasm "$wasm_path")"
+  stellar contract invoke "${SOURCE_ARGS[@]}" "${NETWORK_ARGS[@]}" --id "$contract_id" -- upgrade --new-wasm-hash "$wasm_hash"
+
+  rm -f "$deployed_wasm"
+  return 0
+}
+
+print_upgrade_summary() {
+  local upgraded_count="${#UPGRADED_CONTRACTS[@]}"
+  local skipped_count="${#SKIPPED_CONTRACTS[@]}"
+
+  echo "Upgrade summary: ${upgraded_count}/4 contracts upgraded."
+
+  if (( upgraded_count > 0 )); then
+    echo "Upgraded contracts: ${UPGRADED_CONTRACTS[*]}"
+  else
+    echo "Upgraded contracts: none"
+  fi
+
+  if (( skipped_count > 0 )); then
+    echo "Skipped contracts: ${SKIPPED_CONTRACTS[*]}"
+  else
+    echo "Skipped contracts: none"
+  fi
+}
+
+track_upgrade() {
+  local contract_name="$1"
+  local contract_id="$2"
+  local wasm_path="$3"
+
+  if upgrade_if_wasm_changed "$contract_name" "$contract_id" "$wasm_path"; then
+    UPGRADED_CONTRACTS+=("$contract_name")
+    return 0
+  fi
+
+  SKIPPED_CONTRACTS+=("$contract_name")
+  return 0
+}
+
 deploy_suite() {
   require_env ARYA_PLATFORM_OWNER
   require_env ARYA_TREASURY
@@ -114,23 +187,17 @@ upgrade_suite() {
   require_env ARYA_CROWDFUNDING_ID
   require_env ARYA_LAUNCHPAD_ID
 
+  UPGRADED_CONTRACTS=()
+  SKIPPED_CONTRACTS=()
+
   echo "Persisted contract IDs found. Running upgrade flow."
 
-  local registry_hash
-  local staking_hash
-  local crowdfunding_hash
-  local launchpad_hash
+  track_upgrade "arya_registry" "$ARYA_REGISTRY_ID" "target/wasm32v1-none/release/arya_registry.wasm"
+  track_upgrade "arya_staking" "$ARYA_STAKING_ID" "target/wasm32v1-none/release/arya_staking.wasm"
+  track_upgrade "arya_crowdfunding" "$ARYA_CROWDFUNDING_ID" "target/wasm32v1-none/release/arya_crowdfunding.wasm"
+  track_upgrade "arya_launchpad" "$ARYA_LAUNCHPAD_ID" "target/wasm32v1-none/release/arya_launchpad.wasm"
 
-  registry_hash="$(stellar contract upload "${SOURCE_ARGS[@]}" "${NETWORK_ARGS[@]}" --wasm target/wasm32v1-none/release/arya_registry.wasm)"
-  staking_hash="$(stellar contract upload "${SOURCE_ARGS[@]}" "${NETWORK_ARGS[@]}" --wasm target/wasm32v1-none/release/arya_staking.wasm)"
-  crowdfunding_hash="$(stellar contract upload "${SOURCE_ARGS[@]}" "${NETWORK_ARGS[@]}" --wasm target/wasm32v1-none/release/arya_crowdfunding.wasm)"
-  launchpad_hash="$(stellar contract upload "${SOURCE_ARGS[@]}" "${NETWORK_ARGS[@]}" --wasm target/wasm32v1-none/release/arya_launchpad.wasm)"
-
-  stellar contract invoke "${SOURCE_ARGS[@]}" "${NETWORK_ARGS[@]}" --id "$ARYA_REGISTRY_ID" -- upgrade --new-wasm-hash "$registry_hash"
-  stellar contract invoke "${SOURCE_ARGS[@]}" "${NETWORK_ARGS[@]}" --id "$ARYA_STAKING_ID" -- upgrade --new-wasm-hash "$staking_hash"
-  stellar contract invoke "${SOURCE_ARGS[@]}" "${NETWORK_ARGS[@]}" --id "$ARYA_CROWDFUNDING_ID" -- upgrade --new-wasm-hash "$crowdfunding_hash"
-  stellar contract invoke "${SOURCE_ARGS[@]}" "${NETWORK_ARGS[@]}" --id "$ARYA_LAUNCHPAD_ID" -- upgrade --new-wasm-hash "$launchpad_hash"
-
+  print_upgrade_summary
   echo "Upgrade complete."
 }
 
