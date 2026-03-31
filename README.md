@@ -608,7 +608,7 @@ That means:
 2. workflow deploys fresh contracts
 3. open `GitHub -> Settings -> Secrets and variables -> Actions -> Variables`
 4. copy the printed values into GitHub Variables
-4. later runs automatically switch to upgrade mode
+5. later runs automatically switch to upgrade mode
 
 ### Frontend Deployment And CI/CD
 
@@ -626,7 +626,7 @@ So in this project:
 - GitHub Actions handles validation and testnet contract deployment
 - Vercel can handle frontend deployment independently
 
-## Submission Checklist
+## Project Completion Checklist
 
 - [x] Public GitHub repository
 - [x] 8+ meaningful commits
@@ -644,7 +644,8 @@ So in this project:
 
 ## TODO
 
-- Fix the connect wallet button.
+- fix the admin page to add the missing admin settings
+- fix the staking and launchpad pages
 
 ## Contributing
 
