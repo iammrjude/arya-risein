@@ -1,310 +1,210 @@
-# Contributing to AryaFund
+# Contributing to Arya
 
-Thank you for your interest in contributing to AryaFund! This document explains how to get started, how to report bugs, request features, and submit pull requests.
+Thanks for contributing to Arya. This repo now covers a modular Stellar platform with upgradeable Soroban contracts, a React frontend, CI/CD, and deployment documentation.
 
----
+Keeping `CONTRIBUTING.md` at the repo root is intentional because GitHub recognizes it automatically when contributors open issues or pull requests.
 
-## Table of Contents
+## What You Are Contributing To
 
-- [Contributing to AryaFund](#contributing-to-aryafund)
-  - [Table of Contents](#table-of-contents)
-  - [Code of Conduct](#code-of-conduct)
-  - [Getting Started](#getting-started)
-  - [Development Setup](#development-setup)
-    - [Smart Contract (Rust + Soroban)](#smart-contract-rust--soroban)
-    - [Frontend (React + Vite)](#frontend-react--vite)
-  - [How to Contribute](#how-to-contribute)
-    - [1. Find something to work on](#1-find-something-to-work-on)
-    - [2. Make your changes](#2-make-your-changes)
-    - [3. Test your changes](#3-test-your-changes)
-    - [4. Commit and push](#4-commit-and-push)
-    - [5. Open a Pull Request](#5-open-a-pull-request)
-  - [Commit Message Format](#commit-message-format)
-  - [Pull Request Process](#pull-request-process)
-  - [Reporting Bugs](#reporting-bugs)
-  - [Requesting Features](#requesting-features)
-  - [Code Style](#code-style)
-    - [Rust (Smart Contract)](#rust-smart-contract)
-    - [JavaScript (Frontend)](#javascript-frontend)
-  - [Questions](#questions)
+Arya currently includes:
 
----
-
-## Code of Conduct
-
-Be respectful and constructive. We welcome contributors of all experience levels. Harassment or dismissive behavior of any kind will not be tolerated.
-
----
+- `arya_registry`
+- `arya_staking`
+- `arya_crowdfunding`
+- `arya_launchpad`
+- legacy `arya_fund` kept only for migration/reference context
+- React frontend under `frontend/`
+- docs and deployment guides under `docs/`
 
 ## Getting Started
 
-1. **Fork** the repository on GitHub
-2. **Clone** your fork locally:
-
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/arya-fund.git
-   cd arya-fund
-   ```
-
-3. **Create a branch** for your change:
-
-   ```bash
-   git checkout -b fix/your-fix-name
-   # or
-   git checkout -b feat/your-feature-name
-   ```
-
----
-
-## Development Setup
-
-### Smart Contract (Rust + Soroban)
-
-**Prerequisites:**
-
-- Rust `1.84.0+`
-- Stellar CLI GitHub Action `stellar/stellar-cli@v23.3.0`
-- `wasm32v1-none` target
+1. Fork the repository on GitHub.
+1. Clone your fork locally:
 
 ```bash
-# Install wasm target
-rustup target add wasm32v1-none
-
-# Navigate to contract directory
-cd contract
-
-# Build the contract
-stellar contract build
-
-# Run tests (all 25 should pass)
-cargo test --manifest-path=contracts/arya_fund/Cargo.toml
+git clone https://github.com/YOUR_USERNAME/arya-risein.git
+cd arya-risein
 ```
 
-### Frontend (React + Vite)
-
-**Prerequisites:**
-
-- Node.js `v22+`
-- A Stellar wallet extension (Freighter recommended for testnet)
+1. Create a focused branch:
 
 ```bash
-# Navigate to frontend directory
+git checkout -b fix/short-description
+```
+
+or
+
+```bash
+git checkout -b feat/short-description
+```
+
+## Tooling
+
+Recommended local shell:
+
+- Git Bash for everyday development commands
+
+Fallback:
+
+- PowerShell for the Windows helper scripts
+
+Required tooling:
+
+- Rust stable
+- `wasm32v1-none`
+- Node.js `22+`
+- Stellar CLI
+
+Install the wasm target:
+
+```bash
+rustup target add wasm32v1-none
+```
+
+## Local Verification
+
+### Contract workspace
+
+```bash
+cd contract
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets --all-features -- -D warnings
+cargo test --workspace
+bash scripts/build-all.sh
+```
+
+Windows fallback:
+
+```powershell
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File scripts/build-all.ps1
+```
+
+### Frontend Guidelines
+
+```bash
 cd frontend
+npm ci
+npm run lint
+npm run test
+npm run build
+```
 
-# Install dependencies
-npm install
+If your change affects runtime behavior, also run:
 
-# Start development server
+```bash
 npm run dev
 ```
 
-Opens at `http://localhost:5173`
+## Docs To Review Before Big Changes
 
-### Docs and operations
-
-Before large changes, review:
-
+- `README.md`
+- `contract/README.md`
+- `frontend/README.md`
 - `docs/ARCHITECTURE.md`
 - `docs/DEPLOYMENT.md`
 - `docs/UPGRADES.md`
 - `docs/MIGRATIONS.md`
+- `docs/TESTNET_SETUP.md`
 
----
+## How To Contribute
 
-## How to Contribute
+### 1. Keep changes focused
 
-### 1. Find something to work on
+- one fix or feature per pull request
+- avoid mixing refactors with unrelated behavior changes
+- update docs when behavior or setup changes
 
-- Check the [open issues](../../issues) for bugs and features
-- Issues labeled `good first issue` are great for newcomers
-- Comment on the issue to let others know you are working on it
+### 2. Add or update tests when needed
 
-### 2. Make your changes
+- contract behavior changes should include or update Rust tests
+- frontend behavior changes should include or update frontend tests when practical
 
-- Keep changes focused — one fix or feature per pull request
-- If fixing a bug, add a test that would have caught it
-- If adding a feature, update the relevant README section
+### 3. Run the local checks before pushing
 
-### 3. Test your changes
+Minimum expectation:
 
-**Smart contract:**
+- contract fmt
+- contract clippy
+- contract tests
+- contract Wasm build
+- frontend lint
+- frontend tests
+- frontend build
 
-```bash
-cargo test --manifest-path=contract/contracts/arya_fund/Cargo.toml
-```
+### 4. Use clear commit messages
 
-All tests must pass before submitting.
-
-**Frontend:**
-
-```bash
-cd frontend
-npm run lint
-npm run build
-```
-
-The build must complete without errors.
-
-### 4. Commit and push
+Examples:
 
 ```bash
-git add .
-git commit -m "fix: short description of what you fixed"
-git push origin your-branch-name
+feat: add launchpad fee routing into staking
+fix: correct staking reward pool accounting
+docs: clarify github actions deploy variables
+test: add shell navigation smoke tests
+chore: update soroban sdk and ci workflow
 ```
 
-### 5. Open a Pull Request
+## Pull Request Expectations
 
-- Go to your fork on GitHub and click **Compare & pull request**
-- Fill in the PR description using the template below
-- Link the related issue using `Closes #issue-number`
+A good PR should include:
 
----
+- a clear summary of what changed
+- the reason for the change
+- how it was tested
+- screenshots for UI changes when relevant
+- docs updates when setup, deployment, or behavior changes
 
-## Commit Message Format
+Suggested PR structure:
 
-Use the following format for all commits:
+```md
+## Summary
+What changed?
 
-```bash
-type: short description (max 72 characters)
+## Why
+Why was this needed?
 
-Optional longer explanation of what changed and why.
-Not needed for simple fixes.
-```
-
-**Types:**
-
-| Type | When to use |
-| ------ | ------------ |
-| `fix` | Bug fix |
-| `feat` | New feature |
-| `test` | Adding or updating tests |
-| `docs` | README, comments, documentation |
-| `refactor` | Code change that is not a fix or feature |
-| `chore` | Build process, dependencies, config |
-
-**Examples:**
-
-```bash
-fix: cap donations at campaign goal amount
-feat: add donor leaderboard to campaign page
-test: add unit tests for donate and withdraw functions
-docs: add screenshots to all README files
-chore: add vercel.json for SPA routing
-```
-
----
-
-## Pull Request Process
-
-Use this template when opening a pull request:
-
-```markdown
-## What does this PR do?
-Brief description of the change.
-
-## Related Issue
-Closes #issue-number
-
-## Type of Change
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Test coverage
-- [ ] Documentation update
-- [ ] Refactor
-
-## How to Test
-Steps to verify the change works:
-1. ...
-2. ...
-
-## Screenshots (if applicable)
-Add before/after screenshots for UI changes.
-
-## Checklist
-- [ ] All tests pass
-- [ ] Build completes without errors
-- [ ] README updated if needed
-- [ ] Commit messages follow the format in CONTRIBUTING.md
-```
-
-Pull requests will be reviewed and merged once approved. Please be patient and responsive to feedback.
-
----
-
-## Reporting Bugs
-
-[Open a GitHub Issue](../../issues/new/choose) with the `bug` label.
-
-Use this structure:
-
-```markdown
-## Description
-What is the bug?
-
-## Steps to Reproduce
-1. Go to ...
-2. Click on ...
-3. See error
-
-## Expected Behavior
-What should happen?
-
-## Actual Behavior
-What actually happens?
-
-## Environment
-- Browser:
-- Wallet extension:
-- Network: Stellar Testnet
+## Testing
+- cargo fmt --all -- --check
+- cargo clippy --workspace --all-targets --all-features -- -D warnings
+- cargo test --workspace
+- bash scripts/build-all.sh
+- npm run lint
+- npm run test
+- npm run build
 
 ## Screenshots
-Add screenshots if helpful.
+If applicable
 ```
 
----
+## Coding Style
 
-## Requesting Features
+### Rust
 
-[Open a GitHub Issue](../../issues/new/choose) with the `enhancement` label.
+- keep exported contract behavior covered by tests
+- prefer clear names over short clever ones
+- use comments sparingly and only for non-obvious logic
+- keep upgrade and admin paths explicit
 
-Use this structure:
+### Frontend
 
-```markdown
-## Feature Description
-What would you like to see added?
+- keep modules and pages focused
+- preserve the current Arya visual identity
+- keep navigation discoverable on desktop and mobile
+- prefer readable state flow over premature abstraction
 
-## Problem it Solves
-What problem does this feature address?
+## Security And Secrets
 
-## Proposed Solution
-How do you think it should work?
+- never commit secret keys
+- never put signing material in normal GitHub Variables
+- use GitHub Actions `Secrets` for signing keys
+- use GitHub Actions `Variables` for public addresses, RPC URLs, contract IDs, and other non-sensitive values
+- keep `.stellar/` out of version control
 
-## Alternatives Considered
-Any other approaches you thought about?
-```
+## Questions And Issues
 
----
+If something is unclear:
 
-## Code Style
+- open an issue
+- link the affected docs or file paths
+- explain what you expected versus what you saw
 
-### Rust (Smart Contract)
-
-- Format code before committing: `cargo fmt`
-- All exported functions must have at least one test
-- Use descriptive variable and function names
-- Add comments for non-obvious logic
-
-### JavaScript (Frontend)
-
-- Use descriptive variable names
-- Keep components focused — one responsibility per component
-- Use CSS Modules for all styling — no inline styles
-- Prefer `async/await` over `.then()` chains
-- Handle all three wallet error types: not found, rejected, insufficient balance
-
----
-
-## Questions
-
-If you have a question that is not covered here, [open an issue](../../issues/new/choose) with the `question` label or start a [GitHub Discussion](../../discussions).
+If you are changing deployment, upgrade, or key-management flows, update the relevant docs in the same PR.
