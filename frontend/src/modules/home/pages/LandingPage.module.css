@@ -98,10 +98,90 @@
 }
 
 .grid,
-.roadmap {
+.roadmap,
+.story {
   max-width: 1100px;
   margin: 0 auto;
   padding: 0 24px;
+}
+
+.story {
+  margin-bottom: 28px;
+}
+
+.storyHeader {
+  max-width: 760px;
+  margin-bottom: 20px;
+}
+
+.storyEyebrow {
+  display: inline-block;
+  margin-bottom: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent-bright);
+}
+
+.storyTitle {
+  margin: 0 0 12px;
+  font-size: clamp(1.45rem, 3vw, 2.1rem);
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+}
+
+.storyText {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: clamp(14px, 1.7vw, 16px);
+  line-height: 1.7;
+}
+
+.storyGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.storyCard {
+  background: linear-gradient(180deg, rgba(124, 106, 255, 0.08), rgba(15, 15, 24, 0.92));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px;
+}
+
+.storyCardTitle {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.storyCardText {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.storyActions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.storyLink {
+  color: var(--accent-bright);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.storyLink:hover {
+  opacity: 0.8;
 }
 
 .grid {
@@ -177,8 +257,13 @@
   }
 
   .grid,
-  .roadmap {
+  .roadmap,
+  .story {
     padding: 0 20px;
+  }
+
+  .storyGrid {
+    grid-template-columns: 1fr;
   }
 
   .grid {
@@ -193,7 +278,8 @@
   }
 
   .grid,
-  .roadmap {
+  .roadmap,
+  .story {
     padding: 0 16px;
   }
 

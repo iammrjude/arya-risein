@@ -4,6 +4,8 @@ import Shell from './shell/Shell'
 import styles from './router.module.css'
 
 const LandingPage = lazy(() => import('../modules/home/pages/LandingPage'))
+const FAQPage = lazy(() => import('../modules/info/pages/FAQPage'))
+const DocsPage = lazy(() => import('../modules/info/pages/DocsPage'))
 const CrowdfundingBrowsePage = lazy(() => import('../modules/crowdfunding/pages/CrowdfundingBrowsePage'))
 const CrowdfundingCampaignPage = lazy(() => import('../modules/crowdfunding/pages/CrowdfundingCampaignPage'))
 const CrowdfundingCreatePage = lazy(() => import('../modules/crowdfunding/pages/CrowdfundingCreatePage'))
@@ -25,6 +27,8 @@ export default function AppRoutes() {
       <Suspense fallback={<div className={styles.loading}>Loading module...</div>}>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/faq" element={<FAQPage />} />
+          <Route path="/docs" element={<DocsPage />} />
           <Route path="/token" element={<AryaTokenPage />} />
           <Route path="/treasury" element={<TreasuryPage />} />
 

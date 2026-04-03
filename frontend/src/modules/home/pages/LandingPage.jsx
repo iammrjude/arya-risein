@@ -56,6 +56,43 @@ export default function LandingPage() {
           </p>
         </div>
       </section>
+
+      <section className={styles.story}>
+        <div className={styles.storyHeader}>
+          <span className={styles.storyEyebrow}>Why Arya exists</span>
+          <h2 className={styles.storyTitle}>Crowdfunding should run by transparent rules, not platform discretion.</h2>
+          <p className={styles.storyText}>
+            Arya was built for communities that want predictable fundraising. Smart contracts define what happens when a campaign succeeds,
+            misses its goal, or needs an extension window, so donors and organizers are not left guessing what a centralized platform might do next.
+          </p>
+        </div>
+
+        <div className={styles.storyGrid}>
+          <article className={styles.storyCard}>
+            <h3 className={styles.storyCardTitle}>Funds stay governed by code</h3>
+            <p className={styles.storyCardText}>
+              Campaign funds are held by the contract, not by a company balance sheet or an internal moderation queue.
+            </p>
+          </article>
+          <article className={styles.storyCard}>
+            <h3 className={styles.storyCardTitle}>Outcomes are predefined</h3>
+            <p className={styles.storyCardText}>
+              Goal met means organizers can withdraw. Goal missed means donors can refund. Extension logic is visible before anyone contributes.
+            </p>
+          </article>
+          <article className={styles.storyCard}>
+            <h3 className={styles.storyCardTitle}>Everything is publicly verifiable</h3>
+            <p className={styles.storyCardText}>
+              Contributions, withdrawals, and refunds are all visible on Stellar, making trust something users can verify instead of simply hope for.
+            </p>
+          </article>
+        </div>
+
+        <div className={styles.storyActions}>
+          <Link to="/faq" className={styles.storyLink}>Read the FAQ -&gt;</Link>
+          <Link to="/docs" className={styles.storyLink}>Open the docs -&gt;</Link>
+        </div>
+      </section>
     </div>
   )
 }

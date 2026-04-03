@@ -7,7 +7,7 @@ export default function Footer() {
       <div className={styles.inner}>
         <div className={styles.brand}>
           <span>Arya</span>
-          <span className={styles.dot}>·</span>
+          <span className={styles.dot}>|</span>
           <span>Built on Stellar Testnet</span>
         </div>
         <div className={styles.links}>
@@ -15,6 +15,8 @@ export default function Footer() {
           <Link to="/crowdfunding" className={styles.link}>Crowdfunding</Link>
           <Link to="/launchpad" className={styles.link}>Launchpad</Link>
           <Link to="/staking/overview" className={styles.link}>Staking</Link>
+          <Link to="/faq" className={styles.link}>FAQ</Link>
+          <Link to="/docs" className={styles.link}>Docs</Link>
           <Link to="/treasury" className={styles.link}>Treasury</Link>
           <Link to="/admin" className={styles.link}>Admin</Link>
         </div>
