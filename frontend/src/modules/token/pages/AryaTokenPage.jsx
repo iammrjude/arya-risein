@@ -10,7 +10,6 @@ const TOKENOMICS = [
   { label: 'Total Supply', value: '100,000,000 ARYA' },
   { label: 'Treasury Starting Balance', value: '45,000,000 ARYA' },
   { label: 'Initial ARYA/XLM Liquidity', value: '500,000 ARYA + 5,000 XLM' },
-  { label: 'Opening Pool Price', value: '1 ARYA = 0.01 XLM' },
 ]
 
 const UTILITY = [
@@ -52,6 +51,20 @@ export default function AryaTokenPage() {
   const [swapError, setSwapError] = useState(null)
   const [poolStatus, setPoolStatus] = useState(null)
 
+  const livePoolPrice = poolStatus?.poolExists && Number(poolStatus.aryaReserve) > 0
+    ? Number(poolStatus.xlmReserve) / Number(poolStatus.aryaReserve)
+    : null
+
+  const tokenomics = [
+    ...TOKENOMICS,
+    {
+      label: 'Live Pool Price',
+      value: livePoolPrice === null
+        ? 'Awaiting liquidity'
+        : `1 ARYA = ${livePoolPrice.toLocaleString('en-US', { maximumFractionDigits: 7 })} XLM`,
+    },
+  ]
+
   useEffect(() => {
     async function loadAddress() {
       const nextAddress = await getAddress()
@@ -64,16 +77,28 @@ export default function AryaTokenPage() {
   }, [getAddress])
 
   useEffect(() => {
+    let cancelled = false
+
     async function loadPoolStatus() {
       try {
-        const nextStatus = await getAryaXlmPoolStatus()
-        setPoolStatus(nextStatus)
+        const nextPoolStatus = await getAryaXlmPoolStatus()
+        if (!cancelled) {
+          setPoolStatus(nextPoolStatus)
+        }
       } catch {
-        setPoolStatus(null)
+        if (!cancelled) {
+          setPoolStatus(null)
+        }
       }
     }
 
     loadPoolStatus()
+    const interval = setInterval(loadPoolStatus, 15000)
+
+    return () => {
+      cancelled = true
+      clearInterval(interval)
+    }
   }, [])
 
   useEffect(() => {
@@ -175,7 +200,7 @@ export default function AryaTokenPage() {
         <section className={styles.card}>
           <h2 className={styles.sectionTitle}>Tokenomics</h2>
           <div className={styles.metricGrid}>
-            {TOKENOMICS.map(item => (
+            {tokenomics.map(item => (
               <article key={item.label} className={styles.metricCard}>
                 <span className={styles.metricLabel}>{item.label}</span>
                 <strong className={styles.metricValue}>{item.value}</strong>

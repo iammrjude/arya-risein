@@ -118,3 +118,24 @@ fn usdc_campaign_refund_works_after_failure() {
     let after = s.usdc_client.balance(&s.donor);
     assert_eq!(after - before, 20_0000000i128);
 }
+
+#[test]
+fn owner_can_update_action_window_days() {
+    let s = setup();
+
+    s.client.update_action_window_days(&14u32);
+
+    let settings = s.client.get_platform_settings();
+    assert_eq!(settings.action_window_days, 14u32);
+}
+
+#[test]
+fn owner_can_transfer_ownership() {
+    let s = setup();
+    let new_owner = Address::generate(&s.env);
+
+    s.client.transfer_ownership(&new_owner);
+
+    let settings = s.client.get_platform_settings();
+    assert_eq!(settings.owner, new_owner);
+}

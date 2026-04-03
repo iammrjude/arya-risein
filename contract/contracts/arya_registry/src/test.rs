@@ -39,4 +39,10 @@ fn registry_updates_addresses() {
     assert_eq!(updated.staking_contract, new_staking);
     assert_eq!(updated.crowdfunding_contract, new_crowdfunding);
     assert_eq!(updated.launchpad_contract, new_launchpad);
+
+    let new_arya_token = Address::generate(&env);
+    client.set_arya_token(&new_arya_token);
+
+    let updated = client.get_config();
+    assert_eq!(updated.arya_token, new_arya_token);
 }

@@ -110,3 +110,27 @@ fn unstake_requires_lock_expiry() {
     s.client.unstake(&s.staker, &100_0000000i128);
     assert_eq!(s.arya_client.balance(&s.staker), 10_000_000_000_i128);
 }
+
+#[test]
+fn owner_can_transfer_ownership() {
+    let s = setup();
+    let new_owner = Address::generate(&s.env);
+
+    s.client.transfer_ownership(&new_owner);
+
+    let settings = s.client.get_settings();
+    assert_eq!(settings.owner, new_owner);
+}
+
+#[test]
+fn owner_can_update_staking_settings() {
+    let s = setup();
+    let new_stake_token = Address::generate(&s.env);
+
+    s.client.update_stake_token(&new_stake_token);
+    s.client.update_min_lockup_days(&14u32);
+
+    let settings = s.client.get_settings();
+    assert_eq!(settings.stake_token, new_stake_token);
+    assert_eq!(settings.min_lockup_days, 14u32);
+}

@@ -103,3 +103,31 @@ fn successful_sale_shares_fee_with_staking() {
     let claimed = s.client.claim_tokens(&s.buyer, &sale_id);
     assert_eq!(claimed, 10i128);
 }
+
+#[test]
+fn owner_can_transfer_ownership() {
+    let s = setup();
+    let new_owner = Address::generate(&s.env);
+
+    s.client.transfer_ownership(&new_owner);
+
+    let settings = s.client.get_platform_settings();
+    assert_eq!(settings.owner, new_owner);
+}
+
+#[test]
+fn owner_can_update_launchpad_settings() {
+    let s = setup();
+    let new_treasury = Address::generate(&s.env);
+    let new_staking = Address::generate(&s.env);
+
+    s.client.update_treasury_wallet(&new_treasury);
+    s.client.update_staking_contract(&new_staking);
+    s.client.update_fee_settings(&450u32, &6000u32);
+
+    let settings = s.client.get_platform_settings();
+    assert_eq!(settings.treasury_wallet, new_treasury);
+    assert_eq!(settings.staking_contract, new_staking);
+    assert_eq!(settings.fee_basis_points, 450u32);
+    assert_eq!(settings.staking_share_basis_points, 6000u32);
+}

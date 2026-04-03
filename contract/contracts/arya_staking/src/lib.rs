@@ -85,6 +85,19 @@ pub struct RewardDepositedEvent {
     pub amount: i128,
 }
 
+#[contractevent(topics = ["arya", "ownership_transferred"])]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct OwnershipTransferredEvent {
+    pub new_owner: Address,
+}
+
+#[contractevent(topics = ["arya", "staking_settings_updated"])]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct StakingSettingsUpdatedEvent {
+    pub stake_token: Address,
+    pub min_lockup_days: u32,
+}
+
 #[contract]
 pub struct AryaStaking;
 
@@ -284,6 +297,38 @@ impl AryaStaking {
             .persistent()
             .get(&DataKey::Pool(reward_asset))
             .expect("pool missing")
+    }
+
+    pub fn update_stake_token(env: Env, stake_token: Address) {
+        let mut settings = Self::get_settings(env.clone());
+        settings.owner.require_auth();
+        settings.stake_token = stake_token;
+        env.storage().instance().set(&DataKey::Settings, &settings);
+        StakingSettingsUpdatedEvent {
+            stake_token: settings.stake_token,
+            min_lockup_days: settings.min_lockup_days,
+        }
+        .publish(&env);
+    }
+
+    pub fn update_min_lockup_days(env: Env, min_lockup_days: u32) {
+        let mut settings = Self::get_settings(env.clone());
+        settings.owner.require_auth();
+        settings.min_lockup_days = min_lockup_days;
+        env.storage().instance().set(&DataKey::Settings, &settings);
+        StakingSettingsUpdatedEvent {
+            stake_token: settings.stake_token,
+            min_lockup_days: settings.min_lockup_days,
+        }
+        .publish(&env);
+    }
+
+    pub fn transfer_ownership(env: Env, new_owner: Address) {
+        let mut settings = Self::get_settings(env.clone());
+        settings.owner.require_auth();
+        settings.owner = new_owner.clone();
+        env.storage().instance().set(&DataKey::Settings, &settings);
+        OwnershipTransferredEvent { new_owner }.publish(&env);
     }
 
     fn deposit_rewards(env: Env, from: Address, amount: i128, reward_asset: RewardAsset) {

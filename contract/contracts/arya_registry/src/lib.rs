@@ -53,6 +53,12 @@ pub struct OwnershipTransferredEvent {
     pub new_owner: Address,
 }
 
+#[contractevent(topics = ["arya", "arya_token_updated"])]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct AryaTokenUpdatedEvent {
+    pub arya_token: Address,
+}
+
 #[contract]
 pub struct AryaRegistry;
 
@@ -116,6 +122,14 @@ impl AryaRegistry {
             launchpad_contract,
         }
         .publish(&env);
+    }
+
+    pub fn set_arya_token(env: Env, arya_token: Address) {
+        let mut config = Self::get_config(env.clone());
+        config.owner.require_auth();
+        config.arya_token = arya_token.clone();
+        env.storage().instance().set(&DataKey::Config, &config);
+        AryaTokenUpdatedEvent { arya_token }.publish(&env);
     }
 
     pub fn transfer_ownership(env: Env, new_owner: Address) {

@@ -103,6 +103,18 @@ pub struct CampaignRefundedEvent {
     pub amount: i128,
 }
 
+#[contractevent(topics = ["arya", "action_window_updated"])]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ActionWindowUpdatedEvent {
+    pub action_window_days: u32,
+}
+
+#[contractevent(topics = ["arya", "ownership_transferred"])]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct OwnershipTransferredEvent {
+    pub new_owner: Address,
+}
+
 #[contract]
 pub struct AryaCrowdfunding;
 
@@ -439,6 +451,22 @@ impl AryaCrowdfunding {
         settings.owner.require_auth();
         settings.staking_contract = staking_contract;
         env.storage().instance().set(&DataKey::Settings, &settings);
+    }
+
+    pub fn update_action_window_days(env: Env, action_window_days: u32) {
+        let mut settings = Self::get_platform_settings(env.clone());
+        settings.owner.require_auth();
+        settings.action_window_days = action_window_days;
+        env.storage().instance().set(&DataKey::Settings, &settings);
+        ActionWindowUpdatedEvent { action_window_days }.publish(&env);
+    }
+
+    pub fn transfer_ownership(env: Env, new_owner: Address) {
+        let mut settings = Self::get_platform_settings(env.clone());
+        settings.owner.require_auth();
+        settings.owner = new_owner.clone();
+        env.storage().instance().set(&DataKey::Settings, &settings);
+        OwnershipTransferredEvent { new_owner }.publish(&env);
     }
 
     fn funding_token<'a>(

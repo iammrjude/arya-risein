@@ -106,6 +106,21 @@ pub struct SaleClaimedEvent {
     pub token_amount: i128,
 }
 
+#[contractevent(topics = ["arya", "ownership_transferred"])]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct OwnershipTransferredEvent {
+    pub new_owner: Address,
+}
+
+#[contractevent(topics = ["arya", "launchpad_settings_updated"])]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct LaunchpadSettingsUpdatedEvent {
+    pub treasury_wallet: Address,
+    pub staking_contract: Address,
+    pub fee_basis_points: u32,
+    pub staking_share_basis_points: u32,
+}
+
 #[contract]
 pub struct AryaLaunchpad;
 
@@ -447,6 +462,57 @@ impl AryaLaunchpad {
             .persistent()
             .get(&DataKey::Contribution(sale_id, buyer))
             .unwrap_or(0)
+    }
+
+    pub fn update_fee_settings(env: Env, fee_basis_points: u32, staking_share_basis_points: u32) {
+        let mut settings = Self::get_platform_settings(env.clone());
+        settings.owner.require_auth();
+        settings.fee_basis_points = fee_basis_points;
+        settings.staking_share_basis_points = staking_share_basis_points;
+        env.storage().instance().set(&DataKey::Settings, &settings);
+        LaunchpadSettingsUpdatedEvent {
+            treasury_wallet: settings.treasury_wallet,
+            staking_contract: settings.staking_contract,
+            fee_basis_points: settings.fee_basis_points,
+            staking_share_basis_points: settings.staking_share_basis_points,
+        }
+        .publish(&env);
+    }
+
+    pub fn update_treasury_wallet(env: Env, treasury_wallet: Address) {
+        let mut settings = Self::get_platform_settings(env.clone());
+        settings.owner.require_auth();
+        settings.treasury_wallet = treasury_wallet;
+        env.storage().instance().set(&DataKey::Settings, &settings);
+        LaunchpadSettingsUpdatedEvent {
+            treasury_wallet: settings.treasury_wallet,
+            staking_contract: settings.staking_contract,
+            fee_basis_points: settings.fee_basis_points,
+            staking_share_basis_points: settings.staking_share_basis_points,
+        }
+        .publish(&env);
+    }
+
+    pub fn update_staking_contract(env: Env, staking_contract: Address) {
+        let mut settings = Self::get_platform_settings(env.clone());
+        settings.owner.require_auth();
+        settings.staking_contract = staking_contract;
+        env.storage().instance().set(&DataKey::Settings, &settings);
+        LaunchpadSettingsUpdatedEvent {
+            treasury_wallet: settings.treasury_wallet,
+            staking_contract: settings.staking_contract,
+            fee_basis_points: settings.fee_basis_points,
+            staking_share_basis_points: settings.staking_share_basis_points,
+        }
+        .publish(&env);
+    }
+
+    pub fn transfer_ownership(env: Env, new_owner: Address) {
+        let mut settings = Self::get_platform_settings(env.clone());
+        settings.owner.require_auth();
+        settings.owner = new_owner.clone();
+        env.storage().instance().set(&DataKey::Settings, &settings);
+        OwnershipTransferredEvent { new_owner }.publish(&env);
     }
 
     fn funding_token<'a>(

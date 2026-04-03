@@ -603,10 +603,67 @@ export async function updateStakingContract({ ownerAddress, stakingContract, sig
     return submitSigned(signedXdr)
 }
 
+export async function updateActionWindowDays({ ownerAddress, actionWindowDays, signTransaction }) {
+    const op = getCrowdfundingContract().call('update_action_window_days', u32ToScVal(actionWindowDays))
+    const xdrBlob = await simulateAndPrepare(ownerAddress, op)
+    const signedXdr = await signTransaction(xdrBlob)
+    return submitSigned(signedXdr)
+}
+
+export async function transferCrowdfundingOwnership({ ownerAddress, newOwner, signTransaction }) {
+    const op = getCrowdfundingContract().call('transfer_ownership', addressToScVal(newOwner))
+    const xdrBlob = await simulateAndPrepare(ownerAddress, op)
+    const signedXdr = await signTransaction(xdrBlob)
+    return submitSigned(signedXdr)
+}
+
 export async function getRegistryConfig() {
     requireContractId(REGISTRY_CONTRACT_ID, 'Registry')
     const config = await simulateRead(getRegistryContract(), 'get_config')
     return normalizeRegistryConfig(config)
+}
+
+export async function setRegistryTreasury({ ownerAddress, treasuryAddress, signTransaction }) {
+    requireContractId(REGISTRY_CONTRACT_ID, 'Registry')
+    const op = getRegistryContract().call('set_treasury', addressToScVal(treasuryAddress))
+    const xdrBlob = await simulateAndPrepare(ownerAddress, op)
+    const signedXdr = await signTransaction(xdrBlob)
+    return submitSigned(signedXdr)
+}
+
+export async function setRegistryContracts({
+    ownerAddress,
+    stakingContract,
+    crowdfundingContract,
+    launchpadContract,
+    signTransaction,
+}) {
+    requireContractId(REGISTRY_CONTRACT_ID, 'Registry')
+    const op = getRegistryContract().call(
+        'set_contracts',
+        addressToScVal(stakingContract),
+        addressToScVal(crowdfundingContract),
+        addressToScVal(launchpadContract),
+    )
+    const xdrBlob = await simulateAndPrepare(ownerAddress, op)
+    const signedXdr = await signTransaction(xdrBlob)
+    return submitSigned(signedXdr)
+}
+
+export async function transferRegistryOwnership({ ownerAddress, newOwner, signTransaction }) {
+    requireContractId(REGISTRY_CONTRACT_ID, 'Registry')
+    const op = getRegistryContract().call('transfer_ownership', addressToScVal(newOwner))
+    const xdrBlob = await simulateAndPrepare(ownerAddress, op)
+    const signedXdr = await signTransaction(xdrBlob)
+    return submitSigned(signedXdr)
+}
+
+export async function setRegistryAryaToken({ ownerAddress, aryaToken, signTransaction }) {
+    requireContractId(REGISTRY_CONTRACT_ID, 'Registry')
+    const op = getRegistryContract().call('set_arya_token', addressToScVal(aryaToken))
+    const xdrBlob = await simulateAndPrepare(ownerAddress, op)
+    const signedXdr = await signTransaction(xdrBlob)
+    return submitSigned(signedXdr)
 }
 
 export async function getStakingSettings() {
@@ -661,6 +718,30 @@ export async function claimStakingRewards({ stakerAddress, signTransaction }) {
     requireContractId(STAKING_CONTRACT_ID, 'Staking')
     const op = getStakingContract().call('claim_rewards', addressToScVal(stakerAddress))
     const xdrBlob = await simulateAndPrepare(stakerAddress, op)
+    const signedXdr = await signTransaction(xdrBlob)
+    return submitSigned(signedXdr)
+}
+
+export async function transferStakingOwnership({ ownerAddress, newOwner, signTransaction }) {
+    requireContractId(STAKING_CONTRACT_ID, 'Staking')
+    const op = getStakingContract().call('transfer_ownership', addressToScVal(newOwner))
+    const xdrBlob = await simulateAndPrepare(ownerAddress, op)
+    const signedXdr = await signTransaction(xdrBlob)
+    return submitSigned(signedXdr)
+}
+
+export async function updateStakeToken({ ownerAddress, stakeToken, signTransaction }) {
+    requireContractId(STAKING_CONTRACT_ID, 'Staking')
+    const op = getStakingContract().call('update_stake_token', addressToScVal(stakeToken))
+    const xdrBlob = await simulateAndPrepare(ownerAddress, op)
+    const signedXdr = await signTransaction(xdrBlob)
+    return submitSigned(signedXdr)
+}
+
+export async function updateMinLockupDays({ ownerAddress, minLockupDays, signTransaction }) {
+    requireContractId(STAKING_CONTRACT_ID, 'Staking')
+    const op = getStakingContract().call('update_min_lockup_days', u32ToScVal(minLockupDays))
+    const xdrBlob = await simulateAndPrepare(ownerAddress, op)
     const signedXdr = await signTransaction(xdrBlob)
     return submitSigned(signedXdr)
 }
@@ -783,6 +864,47 @@ export async function claimLaunchpadRefund({ buyerAddress, saleId, signTransacti
 export async function reclaimUnsoldTokens({ ownerAddress, saleId, signTransaction }) {
     requireContractId(LAUNCHPAD_CONTRACT_ID, 'Launchpad')
     const op = getLaunchpadContract().call('reclaim_unsold_tokens', u32ToScVal(saleId))
+    const xdrBlob = await simulateAndPrepare(ownerAddress, op)
+    const signedXdr = await signTransaction(xdrBlob)
+    return submitSigned(signedXdr)
+}
+
+export async function transferLaunchpadOwnership({ ownerAddress, newOwner, signTransaction }) {
+    requireContractId(LAUNCHPAD_CONTRACT_ID, 'Launchpad')
+    const op = getLaunchpadContract().call('transfer_ownership', addressToScVal(newOwner))
+    const xdrBlob = await simulateAndPrepare(ownerAddress, op)
+    const signedXdr = await signTransaction(xdrBlob)
+    return submitSigned(signedXdr)
+}
+
+export async function updateLaunchpadFeeSettings({
+    ownerAddress,
+    feeBasisPoints,
+    stakingShareBasisPoints,
+    signTransaction,
+}) {
+    requireContractId(LAUNCHPAD_CONTRACT_ID, 'Launchpad')
+    const op = getLaunchpadContract().call(
+        'update_fee_settings',
+        u32ToScVal(feeBasisPoints),
+        u32ToScVal(stakingShareBasisPoints),
+    )
+    const xdrBlob = await simulateAndPrepare(ownerAddress, op)
+    const signedXdr = await signTransaction(xdrBlob)
+    return submitSigned(signedXdr)
+}
+
+export async function updateLaunchpadTreasuryWallet({ ownerAddress, treasuryWallet, signTransaction }) {
+    requireContractId(LAUNCHPAD_CONTRACT_ID, 'Launchpad')
+    const op = getLaunchpadContract().call('update_treasury_wallet', addressToScVal(treasuryWallet))
+    const xdrBlob = await simulateAndPrepare(ownerAddress, op)
+    const signedXdr = await signTransaction(xdrBlob)
+    return submitSigned(signedXdr)
+}
+
+export async function updateLaunchpadStakingContract({ ownerAddress, stakingContract, signTransaction }) {
+    requireContractId(LAUNCHPAD_CONTRACT_ID, 'Launchpad')
+    const op = getLaunchpadContract().call('update_staking_contract', addressToScVal(stakingContract))
     const xdrBlob = await simulateAndPrepare(ownerAddress, op)
     const signedXdr = await signTransaction(xdrBlob)
     return submitSigned(signedXdr)
