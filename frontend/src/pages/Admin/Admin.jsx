@@ -105,6 +105,26 @@ function ActionRow({
     )
 }
 
+function AccessState({ variant, eyebrow, title, description, meta }) {
+    const iconClass = variant === 'denied'
+        ? `${styles.stateIcon} ${styles.stateIconDenied}`
+        : `${styles.stateIcon} ${styles.stateIconConnect}`
+
+    return (
+        <div className={styles.page}>
+            <div className={styles.stateShell}>
+                <div className={styles.stateCard}>
+                    <div className={iconClass} aria-hidden="true" />
+                    <span className={styles.stateEyebrow}>{eyebrow}</span>
+                    <h1 className={styles.stateTitle}>{title}</h1>
+                    <p className={styles.stateText}>{description}</p>
+                    {meta ? <div className={styles.stateMeta}>{meta}</div> : null}
+                </div>
+            </div>
+        </div>
+    )
+}
+
 export default function Admin() {
     const [address, setAddress] = useState(null)
     const [form, setForm] = useState(INITIAL_FORMS)
@@ -250,12 +270,54 @@ export default function Admin() {
     })
 
     if (!address) {
+        return (
+            <AccessState
+                variant="connect"
+                eyebrow="Admin Access"
+                title="Connect your wallet"
+                description="Connect the platform owner wallet to open admin controls for treasury, registry, launchpad, crowdfunding, and staking."
+                meta={
+                    <div className={styles.stateMetaRow}>
+                        <span className={styles.stateMetaLabel}>Status</span>
+                        <span className={styles.stateMetaValue}>Wallet not connected</span>
+                    </div>
+                }
+            />
+        )
+    }
+
+    if (!hasAdminAccess) {
+        return (
+            <AccessState
+                variant="denied"
+                eyebrow="Access Restricted"
+                title="Admin permissions required"
+                description="This wallet is connected, but it does not currently own any of the admin-controlled contracts used by the platform."
+                meta={
+                    <>
+                        <div className={styles.stateMetaRow}>
+                            <span className={styles.stateMetaLabel}>Connected wallet</span>
+                            <span className={styles.stateMetaValue}>{truncateAddress(address, 8, 8)}</span>
+                        </div>
+                        <div className={styles.stateMetaRow}>
+                            <span className={styles.stateMetaLabel}>Requirement</span>
+                            <span className={styles.stateMetaValue}>Must match at least one contract owner</span>
+                        </div>
+                    </>
+                }
+            />
+        )
+    }
+
+    /* if (!address && address === '__unused__') {
         return <div className={styles.page}><div className={styles.empty}><span className={styles.emptyIcon}>â—ˆ</span><p>Connect your wallet to access the admin panel</p></div></div>
     }
 
     if (!hasAdminAccess) {
         return <div className={styles.page}><div className={styles.denied}><span className={styles.deniedIcon}>âœ•</span><h2 className={styles.deniedTitle}>Access Denied</h2><p className={styles.deniedText}>This page is restricted to wallet addresses that own at least one admin-controlled contract.</p></div></div>
     }
+
+    } */
 
     const loadingAny = crowdfundingLoading || registryLoading || launchpadLoading || stakingLoading
 

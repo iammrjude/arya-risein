@@ -361,6 +361,141 @@
   animation: shimmer 1.5s infinite;
 }
 
+.stateShell {
+  min-height: calc(100vh - 180px);
+  display: grid;
+  place-items: center;
+}
+
+.stateCard {
+  width: min(100%, 620px);
+  background:
+    radial-gradient(circle at top, rgba(124, 106, 255, 0.14), transparent 55%),
+    var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.24);
+}
+
+.stateIcon {
+  width: 68px;
+  height: 68px;
+  border-radius: 20px;
+  border: 1px solid rgba(124, 106, 255, 0.25);
+  background: rgba(124, 106, 255, 0.08);
+  position: relative;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.stateIcon::before,
+.stateIcon::after {
+  content: "";
+  position: absolute;
+}
+
+.stateIconConnect::before {
+  width: 28px;
+  height: 18px;
+  border: 2px solid var(--accent-bright);
+  border-radius: 8px;
+  top: 25px;
+  left: 19px;
+}
+
+.stateIconConnect::after {
+  width: 12px;
+  height: 12px;
+  border-top: 2px solid var(--accent-bright);
+  border-right: 2px solid var(--accent-bright);
+  transform: rotate(45deg);
+  top: 28px;
+  right: 15px;
+}
+
+.stateIconDenied {
+  border-color: rgba(255, 77, 109, 0.22);
+  background: rgba(255, 77, 109, 0.08);
+}
+
+.stateIconDenied::before,
+.stateIconDenied::after {
+  width: 30px;
+  height: 2px;
+  background: var(--error);
+  top: 33px;
+  left: 19px;
+}
+
+.stateIconDenied::before {
+  transform: rotate(45deg);
+}
+
+.stateIconDenied::after {
+  transform: rotate(-45deg);
+}
+
+.stateEyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--accent-bright);
+}
+
+.stateTitle {
+  margin: 0;
+  font-size: clamp(1.8rem, 5vw, 2.5rem);
+  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--text-primary);
+}
+
+.stateText {
+  margin: 0;
+  max-width: 46ch;
+  font-size: clamp(14px, 2.4vw, 16px);
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+.stateMeta {
+  width: 100%;
+  margin-top: 6px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stateMetaRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.stateMetaLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.stateMetaValue {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-primary);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
 .empty {
   text-align: center;
   padding: 40px;
@@ -411,6 +546,15 @@
     padding: 32px 16px 48px;
   }
 
+  .stateShell {
+    min-height: calc(100vh - 150px);
+  }
+
+  .stateCard {
+    padding: 26px 20px;
+    border-radius: 20px;
+  }
+
   .header {
     flex-direction: column;
     align-items: flex-start;
@@ -449,6 +593,51 @@
 @media (max-width: 480px) {
   .page {
     padding: 28px 14px 42px;
+  }
+
+  .stateShell {
+    min-height: calc(100vh - 132px);
+  }
+
+  .stateCard {
+    padding: 24px 16px;
+    gap: 12px;
+  }
+
+  .stateIcon {
+    width: 60px;
+    height: 60px;
+    border-radius: 18px;
+  }
+
+  .stateIconConnect::before {
+    width: 24px;
+    height: 16px;
+    top: 22px;
+    left: 17px;
+  }
+
+  .stateIconConnect::after {
+    width: 10px;
+    height: 10px;
+    top: 25px;
+    right: 14px;
+  }
+
+  .stateIconDenied::before,
+  .stateIconDenied::after {
+    width: 26px;
+    top: 29px;
+    left: 17px;
+  }
+
+  .stateMetaRow {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .stateMetaValue {
+    text-align: left;
   }
 
   .section {
