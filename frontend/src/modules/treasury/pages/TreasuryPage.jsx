@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { usePlatformSettings, useRegistryConfig } from '../../../hooks/useContract'
 import { useWallet } from '../../../hooks/useWallet'
 import {
@@ -56,7 +56,7 @@ export default function TreasuryPage() {
     return () => clearInterval(interval)
   }, [getAddress])
 
-  async function refreshSnapshot() {
+  const refreshSnapshot = useCallback(async () => {
     if (!treasuryWallet) return
 
     setLoading(true)
@@ -69,11 +69,11 @@ export default function TreasuryPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [treasuryWallet])
 
   useEffect(() => {
     refreshSnapshot()
-  }, [treasuryWallet])
+  }, [refreshSnapshot])
 
   const treasuryStats = useMemo(() => ([
     { label: 'Treasury Wallet', value: treasuryWallet ? truncateAddress(treasuryWallet, 8, 8) : 'Not configured' },
