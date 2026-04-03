@@ -1,11 +1,13 @@
 .page {
   min-height: 100%;
   padding: 40px 24px 60px;
+  overflow-x: clip;
 }
 
 .container {
   max-width: 800px;
   margin: 0 auto;
+  min-width: 0;
 }
 
 .header {
@@ -16,7 +18,7 @@
 }
 
 .title {
-  font-size: 28px;
+  font-size: clamp(1.85rem, 3.8vw, 2.25rem);
   font-weight: 800;
   letter-spacing: -0.03em;
   color: var(--text-primary);
@@ -50,6 +52,7 @@
   border-radius: 16px;
   padding: 24px;
   animation: fadeIn 0.3s ease;
+  min-width: 0;
 }
 
 .cardHeader {
@@ -61,6 +64,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .cardTitle {
@@ -221,4 +225,34 @@
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 32px 16px 48px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .createBtn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .card {
+    padding: 20px;
+  }
+
+  .cardMeta {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .raised {
+    align-items: flex-start;
+  }
 }

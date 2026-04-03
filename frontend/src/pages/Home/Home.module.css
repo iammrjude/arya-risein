@@ -23,7 +23,7 @@
 }
 
 .heroTitle {
-  font-size: 40px;
+  font-size: clamp(2rem, 5vw, 3.1rem);
   font-weight: 800;
   letter-spacing: -0.03em;
   color: var(--text-primary);
@@ -32,7 +32,7 @@
 }
 
 .heroSubtitle {
-  font-size: 16px;
+  font-size: clamp(14px, 1.8vw, 16px);
   color: var(--text-secondary);
   max-width: 480px;
   margin: 0 auto;
@@ -106,7 +106,7 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
   gap: 20px;
 }
 
@@ -171,6 +171,5 @@
 }
 
 @media (max-width: 680px) {
-  .heroTitle { font-size: 28px; }
   .grid { grid-template-columns: 1fr; }
 }

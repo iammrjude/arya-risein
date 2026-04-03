@@ -87,7 +87,7 @@ export default function Header() {
             aria-expanded={mobileOpen}
             aria-label="Toggle menu"
           >
-            <RxHamburgerMenu size={22} color="#A78BFA" />
+            <RxHamburgerMenu className={styles.menuIcon} color="#A78BFA" />
           </button>
         </div>
       </div>

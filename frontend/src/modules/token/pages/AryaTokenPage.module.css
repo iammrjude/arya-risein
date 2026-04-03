@@ -27,7 +27,7 @@
 }
 
 .heroTitle {
-  font-size: 40px;
+  font-size: clamp(2rem, 5vw, 3.1rem);
   font-weight: 800;
   letter-spacing: -0.03em;
   color: var(--text-primary);
@@ -36,7 +36,7 @@
 }
 
 .heroSubtitle {
-  font-size: 16px;
+  font-size: clamp(14px, 1.8vw, 16px);
   color: var(--text-secondary);
   max-width: 580px;
   margin: 0 auto;
@@ -242,10 +242,6 @@
   .swapMeta,
   .swapPanel {
     grid-template-columns: 1fr;
-  }
-
-  .heroTitle {
-    font-size: 28px;
   }
 
   .container {

@@ -39,7 +39,7 @@
 .title {
   max-width: 860px;
   margin: 0 auto 12px;
-  font-size: 40px;
+  font-size: clamp(2rem, 5.2vw, 3.4rem);
   font-weight: 800;
   line-height: 1.05;
   letter-spacing: -0.03em;
@@ -51,7 +51,7 @@
   max-width: 580px;
   margin: 0 auto;
   color: var(--text-secondary);
-  font-size: 16px;
+  font-size: clamp(14px, 1.8vw, 16px);
   line-height: 1.6;
   position: relative;
 }
@@ -106,7 +106,7 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
   gap: 20px;
   margin-bottom: 20px;
 }
@@ -185,9 +185,6 @@
     grid-template-columns: 1fr;
   }
 
-  .title {
-    font-size: 28px;
-  }
 }
 
 @media (max-width: 520px) {

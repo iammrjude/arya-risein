@@ -1,11 +1,13 @@
 .page {
   min-height: 100%;
   padding: 40px 24px 60px;
+  overflow-x: clip;
 }
 
 .container {
   max-width: 960px;
   margin: 0 auto;
+  min-width: 0;
 }
 
 .header {
@@ -21,7 +23,7 @@
 }
 
 .title {
-  font-size: 32px;
+  font-size: clamp(1.9rem, 4vw, 2.4rem);
   font-weight: 800;
   letter-spacing: -0.03em;
   color: var(--text-primary);
@@ -265,5 +267,8 @@
   .grid {
     grid-template-columns: 1fr;
   }
-  .title { font-size: 24px; }
+
+  .page {
+    padding: 32px 16px 48px;
+  }
 }
