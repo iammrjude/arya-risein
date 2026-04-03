@@ -6,16 +6,19 @@ const MODULES = [
     title: 'Crowdfunding',
     description: 'Single-asset XLM or USDC campaigns with refunds, organizer controls, and staking-powered fee sharing.',
     to: '/crowdfunding',
+    cta: 'Explore campaigns',
   },
   {
     title: 'Launchpad',
     description: 'Raise capital for token launches with soft caps, hard caps, refunds, and protocol revenue flowing into staking.',
     to: '/launchpad',
+    cta: 'Explore launches',
   },
   {
     title: 'Staking',
     description: 'Stake ARYA to earn protocol rewards in separate XLM and USDC pools, with upgrade-ready reward accounting.',
     to: '/staking/xlm',
+    cta: 'View staking pools',
   },
 ]
 
@@ -24,11 +27,9 @@ export default function LandingPage() {
     <div className={styles.page}>
       <section className={styles.hero}>
         <div className={styles.heroGlow} />
-        <p className={styles.kicker}>Arya on Stellar</p>
-        <h1 className={styles.title}>Crowdfunding, launchpad, and ARYA staking in one modular platform.</h1>
+        <h1 className={styles.title}>Fund the future you want to see.</h1>
         <p className={styles.subtitle}>
-          Arya expands the original crowdfunding prototype into an upgradeable multi-product ecosystem with shared treasury logic,
-          staking rewards, and discoverable mobile-first navigation.
+          Arya is where communities fund promising ideas, explore new token launches, and stake ARYA for rewards in one connected ecosystem.
         </p>
         <div className={styles.actions}>
           <Link to="/crowdfunding" className={styles.primaryCta}>Explore Crowdfunding</Link>
@@ -41,7 +42,7 @@ export default function LandingPage() {
           <Link key={module.title} to={module.to} className={styles.card}>
             <h2 className={styles.cardTitle}>{module.title}</h2>
             <p className={styles.cardText}>{module.description}</p>
-            <span className={styles.cardLink}>Open module →</span>
+            <span className={styles.cardLink}>{module.cta} -&gt;</span>
           </Link>
         ))}
       </section>
