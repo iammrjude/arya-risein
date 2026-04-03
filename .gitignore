@@ -4,6 +4,7 @@ deployment.txt
 
 # Rust build artifacts
 contract/target/
+contract/coverage/
 **/*.pdb
 **/*.rlib
 **/*.rmeta
