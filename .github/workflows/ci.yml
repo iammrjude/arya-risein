@@ -28,6 +28,24 @@ jobs:
       - name: Build Wasm contracts
         run: bash scripts/build-all.sh
 
+  contract-coverage:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: contract
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install tarpaulin
+        run: cargo install cargo-tarpaulin --locked
+      - name: Generate contract coverage report
+        run: cargo tarpaulin --config tarpaulin.toml
+      - name: Upload contract coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: contract-coverage
+          path: contract/coverage
+
   frontend:
     runs-on: ubuntu-latest
     defaults:

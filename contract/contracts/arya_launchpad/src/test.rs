@@ -105,6 +105,46 @@ fn successful_sale_shares_fee_with_staking() {
 }
 
 #[test]
+fn sale_getters_contribution_and_refund_paths_work() {
+    let s = setup();
+    let start = s.env.ledger().timestamp() + 1;
+    let end = start + 10;
+    let sale_id = s.client.create_sale(
+        &s.project_owner,
+        &s.sale_token,
+        &10_0000000i128,
+        &100i128,
+        &150_0000000i128,
+        &200_0000000i128,
+        &start,
+        &end,
+        &FundingAsset::Xlm,
+    );
+
+    assert_eq!(s.client.get_sale_count(), 1u32);
+    let created = s.client.get_sale(&sale_id);
+    assert_eq!(created.status, SaleStatus::Active);
+
+    s.env.ledger().set_timestamp(start + 1);
+    s.client.contribute(&s.buyer, &sale_id, &100_0000000i128);
+    assert_eq!(
+        s.client.get_contribution(&sale_id, &s.buyer),
+        100_0000000i128
+    );
+
+    s.env.ledger().set_timestamp(end + 1);
+    let before = s.xlm_client.balance(&s.buyer);
+    s.client.claim_refund(&s.buyer, &sale_id);
+    let after = s.xlm_client.balance(&s.buyer);
+    assert_eq!(after - before, 100_0000000i128);
+
+    s.client.reclaim_unsold_tokens(&sale_id);
+    let failed_sale = s.client.get_sale(&sale_id);
+    assert_eq!(failed_sale.status, SaleStatus::Failed);
+    assert!(failed_sale.unsold_reclaimed);
+}
+
+#[test]
 fn owner_can_transfer_ownership() {
     let s = setup();
     let new_owner = Address::generate(&s.env);

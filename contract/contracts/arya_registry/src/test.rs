@@ -46,3 +46,20 @@ fn registry_updates_addresses() {
     let updated = client.get_config();
     assert_eq!(updated.arya_token, new_arya_token);
 }
+
+#[test]
+fn owner_can_transfer_registry_ownership() {
+    let env = Env::default();
+    env.mock_all_auths();
+    let contract_id = env.register(AryaRegistry, ());
+    let client = AryaRegistryClient::new(&env, &contract_id);
+
+    let config = make_config(&env);
+    client.initialize(&config);
+
+    let new_owner = Address::generate(&env);
+    client.transfer_ownership(&new_owner);
+
+    let updated = client.get_config();
+    assert_eq!(updated.owner, new_owner);
+}

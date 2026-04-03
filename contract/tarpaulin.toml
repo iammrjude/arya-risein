@@ -1,0 +1,7 @@
+[default]
+workspace = true
+all-features = true
+out = ["Html", "Xml", "Lcov"]
+output-dir = "coverage"
+timeout = "300s"
+skip-clean = false

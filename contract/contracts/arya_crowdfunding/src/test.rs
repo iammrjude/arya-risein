@@ -97,6 +97,39 @@ fn successful_xlm_withdraw_sends_reward_share_to_staking() {
 }
 
 #[test]
+fn campaign_lifecycle_getters_and_extension_work() {
+    let s = setup();
+    let deadline = s.env.ledger().timestamp() + 10;
+    let campaign_id = s.client.create_campaign(
+        &s.organizer,
+        &String::from_str(&s.env, "Extend Me"),
+        &String::from_str(&s.env, "Needs more time"),
+        &100_0000000i128,
+        &deadline,
+        &7u32,
+        &FundingAsset::Xlm,
+    );
+
+    assert_eq!(s.client.get_campaign_count(), 1u32);
+    let created = s.client.get_campaign(&campaign_id);
+    assert_eq!(created.title, String::from_str(&s.env, "Extend Me"));
+    assert_eq!(created.status, CampaignStatus::Active);
+
+    s.client.donate(&s.donor, &campaign_id, &80_0000000i128);
+    assert_eq!(
+        s.client.get_donor_amount(&campaign_id, &s.donor),
+        80_0000000i128
+    );
+
+    s.env.ledger().set_timestamp(deadline + 1);
+    s.client.extend_deadline(&campaign_id);
+
+    let updated = s.client.get_campaign(&campaign_id);
+    assert!(updated.extension_used);
+    assert_eq!(updated.deadline, deadline + (7 * 24 * 60 * 60));
+}
+
+#[test]
 fn usdc_campaign_refund_works_after_failure() {
     let s = setup();
     let deadline = s.env.ledger().timestamp() + 30 * 24 * 60 * 60;
@@ -115,8 +148,30 @@ fn usdc_campaign_refund_works_after_failure() {
     s.env.ledger().set_timestamp(40 * 24 * 60 * 60);
     assert!(s.client.is_campaign_failed(&campaign_id));
     s.client.claim_refund(&s.donor, &campaign_id);
+    assert!(s.client.is_refund_claimed(&campaign_id, &s.donor));
     let after = s.usdc_client.balance(&s.donor);
     assert_eq!(after - before, 20_0000000i128);
+}
+
+#[test]
+fn organizer_can_mark_campaign_as_failed() {
+    let s = setup();
+    let deadline = s.env.ledger().timestamp() + 30 * 24 * 60 * 60;
+    let campaign_id = s.client.create_campaign(
+        &s.organizer,
+        &String::from_str(&s.env, "Manual Fail"),
+        &String::from_str(&s.env, "Organizer action"),
+        &100_0000000i128,
+        &deadline,
+        &7u32,
+        &FundingAsset::Xlm,
+    );
+
+    s.client.mark_as_failed(&campaign_id);
+
+    let campaign = s.client.get_campaign(&campaign_id);
+    assert_eq!(campaign.status, CampaignStatus::Failed);
+    assert!(s.client.is_campaign_failed(&campaign_id));
 }
 
 #[test]
@@ -127,6 +182,23 @@ fn owner_can_update_action_window_days() {
 
     let settings = s.client.get_platform_settings();
     assert_eq!(settings.action_window_days, 14u32);
+}
+
+#[test]
+fn owner_can_update_crowdfunding_settings() {
+    let s = setup();
+    let new_treasury = Address::generate(&s.env);
+    let new_staking = Address::generate(&s.env);
+
+    s.client.update_fee_settings(&300u32, &5500u32);
+    s.client.update_treasury_wallet(&new_treasury);
+    s.client.update_staking_contract(&new_staking);
+
+    let settings = s.client.get_platform_settings();
+    assert_eq!(settings.fee_basis_points, 300u32);
+    assert_eq!(settings.staking_share_basis_points, 5500u32);
+    assert_eq!(settings.treasury_wallet, new_treasury);
+    assert_eq!(settings.staking_contract, new_staking);
 }
 
 #[test]
